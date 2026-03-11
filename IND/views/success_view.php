@@ -32,7 +32,7 @@ Student ID: 24810144S
 </header>
 
 <main>
-    <section class="result-card">
+    <section class="result-card result-success">
         <div class="result-badge">Reservation Approved</div>
         <h2>Thank You!</h2>
 
