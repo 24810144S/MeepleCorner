@@ -253,4 +253,6 @@ main {
     gap: 10px;
     align-items: flex-start;
   }
+  
 }
+.review-card { width: 85%; margin: 30px auto; background: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); padding: 40px 80px; } .review-card h2 { margin-top: 0; color: var(--blue); border-left: 5px solid var(--orange); padding-left: 10px; } .review-table { width: 100%; border-collapse: collapse; margin-top: 20px; } .review-table th, .review-table td { padding: 14px 12px; border-bottom: 1px solid #d7e2ef; vertical-align: top; } .review-table th { width: 280px; text-align: left; color: var(--blue-dark); background: #f7fbff; } .review-actions { margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap; } .review-actions button { border: none; padding: 11px 18px; border-radius: 6px; cursor: pointer; font-size: 15px; } .back-btn { background: #7b8794; color: #ffffff; } .back-btn:hover { background: #59636e; } .confirm-btn { background: var(--blue); color: #ffffff; } .confirm-btn:hover { background: var(--orange); } .hint-box { background: #eef4fb; border: 1px solid #d7e2ef; border-radius: 8px; padding: 16px 18px; margin-top: 20px; } @media (max-width: 900px) { .review-card { width: 92%; padding: 28px 22px; } .review-table th, .review-table td { display: block; width: 100%; } }
