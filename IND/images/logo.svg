@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- propellers -->
+    <line x1="8" y1="18" x2="18" y2="18"></line>
+    <line x1="46" y1="18" x2="56" y2="18"></line>
+
+    <!-- arms -->
+    <line x1="18" y1="18" x2="26" y2="26"></line>
+    <line x1="46" y1="18" x2="38" y2="26"></line>
+
+    <!-- drone body -->
+    <rect x="24" y="26" width="16" height="6" rx="2"></rect>
+
+    <!-- landing legs -->
+    <line x1="26" y1="32" x2="22" y2="40"></line>
+    <line x1="38" y1="32" x2="42" y2="40"></line>
+
+    <!-- camera gimbal -->
+    <circle cx="32" cy="36" r="3"></circle>
+
+  </g>
+</svg>
