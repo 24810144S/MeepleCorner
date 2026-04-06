@@ -14,7 +14,7 @@ Route::post('/register', [MemberController::class, 'store']);
 Route::get('/login', [AuthController::class, 'showLogin']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/login-failed', [AuthController::class, 'failed']);
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/reservation', [ReservationController::class, 'create']);
 Route::post('/reservation', [ReservationController::class, 'store']);
