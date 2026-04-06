@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+// Change this line to use Authenticatable
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Member extends Model
+class Member extends Authenticatable
 {
+    use Notifiable;
+
     protected $fillable = [
         'last_name',
         'first_name',
@@ -14,5 +18,9 @@ class Member extends Model
         'email',
         'password',
         'subscribe_events',
+    ];
+
+    protected $hidden = [
+        'password', 'remember_token',
     ];
 }

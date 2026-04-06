@@ -16,7 +16,16 @@ class ReservationController extends Controller
 
         $spaces = Space::where('is_active', true)->get();
 
-        return view('reservations.create', compact('spaces'));
+        // Fetch existing reservations with their related space
+        $reservations = Reservation::with('space')->latest()->get();
+
+        // Define time slot types for filter links (distinct values from DB or a default list)
+        $types = Reservation::distinct('time_slot')->pluck('time_slot')->toArray();
+        if (empty($types)) {
+            $types = ['Breakfast', 'Lunch', 'Dinner']; // fallback
+        }
+
+        return view('reservations.create', compact('spaces', 'reservations', 'types'));
     }
 
     public function store(Request $request)
