@@ -5,13 +5,15 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ReservationController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\BoardGameController;
 
 Route::get('/', [HomeController::class, 'index']);
 
 Route::get('/register', [MemberController::class, 'create']);
 Route::post('/register', [MemberController::class, 'store']);
 
-Route::get('/login', [AuthController::class, 'showLogin']);
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/login-failed', [AuthController::class, 'failed']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -29,3 +31,6 @@ Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'
 //260407_forgetpassword function @Sha
 Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm']);
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+
+Route::get('/menu', [MenuController::class, 'index'])->name('menu');
+Route::get('/board-games', [BoardGameController::class, 'index'])->name('board-games');
