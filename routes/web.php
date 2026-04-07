@@ -20,3 +20,12 @@ Route::get('/reservation', [ReservationController::class, 'create']);
 Route::post('/reservation', [ReservationController::class, 'store']);
 
 Route::get('/thank-you/{reservation}', [ReservationController::class, 'thankYou']);
+use App\Http\Controllers\PasswordResetController;
+
+//260407_forgetpassword function @Sha
+Route::get('/forgot-password', [PasswordResetController::class, 'showRequestForm']);
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
+
+//260407_forgetpassword function @Sha
+Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm']);
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
