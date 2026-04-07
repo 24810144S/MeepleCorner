@@ -48,10 +48,10 @@
             <a href="#" class="sidebar-item active flex items-center px-4 py-4 rounded-sm">
                 <i class="fas fa-calendar-alt w-6 text-xs"></i> <span>Reservations</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center px-4 py-4 rounded-sm">
+            <a href="{{ route('board-games') }}" class="sidebar-item flex items-center px-4 py-4 rounded-sm">
                 <i class="fas fa-chess-knight w-6 text-xs"></i> <span>Game Library</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center px-4 py-4 rounded-sm">
+            <a href="{{ route('menu') }}" class="sidebar-item flex items-center px-4 py-4 rounded-sm">
                 <i class="fas fa-coffee w-6 text-xs"></i> <span>Menu</span>
             </a>
         </nav>
