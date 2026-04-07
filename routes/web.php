@@ -34,3 +34,14 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
 
 Route::get('/menu', [MenuController::class, 'index'])->name('menu');
 Route::get('/board-games', [BoardGameController::class, 'index'])->name('board-games');
+
+//260408_Profile @fj
+Route::get('/profile', [MemberController::class, 'profile'])->middleware('auth.session');
+Route::post('/profile', [MemberController::class, 'updateProfile'])->middleware('auth.session');
+
+//260408_Reservation History & Cancel @fj
+Route::get('/reservation-history', [ReservationController::class, 'history'])->middleware('auth.session');
+Route::delete('/reservation/{reservation}', [ReservationController::class, 'cancel'])->middleware('auth.session');
+
+//260408_API route for availability @fj
+Route::get('/api/available-spaces', [ReservationController::class, 'getAvailableSpaces']);

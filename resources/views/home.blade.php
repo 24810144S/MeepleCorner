@@ -94,6 +94,15 @@
 
             <div class="absolute -top-10 -right-10 w-40 h-40 border border-gold rounded-full opacity-20"></div>
         </div>
+        <div class="space-x-8 text-[11px] uppercase tracking-[0.2em] font-medium text-gray-500">
+            <a href="/" class="hover:text-gold transition">Home</a>
+            <a href="/reservation" class="hover:text-gold transition">Reservations</a>
+            <a href="/reservation-history" class="hover:text-gold transition">History</a>
+            <a href="/profile" class="hover:text-gold transition">Profile</a>
+            <a href="/board-games" class="hover:text-gold transition">Games</a>
+            <a href="/menu" class="hover:text-gold transition">Menu</a>
+            <a href="/login" class="text-gold font-bold">Login</a>
+        </div>
     </main>
 
     <footer class="p-10 flex flex-col md:flex-row justify-between items-center border-t border-gray-100 mt-20">

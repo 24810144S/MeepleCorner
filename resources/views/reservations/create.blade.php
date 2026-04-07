@@ -42,11 +42,17 @@
         </div>
 
         <nav class="flex-1 px-4 space-y-2">
-            <a href="#" class="sidebar-item flex items-center px-4 py-4 rounded-sm">
-                <i class="fas fa-th-large w-6 text-xs"></i> <span>Overview</span>
+            <a href="/" class="sidebar-item flex items-center px-4 py-4 rounded-sm">
+                <i class="fas fa-home w-6 text-xs"></i> <span>Home</span>
             </a>
-            <a href="#" class="sidebar-item active flex items-center px-4 py-4 rounded-sm">
+            <a href="/reservation" class="sidebar-item active flex items-center px-4 py-4 rounded-sm">
                 <i class="fas fa-calendar-alt w-6 text-xs"></i> <span>Reservations</span>
+            </a>
+            <a href="/reservation-history" class="sidebar-item flex items-center px-4 py-4 rounded-sm">
+                <i class="fas fa-history w-6 text-xs"></i> <span>History</span>
+            </a>
+            <a href="/profile" class="sidebar-item flex items-center px-4 py-4 rounded-sm">
+                <i class="fas fa-user w-6 text-xs"></i> <span>Profile</span>
             </a>
             <a href="{{ route('board-games') }}" class="sidebar-item flex items-center px-4 py-4 rounded-sm">
                 <i class="fas fa-chess-knight w-6 text-xs"></i> <span>Game Library</span>
@@ -55,7 +61,6 @@
                 <i class="fas fa-coffee w-6 text-xs"></i> <span>Menu</span>
             </a>
         </nav>
-
         <div class="p-8 border-t border-white/5">
              <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -96,108 +101,139 @@
                     <p class="text-[11px] uppercase tracking-[0.2em] text-gray-400 mt-1">Manual Entry System</p>
                 </div>
 
-                
-
-            <form method="POST" action="/reservation" class="space-y-10">
-                @csrf
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-2">
-                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest">Select Date</label>
-                        <input type="date" name="reservation_date" required class="w-full h-12 px-4 text-sm">
+                <form method="POST" action="/reservation" id="reservationForm" class="space-y-10">
+                    @csrf
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-2">
+                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest">Select Date</label>
+                            <input type="date" name="reservation_date" required class="w-full h-12 px-4 text-sm" min="{{ date('Y-m-d') }}" value="{{ old('reservation_date') }}">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest">Time Slot</label>
+                            <select name="time_slot" required class="w-full h-12 px-4 text-sm">
+                                <option value="">Select time slot</option>
+                                <option value="10:00-13:00" {{ old('time_slot') == '10:00-13:00' ? 'selected' : '' }}>10:00 - 13:00</option>
+                                <option value="13:00-16:00" {{ old('time_slot') == '13:00-16:00' ? 'selected' : '' }}>13:00 - 16:00</option>
+                                <option value="16:00-19:00" {{ old('time_slot') == '16:00-19:00' ? 'selected' : '' }}>16:00 - 19:00</option>
+                                <option value="19:00-22:00" {{ old('time_slot') == '19:00-22:00' ? 'selected' : '' }}>19:00 - 22:00</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="space-y-2">
-                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest">Time Slot</label>
-                        <select name="time_slot" required class="w-full h-12 px-4 text-sm">
-                            <option>14:00 - 17:00</option>
-                            <option>17:00 - 20:00</option>
-                            <option>20:00 - 23:00</option>
-                        </select>
-                    </div>
-                </div>
 
-                <div class="space-y-4">
-                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest">Select Your Atmosphere</label>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        @foreach ($spaces as $space)
-                            <label class="relative cursor-pointer group">
-                                <input type="radio" name="space_id" value="{{ $space->id }}" class="peer hidden" required>
-                                
-                                <div class="border border-gray-100 bg-white overflow-hidden transition-all duration-500 peer-checked:border-gold peer-checked:shadow-lg">
-                                    <div class="aspect-[4/3] bg-gray-200 relative overflow-hidden">
-                                        @if($space->image)
-                                            <img src="/images/{{ $space->image }}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700">
-                                        @else
-                                            <div class="w-full h-full flex flex-col items-center justify-center text-gray-300">
+                    <!-- Display validation errors -->
+                    @if($errors->any())
+                        <div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+                            @foreach($errors->all() as $error)
+                                <p>{{ $error }}</p>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    <div class="space-y-4">
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest">Select Your Atmosphere <span class="text-red-500">*</span></label>
+                        
+                        @error('space_id')
+                            <div class="text-red-500 text-xs mb-2">{{ $message }}</div>
+                        @enderror
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            @foreach ($spaces as $space)
+                                <label class="relative cursor-pointer group">
+                                    <input type="radio" name="space_id" value="{{ $space->id }}" class="peer hidden" required>
+                                    
+                                    <div class="border border-gray-100 bg-white overflow-hidden transition-all duration-500 peer-checked:border-gold peer-checked:shadow-lg">
+                                        <div class="aspect-[4/3] bg-gray-200 flex flex-col items-center justify-center text-gray-300">
+                                            @if($space->type == 'private')
+                                                <i class="fas fa-door-closed text-3xl mb-2"></i>
+                                            @elseif($space->type == 'premium')
+                                                <i class="fas fa-crown text-3xl mb-2"></i>
+                                            @else
                                                 <i class="fas fa-couch text-3xl mb-2"></i>
-                                                <span class="text-[9px] uppercase tracking-widest">No Preview</span>
-                                            </div>
-                                        @endif
-                                        <div class="absolute bottom-0 right-0 bg-black/80 text-white text-[9px] px-3 py-1 uppercase tracking-tighter">
-                                            {{ $space->capacity }} Seats
+                                            @endif
+                                            <span class="text-[9px] uppercase tracking-widest">{{ $space->type }}</span>
+                                        </div>
+                                        <div class="p-4">
+                                            <h4 class="serif text-lg text-gray-800">{{ $space->name }}</h4>
+                                            <p class="text-[9px] uppercase tracking-[0.2em] text-gold mt-1">{{ $space->capacity }} players</p>
+                                            <p class="text-[10px] text-gray-400 mt-2">{{ $space->description ?? '' }}</p>
                                         </div>
                                     </div>
-
-                                    <div class="p-4">
-                                        <h4 class="serif text-lg text-gray-800">{{ $space->name }}</h4>
-                                        <p class="text-[9px] uppercase tracking-[0.2em] text-gold mt-1">{{ $space->type }}</p>
+                                    <div class="absolute -top-2 -right-2 w-6 h-6 accent-gold rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+                                        <i class="fas fa-check text-white text-[10px]"></i>
                                     </div>
-                                </div>
-
-                                <div class="absolute -top-2 -right-2 w-6 h-6 accent-gold rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
-                                    <i class="fas fa-check text-white text-[10px]"></i>
-                                </div>
-                            </label>
-                        @endforeach
+                                </label>
+                            @endforeach
+                        </div>
+                        
+                        <!-- Add a hint message -->
+                        <p class="text-[10px] text-gray-400 mt-2 italic">Click on any table/room above to select it</p>
                     </div>
-                </div>
 
-                <div class="flex justify-end pt-6">
-                    <button type="submit" 
-                        class="accent-gold text-white text-[11px] font-bold uppercase tracking-[0.3em] px-12 py-5 hover:bg-black transition-all duration-500">
-                        Confirm Adventure
-                    </button>
-                </div>
-            </form>
+                    <div class="flex justify-end gap-4 pt-6">
+                        <button type="button" onclick="document.getElementById('reservationForm').reset()" 
+                            class="border border-gray-300 text-gray-500 text-[11px] font-bold uppercase tracking-[0.3em] px-8 py-4 hover:bg-gray-100 transition">
+                            Clear
+                        </button>
+                        <button type="submit" 
+                            class="accent-gold text-white text-[11px] font-bold uppercase tracking-[0.3em] px-12 py-4 hover:bg-black transition-all duration-500">
+                            Confirm Adventure
+                        </button>
+                    </div>
+                </form>
             </div>
 
-            <div class="bg-white border border-gray-100 shadow-sm overflow-hidden">
-                <div class="p-8 border-b border-gray-50 flex justify-between items-end">
-                    <div>
-                        <h3 class="serif text-2xl text-gray-800 italic">Past Adventures</h3>
-                        <p class="text-[10px] uppercase tracking-widest text-gray-400 mt-1">Reservation Archive</p>
+                <div class="bg-white border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="p-8 border-b border-gray-50 flex justify-between items-end">
+                        <div>
+                            <h3 class="serif text-2xl text-gray-800 italic">Your Reservations</h3>
+                            <p class="text-[10px] uppercase tracking-widest text-gray-400 mt-1">Your adventure history</p>
+                        </div>
                     </div>
-                    <button class="text-[11px] uppercase tracking-widest text-gold font-bold border-b border-gold pb-1">Export PDF</button>
+                    
+                    @if(isset($reservations) && $reservations->count() > 0)
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="bg-gray-50 text-[10px] font-bold uppercase tracking-[0.2em]">
+                                    <th class="px-8 py-5">Date</th>
+                                    <th class="px-8 py-5">Time Slot</th>
+                                    <th class="px-8 py-5">Table/Room</th>
+                                    <th class="px-8 py-5 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                @foreach($reservations as $res)
+                                <tr class="hover:bg-[#fdfcf6] transition-colors">
+                                    <td class="px-8 py-6 text-xs text-gray-500">{{ \Carbon\Carbon::parse($res->reservation_date)->format('Y-m-d') }}</td>
+                                    <td class="px-8 py-6 text-xs text-gray-600">{{ $res->time_slot }}</td>
+                                    <td class="px-8 py-6 text-[11px] uppercase tracking-widest font-bold text-gray-800">
+                                        <span class="border-l-2 border-gold pl-3">{{ $res->space->name }}</span>
+                                    </td>
+                                    <td class="px-8 py-6 text-right">
+                                        @if($res->reservation_date >= date('Y-m-d'))
+                                            <form method="POST" action="/reservation/{{ $res->id }}" onsubmit="return confirm('Cancel this reservation?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-gray-300 hover:text-red-600 transition-colors text-xs">
+                                                    <i class="fas fa-trash-alt"></i> Cancel
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="text-xs text-gray-400">Completed</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <div class="p-12 text-center">
+                            <i class="fas fa-calendar-alt text-4xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-400 italic text-sm">No reservations yet. Book your first adventure above!</p>
+                        </div>
+                    @endif
                 </div>
-                <table class="w-full text-left">
-                    <thead>
-                        <tr class="table-header text-[10px] font-bold uppercase tracking-[0.2em]">
-                            <th class="px-8 py-5">Date</th>
-                            <th class="px-8 py-5">Time Window</th>
-                            <th class="px-8 py-5">Designated Table</th>
-                            <th class="px-8 py-5 text-right">Manage</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-50">
-                        @forelse($reservations as $res)
-                        <tr class="hover:bg-[#fdfcf6] transition-colors">
-                            <td class="px-8 py-6 text-xs text-gray-500 tracking-wider">{{ $res->reservation_date }}</td>
-                            <td class="px-8 py-6 text-xs text-gray-600 font-medium">{{ $res->time_slot }}</td>
-                            <td class="px-8 py-6 text-[11px] uppercase tracking-widest font-bold text-gray-800">
-                                <span class="border-l-2 border-gold pl-3">{{ $res->space->name }}</span>
-                            </td>
-                            <td class="px-8 py-6 text-right">
-                                <button class="text-gray-300 hover:text-gold transition-colors mx-2 text-xs"><i class="fas fa-edit"></i></button>
-                                <button class="text-gray-300 hover:text-red-800 transition-colors mx-2 text-xs"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="4" class="p-16 text-center text-gray-300 italic text-sm serif">The archive is currently empty.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+
                 <div class="p-6 bg-[#fcfcfc] border-t border-gray-50 flex justify-center">
                     <span class="text-[9px] text-gray-400 uppercase tracking-[0.4em] font-bold">End of Records</span>
                 </div>
@@ -208,6 +244,31 @@
             © 2026 Meeple Corner Café — Established for the Strategic Mind
         </footer>
     </main>
-
+<script>
+    document.getElementById('reservationForm').addEventListener('submit', function(e) {
+        const selectedSpace = document.querySelector('input[name="space_id"]:checked');
+        if (!selectedSpace) {
+            e.preventDefault();
+            alert('⚠️ Please select a table or room before confirming your reservation.');
+            
+            // Highlight all space cards
+            document.querySelectorAll('.space-card').forEach(card => {
+                card.querySelector('div').classList.add('border-red-500', 'border-2');
+            });
+            
+            // Scroll to spaces section
+            document.querySelector('.space-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
+    
+    // Remove highlight when a space is selected
+    document.querySelectorAll('input[name="space_id"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.space-card div').forEach(div => {
+                div.classList.remove('border-red-500', 'border-2');
+            });
+        });
+    });
+</script>
 </body>
 </html>

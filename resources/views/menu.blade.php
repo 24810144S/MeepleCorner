@@ -28,8 +28,10 @@
             <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500 mt-2">Boutique Admin</p>
         </div>
         <nav class="flex-1 px-4 space-y-2">
-            <a href="#" class="sidebar-item flex items-center px-4 py-4 rounded-sm"><i class="fas fa-th-large w-6 text-xs"></i> <span>Overview</span></a>
-            <a href="/create" class="sidebar-item flex items-center px-4 py-4 rounded-sm"><i class="fas fa-calendar-alt w-6 text-xs"></i> <span>Reservations</span></a>
+            <a href="/" class="sidebar-item flex items-center px-4 py-4 rounded-sm"><i class="fas fa-home w-6 text-xs"></i> <span>Home</span></a>
+            <a href="/reservation" class="sidebar-item flex items-center px-4 py-4 rounded-sm"><i class="fas fa-calendar-alt w-6 text-xs"></i> <span>Reservations</span></a>
+            <a href="/reservation-history" class="sidebar-item flex items-center px-4 py-4 rounded-sm"><i class="fas fa-history w-6 text-xs"></i> <span>History</span></a>
+            <a href="/profile" class="sidebar-item flex items-center px-4 py-4 rounded-sm"><i class="fas fa-user w-6 text-xs"></i> <span>Profile</span></a>
             <a href="{{ route('board-games') }}" class="sidebar-item flex items-center px-4 py-4 rounded-sm"><i class="fas fa-chess-knight w-6 text-xs"></i> <span>Game Library</span></a>
             <a href="{{ route('menu') }}" class="sidebar-item active flex items-center px-4 py-4 rounded-sm"><i class="fas fa-coffee w-6 text-xs"></i> <span>Menu</span></a>
         </nav>
