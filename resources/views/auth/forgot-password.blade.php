@@ -58,6 +58,32 @@
                 Send Reset Link
             </button>
         </form>
+         <form method="POST" action="/forgot-password">
+            @csrf
+            <div class="mb-4">
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
+                <input type="email" name="email" value="{{ old('email') }}" required class="w-full h-12 px-4 text-sm">
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Security Question</label>
+                <select name="security_question" required class="w-full h-12 px-4 text-sm">
+                    <option value="">Select your question</option>
+                    <option>What is your mother's maiden name?</option>
+                    <option>What was your first pet's name?</option>
+                    <option>What city were you born in?</option>
+                </select>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Answer</label>
+                <input type="text" name="answer" required class="w-full h-12 px-4 text-sm">
+            </div>
+
+            <button type="submit" class="w-full accent-gold text-white text-[11px] font-bold uppercase tracking-[0.3em] py-4 hover:bg-black transition">
+                Verify & Reset Password
+            </button>
+        </form>
 
         <div class="mt-6 text-center">
             <a href="{{ route('login') }}" class="text-[10px] uppercase tracking-widest text-gold hover:underline">
