@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class ReservationController extends Controller
 {
-    public function create()
+    public function create(Request $request)
     {
         // Debug
         \Log::info('Reservation create accessed', [
@@ -20,21 +20,124 @@ class ReservationController extends Controller
         if (!session()->has('member_id')) {
             return redirect('/login');
         }
+        
         \Log::info('=== RESERVATION CREATE PAGE ===');
         \Log::info('Current member_id: ' . session('member_id'));
 
-        $spaces = Space::where('is_active', true)->get();
+        // Get filter parameters
+        $tableSizeFilter = $request->input('table_size_filter', 'all');
+        $privateRoomSizeFilter = $request->input('private_room_size_filter', 'all');
+        $selectedDate = $request->input('reservation_date');
+        $selectedTimeSlot = $request->input('time_slot');
+
+        // Get all active spaces
+        $query = Space::where('is_active', true);
+
+        // Apply table size filter (affects standard and premium tables only)
+        $tableTypes = ['standard', 'premium'];
+        
+        if ($tableSizeFilter === 'none') {
+            // Hide all tables - show ONLY private rooms
+            $query->where('type', 'private');
+        } elseif ($tableSizeFilter !== 'all') {
+            // Show matching tables + all private rooms
+            $query->where(function($q) use ($tableSizeFilter, $tableTypes) {
+                // Filter tables by size
+                switch ($tableSizeFilter) {
+                    case 'small':
+                        $q->where(function($sub) use ($tableTypes) {
+                            $sub->whereIn('type', $tableTypes)->where('capacity', '<=', 3);
+                        });
+                        break;
+                    case 'medium':
+                        $q->where(function($sub) use ($tableTypes) {
+                            $sub->whereIn('type', $tableTypes)->whereBetween('capacity', [4, 6]);
+                        });
+                        break;
+                    case 'large':
+                        $q->where(function($sub) use ($tableTypes) {
+                            $sub->whereIn('type', $tableTypes)->where('capacity', '>=', 7);
+                        });
+                        break;
+                }
+                // Also include all private rooms
+                $q->orWhere('type', 'private');
+            });
+        }
+        // If 'all', no filter on tables - show everything
+
+        // Apply private room size filter (affects private rooms only)
+        if ($privateRoomSizeFilter === 'none') {
+            // Hide all private rooms - show ONLY tables
+            $query->whereIn('type', $tableTypes);
+        } elseif ($privateRoomSizeFilter !== 'all') {
+            // Filter private rooms by size
+            $query->where(function($q) use ($privateRoomSizeFilter, $tableTypes) {
+                switch ($privateRoomSizeFilter) {
+                    case 'small_private':
+                        $q->where('type', 'private')->whereBetween('capacity', [2, 4]);
+                        break;
+                    case 'big_private':
+                        $q->where('type', 'private')->where('capacity', '>=', 5);
+                        break;
+                }
+                // Also include all tables (standard & premium)
+                $q->orWhereIn('type', $tableTypes);
+            });
+        }
+
+        $allSpaces = $query->get();
+
+        // Get booked space IDs for selected date/time
+        $bookedSpaceIds = [];
+        if ($selectedDate && $selectedTimeSlot) {
+            $bookedSpaceIds = Reservation::where('reservation_date', $selectedDate)
+                ->where('time_slot', $selectedTimeSlot)
+                ->pluck('space_id')
+                ->toArray();
+        }
+
+        // Mark spaces as available or not
+        $spaces = $allSpaces->map(function ($space) use ($bookedSpaceIds) {
+            $space->is_available = !in_array($space->id, $bookedSpaceIds);
+            return $space;
+        });
+
+        // Get user's reservations
         $reservations = Reservation::where('member_id', session('member_id'))
             ->with('space')
-            ->latest()
+            ->orderBy('reservation_date', 'desc')
             ->get();
 
         \Log::info('Found ' . $reservations->count() . ' reservations for member');
-        foreach($reservations as $res) {
-            \Log::info('Reservation: ' . $res->id . ' - Date: ' . $res->reservation_date);
-        }
 
-        return view('reservations.create', compact('spaces', 'reservations'));
+        // Define filter options for the view
+        $tableSizeOptions = [
+            'all' => 'All Tables',
+            'small' => 'Small Tables (1-3 players)',
+            'medium' => 'Medium Tables (4-6 players)',
+            'large' => 'Large Tables (7+ players)',
+            'none' => 'Hide All Tables (Show only Private Rooms)'
+        ];
+
+        $privateRoomSizeOptions = [
+            'all' => 'All Private Rooms',
+            'small_private' => 'Small Rooms (2-4 players)',
+            'big_private' => 'Big Rooms (5+ players)',
+            'none' => 'Hide All Rooms (Show only Tables)'
+        ];
+
+        return view('reservations.create', compact(
+            'spaces', 
+            'reservations', 
+            'tableSizeOptions',
+            'privateRoomSizeOptions',
+            'tableSizeFilter',
+            'privateRoomSizeFilter',
+            'selectedDate',
+            'selectedTimeSlot',
+            'bookedSpaceIds'
+        ));
     }
 
     public function store(Request $request)
@@ -52,7 +155,7 @@ class ReservationController extends Controller
 
         $validated = $request->validate([
             'reservation_date' => 'required|date|after_or_equal:today',
-            'time_slot' => 'required',
+            'time_slot' => 'required|in:10:00-13:00,13:00-16:00,16:00-19:00,19:00-22:00',
             'space_id' => 'required|exists:spaces,id',
         ]);
 
@@ -64,7 +167,7 @@ class ReservationController extends Controller
 
         if ($existing) {
             \Log::warning('Space already booked', $validated);
-            return back()->with('error', 'This space is already booked for that time.')->withInput();
+            return back()->withErrors(['space_id' => 'This space is already booked for the selected date and time.'])->withInput();
         }
 
         $reservation = Reservation::create([
@@ -74,7 +177,9 @@ class ReservationController extends Controller
             'time_slot' => $validated['time_slot'],
             'status' => 'confirmed',
         ]);
+        
         \Log::info('Reservation created successfully', ['reservation_id' => $reservation->id]);
+        
         return redirect('/thank-you/' . $reservation->id);
     }
 
@@ -92,7 +197,6 @@ class ReservationController extends Controller
 
         return view('reservations.thankyou', compact('reservation'));
     }
-
 
     public function history()
     {
