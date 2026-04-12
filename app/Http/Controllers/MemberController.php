@@ -21,7 +21,7 @@ class MemberController extends Controller
             'address' => 'required|max:255',
             'phone' => 'required|max:30',
             'email' => 'required|email|unique:members,email',
-            'password' => 'required|min:6',
+            'password' => 'required|min:6|confirmed',
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
@@ -32,17 +32,18 @@ class MemberController extends Controller
         return redirect('/login')->with('success', 'Registration successful! Please log in.');
     }
 
-    
+    // Redirect to profile info page
     public function profile()
     {
-        // Debug: Check if session exists
-        \Log::info('Profile accessed', [
-            'session_has_member_id' => session()->has('member_id'),
-            'member_id' => session('member_id'),
-            'all_session' => session()->all()
-        ]);
-        
-        // Check if user is logged in
+        if (!session()->has('member_id')) {
+            return redirect('/login');
+        }
+        return redirect('/profile/info');
+    }
+
+    // Profile Info (Read-only)
+    public function profileInfo()
+    {
         if (!session()->has('member_id')) {
             return redirect('/login');
         }
@@ -54,12 +55,29 @@ class MemberController extends Controller
             return redirect('/login');
         }
 
-        return view('members.profile', compact('member'));
+        return view('members.profile-info', compact('member'));
     }
 
+    // Profile Edit (Edit profile information)
+    public function profileEdit()
+    {
+        if (!session()->has('member_id')) {
+            return redirect('/login');
+        }
+
+        $member = Member::find(session('member_id'));
+        
+        if (!$member) {
+            session()->flush();
+            return redirect('/login');
+        }
+
+        return view('members.profile-edit', compact('member'));
+    }
+
+    // Update profile information
     public function updateProfile(Request $request)
     {
-        // Check if user is logged in
         if (!session()->has('member_id')) {
             return redirect('/login');
         }
@@ -74,15 +92,6 @@ class MemberController extends Controller
             'email' => 'required|email|unique:members,email,' . $member->id,
         ]);
 
-        // Only update password if provided
-        if ($request->filled('password')) {
-            $request->validate([
-                'password' => 'min:6|confirmed',
-            ]);
-            $validated['password'] = Hash::make($request->password);
-            $member->password = $validated['password'];
-        }
-
         $member->first_name = $validated['first_name'];
         $member->last_name = $validated['last_name'];
         $member->address = $validated['address'];
@@ -93,6 +102,31 @@ class MemberController extends Controller
         // Update session name
         session(['member_name' => $member->first_name . ' ' . $member->last_name]);
 
-        return redirect('/profile')->with('success', 'Profile updated successfully!');
+        return redirect('/profile/info')->with('success', 'Profile updated successfully!');
+    }
+
+    // Update password
+    public function updatePassword(Request $request)
+    {
+        if (!session()->has('member_id')) {
+            return redirect('/login');
+        }
+
+        $member = Member::find(session('member_id'));
+
+        $validated = $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        // Check current password
+        if (!Hash::check($validated['current_password'], $member->password)) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect.'])->withInput();
+        }
+
+        $member->password = Hash::make($validated['password']);
+        $member->save();
+
+        return redirect('/profile/edit')->with('success', 'Password changed successfully!');
     }
 }
