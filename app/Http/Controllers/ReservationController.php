@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Reservation;
 use App\Models\Space;
+use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -42,7 +43,6 @@ class ReservationController extends Controller
         } elseif ($tableSizeFilter !== 'all') {
             // Show matching tables + all private rooms
             $query->where(function($q) use ($tableSizeFilter, $tableTypes) {
-                // Filter tables by size
                 switch ($tableSizeFilter) {
                     case 'small':
                         $q->where(function($sub) use ($tableTypes) {
@@ -60,11 +60,9 @@ class ReservationController extends Controller
                         });
                         break;
                 }
-                // Also include all private rooms
                 $q->orWhere('type', 'private');
             });
         }
-        // If 'all', no filter on tables - show everything
 
         // Apply private room size filter (affects private rooms only)
         if ($privateRoomSizeFilter === 'none') {
@@ -81,7 +79,6 @@ class ReservationController extends Controller
                         $q->where('type', 'private')->where('capacity', '>=', 5);
                         break;
                 }
-                // Also include all tables (standard & premium)
                 $q->orWhereIn('type', $tableTypes);
             });
         }
@@ -198,13 +195,33 @@ class ReservationController extends Controller
         return view('reservations.thankyou', compact('reservation'));
     }
 
-    public function history()
+    public function cancel(Reservation $reservation)
     {
-        // Check if user is logged in
         if (!session()->has('member_id')) {
             return redirect('/login');
         }
 
+        if ($reservation->member_id != session('member_id')) {
+            return redirect('/profile/history')->with('error', 'You cannot cancel this reservation.');
+        }
+
+        if ($reservation->reservation_date < date('Y-m-d')) {
+            return redirect('/profile/history')->with('error', 'Cannot cancel past reservations.');
+        }
+
+        $reservation->delete();
+
+        return redirect('/profile/history')->with('success', 'Reservation cancelled successfully!');
+    }
+
+    public function profileHistory()
+    {
+        if (!session()->has('member_id')) {
+            return redirect('/login');
+        }
+
+        $member = Member::find(session('member_id'));
+        
         $reservations = Reservation::where('member_id', session('member_id'))
             ->with('space')
             ->orderBy('reservation_date', 'desc')
@@ -220,29 +237,7 @@ class ReservationController extends Controller
             return $res->reservation_date < $today;
         });
 
-        return view('reservations.history', compact('upcomingReservations', 'pastReservations'));
-    }
-
-    public function cancel(Reservation $reservation)
-    {
-        // Check if user is logged in
-        if (!session()->has('member_id')) {
-            return redirect('/login');
-        }
-
-        // Ensure user owns this reservation
-        if ($reservation->member_id != session('member_id')) {
-            return redirect('/reservation-history')->with('error', 'You cannot cancel this reservation.');
-        }
-
-        // Only allow cancellation if date is today or future
-        if ($reservation->reservation_date < date('Y-m-d')) {
-            return redirect('/reservation-history')->with('error', 'Cannot cancel past reservations.');
-        }
-
-        $reservation->delete();
-
-        return redirect('/reservation-history')->with('success', 'Reservation cancelled successfully!');
+        return view('members.profile-history', compact('upcomingReservations', 'pastReservations', 'member'));
     }
 
     // API endpoint for checking available spaces
