@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         /* ===== RESET & GLOBAL ===== */
         * {
@@ -218,6 +219,29 @@
         }
         .btn-reset:hover {
             background: rgba(212,165,116,0.1);
+        }
+
+        /* Gray/Disabled card style for default state */
+        .space-card-default {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(212,165,116,0.1);
+            border-radius: 28px;
+            overflow: hidden;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .space-card-default .space-image {
+            filter: grayscale(0.5);
+        }
+        .space-card-default .space-name {
+            color: var(--color-text-muted);
+        }
+        .space-card-default .space-capacity {
+            background: rgba(212,165,116,0.1);
+            color: var(--color-text-muted);
+        }
+        .space-card-default .space-description {
+            color: var(--color-text-muted);
         }
 
         /* ===== SPACE CARDS ===== */
@@ -429,6 +453,31 @@
             letter-spacing: 0.1em;
         }
 
+        /* Loading indicator */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--color-accent);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .navbar {
                 flex-direction: column;
@@ -458,6 +507,11 @@
 </head>
 <body>
 
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
     <!-- NAVBAR -->
     <nav class="navbar">
         <a href="/" class="logo">Meeple Corner Café</a>
@@ -486,16 +540,16 @@
 
     <!-- MAIN CONTENT (flex:1 ensures footer is pushed down) -->
     <main class="main-container">
-        @if($tableSizeFilter !== 'all' || $privateRoomSizeFilter !== 'all')
+        @if($tableSizeFilter !== 'all')
             <div class="flex flex-wrap gap-2 mb-4">
                 @if($tableSizeFilter !== 'all')
                     <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full text-gold">
-                        Table: {{ $tableSizeOptions[$tableSizeFilter] ?? $tableSizeFilter }}
+                        Table Filter: {{ $tableSizeOptions[$tableSizeFilter] ?? $tableSizeFilter }}
                     </span>
                 @endif
-                @if($privateRoomSizeFilter !== 'all')
+                @if($isPrivateBooking)
                     <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full text-gold">
-                        Room: {{ $privateRoomSizeOptions[$privateRoomSizeFilter] ?? $privateRoomSizeFilter }}
+                        Private Room Mode: ON
                     </span>
                 @endif
             </div>
@@ -513,55 +567,123 @@
                 </div>
             @endif
 
+            <!-- Auto-submit form - no Apply Filters button -->
             <form method="GET" action="/reservation" id="filterForm">
                 <div class="filter-grid">
                     <div>
                         <label class="filter-label">Date</label>
-                        <input type="date" name="reservation_date" value="{{ $selectedDate }}" class="filter-input" min="{{ date('Y-m-d') }}">
+                        <input type="date" name="reservation_date" id="reservation_date" value="{{ $selectedDate }}" class="filter-input auto-submit" min="{{ date('Y-m-d') }}">
                     </div>
                     <div>
-                        <label class="filter-label">Time Slot</label>
-                        <select name="time_slot" class="filter-select">
-                            <option value="">Select time</option>
-                            <option value="10:00-13:00" {{ $selectedTimeSlot == '10:00-13:00' ? 'selected' : '' }}>10:00-13:00 (Morning)</option>
-                            <option value="13:00-16:00" {{ $selectedTimeSlot == '13:00-16:00' ? 'selected' : '' }}>13:00-16:00 (Afternoon)</option>
-                            <option value="16:00-19:00" {{ $selectedTimeSlot == '16:00-19:00' ? 'selected' : '' }}>16:00-19:00 (Evening)</option>
-                            <option value="19:00-22:00" {{ $selectedTimeSlot == '19:00-22:00' ? 'selected' : '' }}>19:00-22:00 (Night)</option>
+                        <label class="filter-label">Start Time</label>
+                        <select name="start_time" id="start_time" class="filter-select auto-submit">
+                            <option value="">Select start</option>
+                            @foreach($timeOptions as $time)
+                                <option value="{{ $time }}" {{ $startTime == $time ? 'selected' : '' }}>{{ $time }}</option>
+                            @endforeach
                         </select>
                     </div>
                     <div>
-                        <label class="filter-label">Table Capacity</label>
-                        <select name="table_size_filter" class="filter-select">
+                        <label class="filter-label">End Time</label>
+                        <select name="end_time" id="end_time" class="filter-select auto-submit">
+                            <option value="">Select end</option>
+                            @foreach($timeOptions as $time)
+                                <option value="{{ $time }}" {{ $endTime == $time ? 'selected' : '' }}>{{ $time }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="filter-label">Table Size</label>
+                        <select name="table_size_filter" id="table_size_filter" class="filter-select auto-submit">
                             @foreach($tableSizeOptions as $value => $label)
                                 <option value="{{ $value }}" {{ $tableSizeFilter == $value ? 'selected' : '' }}>{{ $label }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label class="filter-label">Room Capacity</label>
-                        <select name="private_room_size_filter" class="filter-select">
-                            @foreach($privateRoomSizeOptions as $value => $label)
-                                <option value="{{ $value }}" {{ $privateRoomSizeFilter == $value ? 'selected' : '' }}>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="flex gap-2">
-                        <button type="submit" class="btn-filter">Apply Filters</button>
-                        <button type="button" id="resetFiltersBtn" class="btn-filter btn-reset">Reset</button>
+                        <label class="filter-label">Private Room</label>
+                        <div class="flex items-center gap-2 mt-2">
+                            <input type="checkbox" name="is_private_booking" id="is_private_booking" value="1" class="auto-submit" {{ $isPrivateBooking ? 'checked' : '' }}>
+                            <label for="is_private_booking" class="text-sm text-white cursor-pointer">Book as Private Room</label>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1">(Medium/Large tables only)</p>
                     </div>
                 </div>
+                <p class="text-[10px] text-gray-400 mt-4 italic">⏰ Booking must be at least 2 hours, max 9 hours. Minutes must be 00 or 30. Hours: 08:00-22:00</p>
             </form>
         </div>
 
         <form method="POST" action="/reservation" id="reservationForm">
             @csrf
             <input type="hidden" name="reservation_date" value="{{ $selectedDate }}">
-            <input type="hidden" name="time_slot" value="{{ $selectedTimeSlot }}">
+            <input type="hidden" name="start_time" value="{{ $startTime }}">
+            <input type="hidden" name="end_time" value="{{ $endTime }}">
+            <input type="hidden" name="is_private_booking" value="{{ $isPrivateBooking ? 1 : 0 }}">
 
-            @if(!$selectedDate || !$selectedTimeSlot)
+            @if(!$selectedDate || !$startTime || !$endTime)
+                <!-- Default state: Show all tables as gray (disabled) -->
                 <div class="empty-state">
                     <i class="fas fa-calendar-alt text-5xl text-gold mb-4 opacity-50"></i>
-                    <p class="text-gray-400">Please select a date and time slot to see available spaces.</p>
+                    <p class="text-gray-400">Please select a date, start time, and end time to see available spaces.</p>
+                    <p class="text-xs text-gray-500 mt-2">Minimum 2 hours booking, maximum 9 hours.</p>
+                </div>
+                
+                <!-- Show grayed out spaces as preview -->
+                <div class="spaces-grid">
+                    @foreach($spaces as $space)
+                        <div class="space-card-default">
+                            <div class="space-image">
+                                <div class="space-type-icon">
+                                    @if($space->type == 'private')
+                                        <i class="fas fa-door-closed"></i>
+                                    @elseif($space->type == 'premium')
+                                        <i class="fas fa-crown"></i>
+                                    @else
+                                        <i class="fas fa-couch"></i>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="space-content">
+                                <h3 class="space-name">{{ $space->name }}</h3>
+                                <span class="space-capacity"><i class="fas fa-users mr-1"></i> {{ $space->capacity }} players</span>
+                                <p class="space-description">{{ $space->description ?? 'A perfect spot for your gaming session.' }}</p>
+                                <div class="text-[10px] text-gray-500 mt-2">Select date & time to check availability</div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Pagination for default view -->
+                @if($spaces->lastPage() > 1)
+                    <div class="pagination">
+                        @if($spaces->onFirstPage())
+                            <span class="page-link page-disabled">← Previous</span>
+                        @else
+                            <a href="{{ $spaces->appends(request()->query())->previousPageUrl() }}" class="page-link">← Previous</a>
+                        @endif
+
+                        @foreach(range(1, $spaces->lastPage()) as $page)
+                            @if($page == $spaces->currentPage())
+                                <span class="page-link active">{{ $page }}</span>
+                            @else
+                                <a href="{{ $spaces->appends(request()->query())->url($page) }}" class="page-link">{{ $page }}</a>
+                            @endif
+                        @endforeach
+
+                        @if($spaces->hasMorePages())
+                            <a href="{{ $spaces->appends(request()->query())->nextPageUrl() }}" class="page-link">Next →</a>
+                        @else
+                            <span class="page-link page-disabled">Next →</span>
+                        @endif
+                    </div>
+                    <div class="pagination-info">
+                        Showing {{ $spaces->firstItem() }} to {{ $spaces->lastItem() }} of {{ $spaces->total() }} spaces
+                    </div>
+                @endif
+                
+                <div class="action-buttons">
+                    <button type="reset" class="btn-clear" id="clearFormBtn">Clear Selection</button>
+                    <button type="button" disabled class="btn-submit opacity-50 cursor-not-allowed">Select Date & Time First</button>
                 </div>
             @elseif($spaces->count() == 0)
                 <div class="empty-state">
@@ -593,6 +715,9 @@
                                 <span class="space-capacity"><i class="fas fa-users mr-1"></i> {{ $space->capacity }} players</span>
                                 @if($space->is_available)
                                     <div class="availability">✓ Available</div>
+                                @endif
+                                @if($space->show_private_badge)
+                                    <div class="text-[10px] text-amber-400 mt-1">🏠 Private Room Booking</div>
                                 @endif
                                 <p class="space-description">{{ $space->description ?? 'A perfect spot for your gaming session.' }}</p>
                                 @if(!$space->is_available)
@@ -632,7 +757,7 @@
 
                 <div class="action-buttons">
                     <button type="reset" class="btn-clear" id="clearFormBtn">Clear Selection</button>
-                    <button type="submit" class="btn-submit" id="confirmBtn">Confirm Adventure</button>
+                    <button type="submit" class="btn-submit" id="confirmBtn">Review & Confirm</button>
                 </div>
             @endif
         </form>
@@ -643,16 +768,88 @@
     </footer>
 
     <script>
-        // GSAP is not loaded, so remove or keep only if you add GSAP CDN.
-        // We'll keep only the essential JS without GSAP to avoid errors.
-        function resetAllFilters() {
-            document.querySelector('select[name="table_size_filter"]').value = 'all';
-            document.querySelector('select[name="private_room_size_filter"]').value = 'all';
-            document.getElementById('filterForm').submit();
+        // Auto-submit on any filter change
+        const autoSubmitElements = document.querySelectorAll('.auto-submit');
+        const filterForm = document.getElementById('filterForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+
+        function showLoading() {
+            loadingOverlay.style.display = 'flex';
         }
 
-        const resetBtn = document.getElementById('resetFiltersBtn');
-        if (resetBtn) resetBtn.addEventListener('click', resetAllFilters);
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
+        }
+
+        function autoSubmit() {
+            if (filterForm) {
+                showLoading();
+                filterForm.submit();
+            }
+        }
+
+        // Add event listeners to all auto-submit elements
+        autoSubmitElements.forEach(element => {
+            element.addEventListener('change', function() {
+                // Validate time selection before submitting
+                const startTime = document.getElementById('start_time')?.value;
+                const endTime = document.getElementById('end_time')?.value;
+                const selectedDate = document.getElementById('reservation_date')?.value;
+                
+                if (selectedDate && startTime && endTime) {
+                    const startHour = parseInt(startTime.split(':')[0]);
+                    const startMin = parseInt(startTime.split(':')[1]);
+                    const endHour = parseInt(endTime.split(':')[0]);
+                    const endMin = parseInt(endTime.split(':')[1]);
+                    
+                    const startTotal = startHour * 60 + startMin;
+                    const endTotal = endHour * 60 + endMin;
+                    const diffMinutes = endTotal - startTotal;
+                    
+                    if (diffMinutes < 120) {
+                        alert('⚠️ Booking must be at least 2 hours.');
+                        return;
+                    }
+                    if (diffMinutes > 540) {
+                        alert('⚠️ Booking cannot exceed 9 hours.');
+                        return;
+                    }
+                    if (startMin !== 0 && startMin !== 30) {
+                        alert('⚠️ Start time minutes must be 00 or 30.');
+                        return;
+                    }
+                    if (endMin !== 0 && endMin !== 30) {
+                        alert('⚠️ End time minutes must be 00 or 30.');
+                        return;
+                    }
+                }
+                
+                setTimeout(autoSubmit, 100);
+            });
+        });
+
+        // Also trigger on checkbox click
+        const privateCheckbox = document.getElementById('is_private_booking');
+        if (privateCheckbox) {
+            privateCheckbox.addEventListener('change', function() {
+                setTimeout(autoSubmit, 100);
+            });
+        }
+
+        function resetAllFilters() {
+            document.getElementById('table_size_filter').value = 'all';
+            document.getElementById('is_private_booking').checked = false;
+            autoSubmit();
+        }
+
+        // Reset button handler
+        const resetBtn = document.querySelector('.btn-reset');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                resetAllFilters();
+            });
+        }
 
         const clearBtn = document.getElementById('clearFormBtn');
         if (clearBtn) {
@@ -673,10 +870,6 @@
             if (radio.checked) radio.closest('.space-card').classList.add('selected');
         });
 
-        @if(session('reservation_success'))
-            canvasConfetti({ particleCount: 200, spread: 100, origin: { y: 0.6 }, colors: ['#d4a574', '#e8c9a9', '#ffffff'] });
-        @endif
-
         const confirmBtn = document.getElementById('confirmBtn');
         if (confirmBtn) {
             confirmBtn.addEventListener('click', function(e) {
@@ -689,6 +882,11 @@
                 canvasConfetti({ particleCount: 150, spread: 80, origin: { y: 0.5 }, colors: ['#d4a574', '#ffffff'] });
             });
         }
+        
+        // Hide loading overlay when page loads
+        window.addEventListener('load', function() {
+            hideLoading();
+        });
     </script>
 </body>
 </html>
