@@ -169,12 +169,7 @@
                         </a>
                     </div>
                 </div>
-                
-                <!-- Game Library (ACTIVE) -->
-                <a href="{{ route('board-games') }}" class="sidebar-item active flex items-center px-4 py-4 rounded-sm" style="justify-content: flex-start;">
-                    <i class="fas fa-chess-knight w-5 text-xs mr-3"></i><span>Game Library</span>
-                </a>
-                
+            
                 <!-- Menu -->
                 <a href="{{ route('menu') }}" class="sidebar-item flex items-center px-4 py-4 rounded-sm" style="justify-content: flex-start;">
                     <i class="fas fa-coffee w-5 text-xs mr-3"></i><span>Menu</span>
