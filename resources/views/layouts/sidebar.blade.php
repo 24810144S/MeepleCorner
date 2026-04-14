@@ -1,5 +1,4 @@
 <style>
-    /* Sidebar base styles - FIXED POSITION */
     .sidebar { 
         width: 260px; 
         background-color: #1a1a1a; 
@@ -12,7 +11,6 @@
         overflow-y: auto; 
     }
     
-    /* Main content wrapper - pushes content to the right */
     .main-wrapper {
         margin-left: 260px;
         min-height: 100vh;
@@ -31,11 +29,20 @@
     .sidebar-item:hover, .sidebar-item.active { color: #C5A059; }
     .sidebar-item.active { border-right: 3px solid #C5A059; background: linear-gradient(to right, #1a1a1a, #262626); }
     
-    /* Dropdown styles */
-    .dropdown-menu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-    .dropdown-menu.show { max-height: 400px; }
-    .rotate-icon { transition: transform 0.3s ease; }
-    .rotate-icon.rotated { transform: rotate(90deg); }
+    .dropdown-menu { 
+        max-height: 0; 
+        overflow: hidden; 
+        transition: max-height 0.3s ease; 
+    }
+    .dropdown-menu.show { 
+        max-height: 400px; 
+    }
+    .rotate-icon { 
+        transition: transform 0.3s ease; 
+    }
+    .rotate-icon.rotated { 
+        transform: rotate(90deg); 
+    }
     .sub-sidebar-item {
         transition: all 0.3s ease;
         font-size: 10px;
@@ -47,8 +54,16 @@
         display: flex;
         align-items: center;
     }
-    .sub-sidebar-item:hover { color: #C5A059; border-left-color: #C5A059; background: linear-gradient(to right, #1a1a1a, #222222); }
-    .sub-sidebar-item.active { color: #C5A059; border-left-color: #C5A059; background: linear-gradient(to right, #1a1a1a, #262626); }
+    .sub-sidebar-item:hover { 
+        color: #C5A059; 
+        border-left-color: #C5A059; 
+        background: linear-gradient(to right, #1a1a1a, #222222); 
+    }
+    .sub-sidebar-item.active { 
+        color: #C5A059; 
+        border-left-color: #C5A059; 
+        background: linear-gradient(to right, #1a1a1a, #262626); 
+    }
     .accent-gold { background-color: #C5A059; }
     .text-gold { color: #C5A059; }
     .serif { font-family: 'Cormorant Garamond', serif; }
@@ -61,33 +76,51 @@
     </div>
     
     <nav class="flex-1 px-4 space-y-2">
-        <a href="/" class="sidebar-item flex items-center px-4 py-4 rounded-sm" style="justify-content: flex-start;">
+        <!-- Home -->
+        <a href="/" class="sidebar-item flex items-center px-4 py-4 rounded-sm {{ Request::is('/') ? 'active' : '' }}" style="justify-content: flex-start;">
             <i class="fas fa-home w-5 text-xs mr-3"></i><span>Home</span>
         </a>
         
-        <a href="/reservation" class="sidebar-item flex items-center px-4 py-4 rounded-sm" style="justify-content: flex-start;">
+        <!-- Reservations -->
+        <a href="/reservation" class="sidebar-item flex items-center px-4 py-4 rounded-sm {{ Request::is('reservation*') ? 'active' : '' }}" style="justify-content: flex-start;">
             <i class="fas fa-calendar-alt w-5 text-xs mr-3"></i><span>Reservations</span>
         </a>
         
+        <!-- My Account Dropdown -->
+        @php
+            $isProfileActive = Request::is('profile*');
+            $isInfoActive = Request::is('profile/info');
+            $isEditActive = Request::is('profile/edit');
+            $isHistoryActive = Request::is('profile/history');
+        @endphp
+        
         <div class="dropdown-container">
-            <div class="sidebar-item dropdown-toggle flex items-center justify-between px-4 py-4 rounded-sm cursor-pointer">
+            <div class="sidebar-item dropdown-toggle flex items-center justify-between px-4 py-4 rounded-sm cursor-pointer {{ $isProfileActive ? 'active' : '' }}">
                 <div class="flex items-center">
                     <i class="fas fa-user w-5 text-xs mr-3"></i><span>My Account</span>
                 </div>
-                <i class="fas fa-chevron-right rotate-icon text-[8px] transition-transform"></i>
+                <i class="fas fa-chevron-right rotate-icon text-[8px] transition-transform {{ $isProfileActive ? 'rotated' : '' }}"></i>
             </div>
-            <div class="dropdown-menu ml-6">
-                <a href="/profile/info" class="sub-sidebar-item"><i class="fas fa-id-card w-4 text-[10px] mr-3"></i> My Info</a>
-                <a href="/profile/edit" class="sub-sidebar-item"><i class="fas fa-edit w-4 text-[10px] mr-3"></i> Edit My Account</a>
-                <a href="/profile/history" class="sub-sidebar-item"><i class="fas fa-history w-4 text-[10px] mr-3"></i> Reservation History</a>
+            <div class="dropdown-menu ml-6 {{ $isProfileActive ? 'show' : '' }}">
+                <a href="/profile/info" class="sub-sidebar-item {{ $isInfoActive ? 'active' : '' }}">
+                    <i class="fas fa-id-card w-4 text-[10px] mr-3"></i> My Info
+                </a>
+                <a href="/profile/edit" class="sub-sidebar-item {{ $isEditActive ? 'active' : '' }}">
+                    <i class="fas fa-edit w-4 text-[10px] mr-3"></i> Edit My Account
+                </a>
+                <a href="/profile/history" class="sub-sidebar-item {{ $isHistoryActive ? 'active' : '' }}">
+                    <i class="fas fa-history w-4 text-[10px] mr-3"></i> Reservation History
+                </a>
             </div>
         </div>
         
-        <a href="{{ route('board-games') }}" class="sidebar-item flex items-center px-4 py-4 rounded-sm" style="justify-content: flex-start;">
+        <!-- Game Library -->
+        <a href="{{ route('board-games') }}" class="sidebar-item flex items-center px-4 py-4 rounded-sm {{ Request::is('board-games*') ? 'active' : '' }}" style="justify-content: flex-start;">
             <i class="fas fa-chess-knight w-5 text-xs mr-3"></i><span>Game Library</span>
         </a>
         
-        <a href="{{ route('menu') }}" class="sidebar-item flex items-center px-4 py-4 rounded-sm" style="justify-content: flex-start;">
+        <!-- Menu -->
+        <a href="{{ route('menu') }}" class="sidebar-item flex items-center px-4 py-4 rounded-sm {{ Request::is('menu*') ? 'active' : '' }}" style="justify-content: flex-start;">
             <i class="fas fa-coffee w-5 text-xs mr-3"></i><span>Menu</span>
         </a>
     </nav>
@@ -101,3 +134,53 @@
         </form>
     </div>
 </aside>
+
+<script>
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all dropdown toggles
+        const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+        
+        // Function to close all dropdowns
+        function closeAllDropdowns(exceptThis = null) {
+            document.querySelectorAll('.dropdown-container').forEach(container => {
+                if (exceptThis && container === exceptThis) return;
+                const menu = container.querySelector('.dropdown-menu');
+                const icon = container.querySelector('.rotate-icon');
+                if (menu) menu.classList.remove('show');
+                if (icon) icon.classList.remove('rotated');
+            });
+        }
+        
+        // Add click event to each dropdown toggle
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                const container = this.closest('.dropdown-container');
+                const menu = container.querySelector('.dropdown-menu');
+                const icon = this.querySelector('.rotate-icon');
+                
+                // Check if this dropdown is already open
+                const isOpen = menu.classList.contains('show');
+                
+                // Close all dropdowns first
+                closeAllDropdowns(container);
+                
+                // If it wasn't open, open it
+                if (!isOpen) {
+                    menu.classList.add('show');
+                    icon.classList.add('rotated');
+                }
+            });
+        });
+        
+        // Optional: Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.dropdown-container')) {
+                closeAllDropdowns();
+            }
+        });
+    });
+</script>

@@ -193,13 +193,13 @@
         <main class="flex-1 flex flex-col">
             <header class="h-20 bg-white/80 backdrop-blur-sm border-b border-gray-100 flex items-center justify-between px-10 shrink-0 sticky top-0 z-30">
                 <div><h2 class="serif text-2xl text-gray-800 italic">🎲 Game Library</h2></div>
-                <div class="flex items-center space-x-6">
+                <<div class="flex items-center space-x-6">
                     <span class="text-[11px] uppercase tracking-widest text-gray-400">
                         @if(session()->has('member_name')) Greetings, {{ session('member_name') }} @else Greetings, Guest @endif
                     </span>
-                    <div class="w-10 h-10 border border-gray-100 p-1 rounded-full overflow-hidden">
+                    <a href="/profile/info" class="w-10 h-10 border border-gray-100 p-1 rounded-full overflow-hidden hover:border-gold transition-colors block">
                         <div class="w-full h-full bg-gray-200 rounded-full"></div>
-                    </div>
+                    </a>
                 </div>
             </header>
 

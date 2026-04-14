@@ -117,7 +117,9 @@
                     <span class="text-[11px] uppercase tracking-widest text-gray-400">
                         @if(session()->has('member_name')) Greetings, {{ session('member_name') }} @else Greetings, Guest @endif
                     </span>
-                    <div class="w-10 h-10 border border-gray-100 p-1"><div class="w-full h-full bg-gray-200"></div></div>
+                    <a href="/profile/info" class="w-10 h-10 border border-gray-100 p-1 rounded-full hover:border-gold transition-colors block">
+                        <div class="w-full h-full bg-gray-200 rounded-full"></div>
+                    </a>
                 </div>
             </header>
 

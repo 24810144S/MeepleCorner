@@ -72,8 +72,10 @@
             <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-10">
                 <div><h2 class="serif text-2xl text-gray-800 italic"><i class="fas fa-history mr-2 text-gold"></i> Reservation History</h2></div>
                 <div class="flex items-center space-x-6">
-                    <span class="text-[11px] uppercase tracking-widest text-gray-400">Welcome, {{ $member->first_name }}</span>
-                    <div class="w-10 h-10 bg-gold rounded-full flex items-center justify-center text-white font-bold">{{ strtoupper(substr($member->first_name, 0, 1)) }}</div>
+                    <span class="text-[11px] uppercase tracking-widest text-gray-400">@if(session()->has('member_name')) Greetings, {{ session('member_name') }} @else Greetings, Guest @endif</span>
+                    <a href="/profile/info" class="w-10 h-10 bg-gold rounded-full flex items-center justify-center text-white font-bold hover:opacity-80 transition-opacity">
+                        {{ strtoupper(substr($member->first_name, 0, 1)) }}
+                    </a>
                 </div>
             </header>
 
