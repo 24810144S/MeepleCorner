@@ -19,61 +19,31 @@ class ReservationController extends Controller
 
         // Get filter parameters
         $tableSizeFilter = $request->input('table_size_filter', 'all');
-        $privateRoomSizeFilter = $request->input('private_room_size_filter', 'all');
         $isPrivateBooking = $request->input('is_private_booking', false);
         $selectedDate = $request->input('reservation_date');
         $startTime = $request->input('start_time');
         $endTime = $request->input('end_time');
 
-        // Build query for spaces
-        $query = Space::where('is_active', true);
+        // Build query for spaces - show public tables only (standard and premium)
+        $query = Space::whereIn('type', ['standard', 'premium'])->where('is_active', true);
 
-        // Apply table size filter
-        $tableTypes = ['standard', 'premium'];
-        
-        if ($tableSizeFilter === 'none') {
-            $query->where('type', 'private');
-        } elseif ($tableSizeFilter !== 'all') {
-            $query->where(function($q) use ($tableSizeFilter, $tableTypes) {
-                switch ($tableSizeFilter) {
-                    case 'small':
-                        $q->where(function($sub) use ($tableTypes) {
-                            $sub->whereIn('type', $tableTypes)->where('capacity', '<=', 3);
-                        });
-                        break;
-                    case 'medium':
-                        $q->where(function($sub) use ($tableTypes) {
-                            $sub->whereIn('type', $tableTypes)->whereBetween('capacity', [4, 6]);
-                        });
-                        break;
-                    case 'large':
-                        $q->where(function($sub) use ($tableTypes) {
-                            $sub->whereIn('type', $tableTypes)->where('capacity', '>=', 7);
-                        });
-                        break;
-                }
-                $q->orWhere('type', 'private');
-            });
+        // Apply size filter
+        if ($tableSizeFilter !== 'all') {
+            switch ($tableSizeFilter) {
+                case 'small':
+                    $query->where('capacity', '<=', 3);
+                    break;
+                case 'medium':
+                    $query->whereBetween('capacity', [4, 6]);
+                    break;
+                case 'large':
+                    $query->where('capacity', '>=', 7);
+                    break;
+            }
         }
 
-        // Apply private room size filter
-        if ($privateRoomSizeFilter === 'none') {
-            $query->whereIn('type', $tableTypes);
-        } elseif ($privateRoomSizeFilter !== 'all') {
-            $query->where(function($q) use ($privateRoomSizeFilter, $tableTypes) {
-                switch ($privateRoomSizeFilter) {
-                    case 'small_private':
-                        $q->where('type', 'private')->whereBetween('capacity', [2, 4]);
-                        break;
-                    case 'big_private':
-                        $q->where('type', 'private')->where('capacity', '>=', 5);
-                        break;
-                }
-                $q->orWhereIn('type', $tableTypes);
-            });
-        }
-
-        $spaces = $query->paginate(18);
+        // Get all spaces (18 per page)
+        $allSpaces = $query->paginate(18);
 
         // Get booked space IDs for selected date/time
         $bookedSpaceIds = [];
@@ -88,31 +58,27 @@ class ReservationController extends Controller
         }
 
         // Mark spaces as available or not
-        $spaces->getCollection()->transform(function ($space) use ($bookedSpaceIds, $isPrivateBooking) {
+        $allSpaces->getCollection()->transform(function ($space) use ($bookedSpaceIds, $isPrivateBooking) {
             $space->is_available = !in_array($space->id, $bookedSpaceIds);
             $space->show_private_badge = $isPrivateBooking && $space->capacity >= 4;
             return $space;
         });
 
+        $spaces = $allSpaces;
+
         // Get user's reservations
         $reservations = Reservation::where('member_id', session('member_id'))
             ->with('space')
             ->orderBy('reservation_date', 'desc')
+            ->orderBy('start_time', 'desc')
             ->get();
 
         // Filter options
         $tableSizeOptions = [
-            'all' => 'All Tables',
+            'all' => 'All Sizes',
             'small' => 'Small (1-3 players)',
             'medium' => 'Medium (4-6 players)',
             'large' => 'Large (7+ players)',
-        ];
-
-        $privateRoomSizeOptions = [
-            'all' => 'All Private Rooms',
-            'small_private' => 'Small Rooms (2-4 players)',
-            'big_private' => 'Big Rooms (5+ players)',
-            'none' => 'Hide All Rooms (Show only Tables)'
         ];
 
         // Time options (08:00 to 22:00, with 00 and 30 minutes)
@@ -129,9 +95,7 @@ class ReservationController extends Controller
             'spaces',
             'reservations',
             'tableSizeOptions',
-            'privateRoomSizeOptions',
             'tableSizeFilter',
-            'privateRoomSizeFilter',
             'isPrivateBooking',
             'selectedDate',
             'startTime',
@@ -141,6 +105,7 @@ class ReservationController extends Controller
         ));
     }
 
+    // Store reservation data in session and redirect to confirmation page
     public function store(Request $request)
     {
         if (!session()->has('member_id')) {

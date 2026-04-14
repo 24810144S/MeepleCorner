@@ -61,8 +61,7 @@ Route::get('/board-games/{id}', [BoardGameController::class, 'show'])->name('boa
 
 Route::middleware(['web'])->group(function () {
     // Reservation routes
-    Route::get('/reservation', [ReservationController::class, 'create']);
-    Route::post('/reservation', [ReservationController::class, 'store']);
+    Route::get('/reservation', [ReservationController::class, 'create'])->name('reservation');    Route::post('/reservation', [ReservationController::class, 'store']);
     Route::get('/thank-you/{reservation}', [ReservationController::class, 'thankYou']);
     Route::delete('/reservation/{reservation}', [ReservationController::class, 'cancel']);
     
