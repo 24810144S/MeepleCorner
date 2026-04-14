@@ -105,7 +105,7 @@
 
         .header_image {
             flex: 1;
-            background-image: url('https://images.unsplash.com/photo-1611996575749-79a3a239f9f5?auto=format&fit=crop&q=80&w=1600');
+            background-image: url("{{ asset('/IND/images/coffee.png') }}");
             background-size: cover;
             background-position: center 30%;
             position: relative;
@@ -663,7 +663,7 @@
         <p class="header_subtitle">
             A boutique board game café where every visit is a new adventure. Sip, strategize, and socialize.
         </p>
-        <a href="#" class="cta-button">Explore Our Games</a>
+        <a href="create" class="cta-button">Explore Our Games</a>
     </div>
     <div class="header_image"></div>
 </header>
@@ -722,7 +722,7 @@
                         <span class="product_players">{{ $game->min_players }}-{{ $game->max_players }} players</span>
                         <p class="product_description">{{ Str::limit($game->description, 80) }}</p>
                         <p class="product_time">⏱️ {{ $game->play_time_minutes }} min</p>
-                        <a href="#" class="product_link">Learn More →</a>
+                        <a href="{{ route('board-games.show', $game) }}" class="product_link">Learn More →</a>
                     </div>
                 </div>
             @empty
