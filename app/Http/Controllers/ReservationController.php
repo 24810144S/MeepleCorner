@@ -38,10 +38,8 @@ class ReservationController extends Controller
         $tableTypes = ['standard', 'premium'];
         
         if ($tableSizeFilter === 'none') {
-            // Hide all tables - show ONLY private rooms
             $query->where('type', 'private');
         } elseif ($tableSizeFilter !== 'all') {
-            // Show matching tables + all private rooms
             $query->where(function($q) use ($tableSizeFilter, $tableTypes) {
                 switch ($tableSizeFilter) {
                     case 'small':
@@ -64,12 +62,10 @@ class ReservationController extends Controller
             });
         }
 
-        // Apply private room size filter (affects private rooms only)
+        // Apply private room size filter
         if ($privateRoomSizeFilter === 'none') {
-            // Hide all private rooms - show ONLY tables
             $query->whereIn('type', $tableTypes);
         } elseif ($privateRoomSizeFilter !== 'all') {
-            // Filter private rooms by size
             $query->where(function($q) use ($privateRoomSizeFilter, $tableTypes) {
                 switch ($privateRoomSizeFilter) {
                     case 'small_private':
@@ -83,7 +79,7 @@ class ReservationController extends Controller
             });
         }
 
-        $allSpaces = $query->get();
+        $spaces = $query->paginate(9);
 
         // Get booked space IDs for selected date/time
         $bookedSpaceIds = [];
@@ -94,8 +90,8 @@ class ReservationController extends Controller
                 ->toArray();
         }
 
-        // Mark spaces as available or not
-        $spaces = $allSpaces->map(function ($space) use ($bookedSpaceIds) {
+        // Mark spaces as available or not - modify the items in the paginator
+        $spaces->getCollection()->transform(function ($space) use ($bookedSpaceIds) {
             $space->is_available = !in_array($space->id, $bookedSpaceIds);
             return $space;
         });
@@ -106,9 +102,7 @@ class ReservationController extends Controller
             ->orderBy('reservation_date', 'desc')
             ->get();
 
-        \Log::info('Found ' . $reservations->count() . ' reservations for member');
-
-        // Define filter options for the view
+        // Define filter options
         $tableSizeOptions = [
             'all' => 'All Tables',
             'small' => 'Small Tables (1-3 players)',
