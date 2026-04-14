@@ -75,3 +75,6 @@ Route::middleware(['web'])->group(function () {
     Route::get('/profile/history', [ReservationController::class, 'profileHistory'])->name('profile.history');
 });
 
+//260415_confirm @fj
+Route::get('/reservation/confirm', [ReservationController::class, 'showConfirm'])->name('reservation.confirm');
+Route::post('/reservation/confirm', [ReservationController::class, 'processConfirm'])->name('reservation.process');
