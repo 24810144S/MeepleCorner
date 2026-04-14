@@ -56,8 +56,9 @@ Route::post('/test-reservation', function(Request $request) {
     return response()->json(['message' => 'Form data received', 'data' => $request->all()]);
 });
 
+Route::get('/board-games', [BoardGameController::class, 'index'])->name('board-games.index');
+Route::get('/board-games/{id}', [BoardGameController::class, 'show'])->name('board-games.show');
 
-//260413_profile @fj
 Route::middleware(['web'])->group(function () {
     // Reservation routes
     Route::get('/reservation', [ReservationController::class, 'create']);
