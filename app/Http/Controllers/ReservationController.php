@@ -7,34 +7,28 @@ use App\Models\Space;
 use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ReservationController extends Controller
 {
     public function create(Request $request)
     {
-        // Debug
-        \Log::info('Reservation create accessed', [
-            'session_has_member_id' => session()->has('member_id'),
-            'member_id' => session('member_id')
-        ]);
-
         if (!session()->has('member_id')) {
             return redirect('/login');
         }
-        
-        \Log::info('=== RESERVATION CREATE PAGE ===');
-        \Log::info('Current member_id: ' . session('member_id'));
 
         // Get filter parameters
         $tableSizeFilter = $request->input('table_size_filter', 'all');
         $privateRoomSizeFilter = $request->input('private_room_size_filter', 'all');
+        $isPrivateBooking = $request->input('is_private_booking', false);
         $selectedDate = $request->input('reservation_date');
-        $selectedTimeSlot = $request->input('time_slot');
+        $startTime = $request->input('start_time');
+        $endTime = $request->input('end_time');
 
-        // Get all active spaces
+        // Build query for spaces
         $query = Space::where('is_active', true);
 
-        // Apply table size filter (affects standard and premium tables only)
+        // Apply table size filter
         $tableTypes = ['standard', 'premium'];
         
         if ($tableSizeFilter === 'none') {
@@ -83,16 +77,20 @@ class ReservationController extends Controller
 
         // Get booked space IDs for selected date/time
         $bookedSpaceIds = [];
-        if ($selectedDate && $selectedTimeSlot) {
+        if ($selectedDate && $startTime && $endTime) {
             $bookedSpaceIds = Reservation::where('reservation_date', $selectedDate)
-                ->where('time_slot', $selectedTimeSlot)
+                ->where(function($q) use ($startTime, $endTime) {
+                    $q->where('start_time', '<', $endTime)
+                      ->where('end_time', '>', $startTime);
+                })
                 ->pluck('space_id')
                 ->toArray();
         }
 
-        // Mark spaces as available or not - modify the items in the paginator
-        $spaces->getCollection()->transform(function ($space) use ($bookedSpaceIds) {
+        // Mark spaces as available or not
+        $spaces->getCollection()->transform(function ($space) use ($bookedSpaceIds, $isPrivateBooking) {
             $space->is_available = !in_array($space->id, $bookedSpaceIds);
+            $space->show_private_badge = $isPrivateBooking && $space->capacity >= 4;
             return $space;
         });
 
@@ -102,13 +100,12 @@ class ReservationController extends Controller
             ->orderBy('reservation_date', 'desc')
             ->get();
 
-        // Define filter options
+        // Filter options
         $tableSizeOptions = [
             'all' => 'All Tables',
-            'small' => 'Small Tables (1-3 players)',
-            'medium' => 'Medium Tables (4-6 players)',
-            'large' => 'Large Tables (7+ players)',
-            'none' => 'Hide All Tables (Show only Private Rooms)'
+            'small' => 'Small (1-3 players)',
+            'medium' => 'Medium (4-6 players)',
+            'large' => 'Large (7+ players)',
         ];
 
         $privateRoomSizeOptions = [
@@ -118,75 +115,172 @@ class ReservationController extends Controller
             'none' => 'Hide All Rooms (Show only Tables)'
         ];
 
+        // Time options (08:00 to 22:00, with 00 and 30 minutes)
+        $timeOptions = [];
+        for ($hour = 8; $hour <= 22; $hour++) {
+            foreach ([0, 30] as $minute) {
+                if ($hour == 22 && $minute > 0) continue;
+                $time = sprintf('%02d:%02d', $hour, $minute);
+                $timeOptions[$time] = $time;
+            }
+        }
+
         return view('reservations.create', compact(
-            'spaces', 
-            'reservations', 
+            'spaces',
+            'reservations',
             'tableSizeOptions',
             'privateRoomSizeOptions',
             'tableSizeFilter',
             'privateRoomSizeFilter',
+            'isPrivateBooking',
             'selectedDate',
-            'selectedTimeSlot',
+            'startTime',
+            'endTime',
+            'timeOptions',
             'bookedSpaceIds'
         ));
     }
 
     public function store(Request $request)
     {
-        // Debug: Log the request
-        \Log::info('Reservation form submitted', [
-            'all_data' => $request->all(),
-            'session_member_id' => session('member_id')
-        ]);
-
         if (!session()->has('member_id')) {
-            \Log::warning('No member_id in session, redirecting to login');
             return redirect('/login');
         }
 
+        // Validate request
         $validated = $request->validate([
             'reservation_date' => 'required|date|after_or_equal:today',
-            'time_slot' => 'required|in:10:00-13:00,13:00-16:00,16:00-19:00,19:00-22:00',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
             'space_id' => 'required|exists:spaces,id',
         ]);
 
-        // Check if space is already booked
-        $existing = Reservation::where('space_id', $validated['space_id'])
-            ->where('reservation_date', $validated['reservation_date'])
-            ->where('time_slot', $validated['time_slot'])
-            ->first();
-
-        if ($existing) {
-            \Log::warning('Space already booked', $validated);
-            return back()->withErrors(['space_id' => 'This space is already booked for the selected date and time.'])->withInput();
+        // Parse times
+        $startTime = Carbon::parse($validated['start_time']);
+        $endTime = Carbon::parse($validated['end_time']);
+        
+        // Calculate duration in minutes
+        $durationMinutes = $startTime->diffInMinutes($endTime);
+        
+        // Rule A: Minimum 2 hours
+        if ($durationMinutes < 120) {
+            return back()->withErrors(['end_time' => 'Booking must be at least 2 hours.'])->withInput();
+        }
+        
+        // Rule C: Maximum 9 hours
+        if ($durationMinutes > 540) {
+            return back()->withErrors(['end_time' => 'Booking cannot exceed 9 hours.'])->withInput();
+        }
+        
+        // Rule B: Minutes must be 00 or 30
+        $startMinutes = (int)$startTime->format('i');
+        $endMinutes = (int)$endTime->format('i');
+        
+        if (!in_array($startMinutes, [0, 30])) {
+            return back()->withErrors(['start_time' => 'Start time minutes must be 00 or 30.'])->withInput();
+        }
+        
+        if (!in_array($endMinutes, [0, 30])) {
+            return back()->withErrors(['end_time' => 'End time minutes must be 00 or 30.'])->withInput();
+        }
+        
+        // Hours must be between 08:00 and 22:00
+        $startHour = (int)$startTime->format('H');
+        
+        if ($startHour < 8 || $startHour > 22) {
+            return back()->withErrors(['start_time' => 'Start time must be between 08:00 and 22:00.'])->withInput();
         }
 
-        $reservation = Reservation::create([
-            'member_id' => session('member_id'),
+        // Check for time conflict
+        $hasConflict = Reservation::where('space_id', $validated['space_id'])
+            ->where('reservation_date', $validated['reservation_date'])
+            ->where(function($q) use ($startTime, $endTime) {
+                $q->where('start_time', '<', $endTime->format('H:i:s'))
+                  ->where('end_time', '>', $startTime->format('H:i:s'));
+            })
+            ->exists();
+
+        if ($hasConflict) {
+            return back()->withErrors(['time_slot' => 'This time slot conflicts with an existing booking.'])->withInput();
+        }
+
+        // Store data in session and redirect to confirmation page
+        session(['reservation_data' => [
             'space_id' => $validated['space_id'],
             'reservation_date' => $validated['reservation_date'],
-            'time_slot' => $validated['time_slot'],
-            'status' => 'confirmed',
-        ]);
-        
-        \Log::info('Reservation created successfully', ['reservation_id' => $reservation->id]);
-        
-        return redirect('/thank-you/' . $reservation->id);
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+            'is_private_booking' => $request->has('is_private_booking') && $request->input('is_private_booking') == 1 ? 1 : 0,
+        ]]);
+
+        return redirect()->route('reservation.confirm');
     }
 
-    public function thankYou(Reservation $reservation)
+    // Show confirmation page before final submission
+    public function showConfirm()
     {
         if (!session()->has('member_id')) {
             return redirect('/login');
         }
 
-        if ($reservation->member_id != session('member_id')) {
-            abort(403);
+        $reservationData = session('reservation_data');
+        
+        if (!$reservationData) {
+            return redirect('/reservation')->with('error', 'Please select your booking details first.');
         }
 
-        $reservation->load('space', 'member');
+        $space = Space::find($reservationData['space_id']);
+        $member = Member::find(session('member_id'));
 
-        return view('reservations.thankyou', compact('reservation'));
+        return view('reservations.confirm', compact('reservationData', 'space', 'member'));
+    }
+
+    // Process final confirmation and redirect to history
+    public function processConfirm()
+    {
+        if (!session()->has('member_id')) {
+            return redirect('/login');
+        }
+
+        $reservationData = session('reservation_data');
+        
+        if (!$reservationData) {
+            return redirect('/reservation')->with('error', 'Session expired. Please try again.');
+        }
+
+        // Check for time conflict again
+        $hasConflict = Reservation::where('space_id', $reservationData['space_id'])
+            ->where('reservation_date', $reservationData['reservation_date'])
+            ->where(function($q) use ($reservationData) {
+                $q->where('start_time', '<', $reservationData['end_time'])
+                  ->where('end_time', '>', $reservationData['start_time']);
+            })
+            ->exists();
+
+        if ($hasConflict) {
+            session()->forget('reservation_data');
+            return redirect('/reservation')->withErrors(['time_slot' => 'This time slot is no longer available. Please select another.']);
+        }
+
+        // Create reservation
+        $reservation = Reservation::create([
+            'member_id' => session('member_id'),
+            'space_id' => $reservationData['space_id'],
+            'reservation_date' => $reservationData['reservation_date'],
+            'start_time' => $reservationData['start_time'],
+            'end_time' => $reservationData['end_time'],
+            'status' => 'confirmed',
+            'is_private_booking' => $reservationData['is_private_booking'] ?? 0,
+        ]);
+
+        // Clear session data
+        session()->forget('reservation_data');
+        
+        // Store the new reservation ID in session for highlighting
+        session()->flash('new_reservation_id', $reservation->id);
+        session()->flash('booking_success', '🎉 Your booking has been confirmed successfully!');
+
+        return redirect('/profile/history');
     }
 
     public function cancel(Reservation $reservation)
@@ -219,31 +313,41 @@ class ReservationController extends Controller
         $reservations = Reservation::where('member_id', session('member_id'))
             ->with('space')
             ->orderBy('reservation_date', 'desc')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('start_time', 'desc')
             ->get();
 
         $today = date('Y-m-d');
-        $upcomingReservations = $reservations->filter(function ($res) use ($today) {
-            return $res->reservation_date >= $today;
+        $now = date('H:i:s');
+        
+        $upcomingReservations = $reservations->filter(function ($res) use ($today, $now) {
+            return $res->reservation_date > $today || 
+                   ($res->reservation_date == $today && $res->end_time > $now);
         });
 
-        $pastReservations = $reservations->filter(function ($res) use ($today) {
-            return $res->reservation_date < $today;
+        $pastReservations = $reservations->filter(function ($res) use ($today, $now) {
+            return $res->reservation_date < $today || 
+                   ($res->reservation_date == $today && $res->end_time <= $now);
         });
 
         return view('members.profile-history', compact('upcomingReservations', 'pastReservations', 'member'));
     }
 
-    // API endpoint for checking available spaces
     public function getAvailableSpaces(Request $request)
     {
         $date = $request->input('date');
-        $timeSlot = $request->input('time_slot');
+        $startTime = $request->input('start_time');
+        $endTime = $request->input('end_time');
         
-        $bookedSpaceIds = Reservation::where('reservation_date', $date)
-            ->where('time_slot', $timeSlot)
-            ->pluck('space_id')
-            ->toArray();
+        $bookedSpaceIds = [];
+        if ($date && $startTime && $endTime) {
+            $bookedSpaceIds = Reservation::where('reservation_date', $date)
+                ->where(function($q) use ($startTime, $endTime) {
+                    $q->where('start_time', '<', $endTime)
+                      ->where('end_time', '>', $startTime);
+                })
+                ->pluck('space_id')
+                ->toArray();
+        }
         
         $availableSpaces = Space::where('is_active', true)
             ->whereNotIn('id', $bookedSpaceIds)
