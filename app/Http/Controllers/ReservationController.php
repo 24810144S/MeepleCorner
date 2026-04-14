@@ -79,7 +79,7 @@ class ReservationController extends Controller
             });
         }
 
-        $spaces = $query->paginate(9);
+        $spaces = $query->paginate(18);
 
         // Get booked space IDs for selected date/time
         $bookedSpaceIds = [];
