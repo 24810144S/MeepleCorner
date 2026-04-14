@@ -115,9 +115,6 @@
         </div>
         
         <!-- Game Library -->
-        <a href="{{ route('board-games') }}" class="sidebar-item flex items-center px-4 py-4 rounded-sm {{ Request::is('board-games*') ? 'active' : '' }}" style="justify-content: flex-start;">
-            <i class="fas fa-chess-knight w-5 text-xs mr-3"></i><span>Game Library</span>
-        </a>
         
         <!-- Menu -->
         <a href="{{ route('menu') }}" class="sidebar-item flex items-center px-4 py-4 rounded-sm {{ Request::is('menu*') ? 'active' : '' }}" style="justify-content: flex-start;">
