@@ -10,12 +10,69 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
+<<<<<<< Updated upstream
         /* ===== RESET & GLOBAL ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+=======
+        body { background-color: #FDFCF6; font-family: 'Jost', sans-serif; color: #1A1A1A; }
+        .serif { font-family: 'Cormorant Garamond', serif; }
+        .accent-gold { background-color: #C5A059; }
+        .text-gold { color: #C5A059; }
+        input, select { border: 1px solid #e5e7eb; background-color: #fcfcfc; }
+        input:focus, select:focus { border-color: #C5A059; outline: none; }
+        .space-card.disabled { opacity: 0.4; cursor: not-allowed; }
+        .space-card.disabled:hover { transform: none; }
+        
+        /* Space card hover animations - matching game library */
+        .space-card {
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        
+        .space-card:not(.disabled):hover {
+            transform: translateY(-8px);
+        }
+        
+        .space-card:not(.disabled):hover .space-card-image {
+            transform: scale(1.05);
+        }
+        
+        .space-card .space-card-image {
+            transition: all 0.5s ease;
+        }
+        
+        .space-card:not(.disabled):hover .space-card-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .space-card:not(.disabled):hover .space-card-title {
+            color: #C5A059;
+        }
+        
+        .space-card:not(.disabled):hover .space-card-available {
+            padding-left: 0.25rem;
+        }
+        
+        .space-card .rounded-xl {
+            border-radius: 1rem;
+        }
+        
+        /* Sidebar styles */
+        .sidebar { 
+            width: 260px; 
+            background-color: #1a1a1a; 
+            color: white; 
+            position: fixed; 
+            top: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 20; 
+            overflow-y: auto; 
+>>>>>>> Stashed changes
         }
 
         :root {
@@ -430,6 +487,7 @@
         }
 
         @media (max-width: 768px) {
+<<<<<<< Updated upstream
             .navbar {
                 flex-direction: column;
                 gap: 1rem;
@@ -453,6 +511,25 @@
                 width: 100%;
                 text-align: center;
             }
+=======
+            .sidebar { width: 70px; overflow-x: hidden; }
+            .sidebar .sidebar-item span, .sidebar .sub-sidebar-item span { display: none; }
+            .sidebar .sidebar-item { justify-content: center !important; padding: 12px 0 !important; }
+            .sidebar .sidebar-item i { margin-right: 0 !important; font-size: 16px !important; }
+            .dropdown-toggle .flex.items-center { justify-content: center; }
+            .dropdown-toggle .flex.items-center span { display: none; }
+            .dropdown-menu { margin-left: 0 !important; }
+            .sub-sidebar-item span { display: none; }
+            .main-wrapper { margin-left: 70px; }
+            .grid { grid-template-columns: 1fr !important; }
+            .p-10 { padding: 1rem !important; }
+            .gap-6 { gap: 1rem !important; }
+            .filter-grid { grid-template-columns: 1fr !important; }
+        }
+        
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .grid { grid-template-columns: repeat(2, 1fr) !important; }
+>>>>>>> Stashed changes
         }
     </style>
 </head>
@@ -563,6 +640,7 @@
                     <i class="fas fa-calendar-alt text-5xl text-gold mb-4 opacity-50"></i>
                     <p class="text-gray-400">Please select a date and time slot to see available spaces.</p>
                 </div>
+<<<<<<< Updated upstream
             @elseif($spaces->count() == 0)
                 <div class="empty-state">
                     <i class="fas fa-exclamation-triangle text-5xl text-yellow-500 mb-4"></i>
@@ -598,6 +676,255 @@
                                 @if(!$space->is_available)
                                     <p class="text-red-400 text-xs mt-2">Not available for this time slot</p>
                                 @endif
+=======
+            </header>
+
+            <div class="p-4 md:p-10 max-w-7xl w-full mx-auto">
+                
+                <!-- Reservation Form -->
+                <div class="bg-white border border-gray-100 p-4 md:p-10 shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full accent-gold"></div>
+                    
+                    <div class="mb-6 md:mb-8">
+                        <h3 class="serif text-2xl md:text-3xl text-gray-800">New Reservation</h3>
+                        <p class="text-[10px] md:text-[11px] uppercase tracking-[0.2em] text-gray-400 mt-1">Book your gaming session</p>
+                    </div>
+
+                    @if ($errors->any())
+                        <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 text-sm">
+                            @foreach ($errors->all() as $error)
+                                <p>{{ $error }}</p>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    <!-- Filter Section - Auto-refresh on change -->
+                    <div class="filter-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Date</label>
+                            <input type="date" id="reservation_date" name="reservation_date" class="w-full h-10 px-3 text-sm filter-input" min="{{ date('Y-m-d') }}" value="{{ $selectedDate }}">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Start Time</label>
+                            <select id="start_time" name="start_time" class="w-full h-10 px-3 text-sm filter-input">
+                                <option value="">Select start</option>
+                                @foreach($timeOptions as $time)
+                                    <option value="{{ $time }}" {{ $startTime == $time ? 'selected' : '' }}>{{ $time }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">End Time</label>
+                            <select id="end_time" name="end_time" class="w-full h-10 px-3 text-sm filter-input">
+                                <option value="">Select end</option>
+                                @foreach($timeOptions as $time)
+                                    <option value="{{ $time }}" {{ $endTime == $time ? 'selected' : '' }}>{{ $time }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Table Size</label>
+                            <select id="size_filter" name="size_filter" class="w-full h-10 px-3 text-sm filter-input">
+                                @foreach($sizeOptions as $value => $label)
+                                    <option value="{{ $value }}" {{ $sizeFilter == $value ? 'selected' : '' }}>{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="is_private_booking" name="is_private_booking" value="1" class="w-4 h-4 accent-gold filter-input" {{ $isPrivateBooking ? 'checked' : '' }}>
+                            <label for="is_private_booking" class="text-[11px] font-bold text-gray-500 uppercase tracking-widest cursor-pointer">
+                                🏠 Book as Private Room
+                            </label>
+                        </div>
+                    </div>
+                    <p class="text-[9px] text-gray-400 mb-6 italic">⏰ Booking must be at least 2 hours, max 9 hours. Minutes must be 00 or 30. Hours: 08:00-22:00</p>
+
+                    <!-- Hidden filter form for auto-submit -->
+                    <form method="GET" action="/reservation" id="filterForm" style="display: none;">
+                        <input type="hidden" name="reservation_date" id="filter_date">
+                        <input type="hidden" name="start_time" id="filter_start_time">
+                        <input type="hidden" name="end_time" id="filter_end_time">
+                        <input type="hidden" name="size_filter" id="filter_size">
+                        <input type="hidden" name="is_private_booking" id="filter_private">
+                    </form>
+
+                    <!-- Main Reservation Form -->
+                    <form method="POST" action="/reservation" id="reservationForm">
+                        @csrf
+                        
+                        <!-- Hidden fields to submit the selected values -->
+                        <input type="hidden" name="reservation_date" value="{{ $selectedDate }}">
+                        <input type="hidden" name="start_time" value="{{ $startTime }}">
+                        <input type="hidden" name="end_time" value="{{ $endTime }}">
+                        <input type="hidden" name="size_filter" value="{{ $sizeFilter }}">
+                        <input type="hidden" name="is_private_booking" value="{{ $isPrivateBooking ? 1 : 0 }}">
+
+                        @if(!$selectedDate || !$startTime || !$endTime)
+                            <!-- Default state: Show all tables as gray (disabled) -->
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest">Select Your Atmosphere <span class="text-red-500">*</span></label>
+                                    <div class="text-[10px] flex gap-4">
+                                        <span class="text-gray-400">⭘ Select date & time first</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    @foreach($spaces as $space)
+                                        <div class="relative space-card disabled opacity-40">
+                                            <div class="border-2 border-gray-200 bg-gray-100 overflow-hidden rounded-xl">
+                                                <div class="aspect-[4/3] bg-gray-200 flex flex-col items-center justify-center text-gray-400">
+                                                    @if($space->type == 'premium')
+                                                        <i class="fas fa-crown text-3xl mb-2"></i>
+                                                    @else
+                                                        <i class="fas fa-couch text-3xl mb-2"></i>
+                                                    @endif
+                                                    <span class="text-[9px] uppercase tracking-widest text-gray-500">{{ $space->type }}</span>
+                                                </div>
+                                                <div class="p-4">
+                                                    <h4 class="serif text-lg text-gray-500">{{ $space->name }}</h4>
+                                                    <p class="text-[9px] uppercase tracking-[0.2em] text-gray-400 mt-2">
+                                                        <i class="fas fa-users"></i> {{ $space->capacity }} players
+                                                    </p>
+                                                    <p class="text-[10px] text-gray-400 mt-2">{{ $space->description ?? '' }}</p>
+                                                    <div class="mt-3 pt-2">
+                                                        <span class="text-[9px] text-gray-400 uppercase tracking-wider">Select date & time first</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                
+                                <!-- Pagination for default view -->
+                                @if($spaces->lastPage() > 1)
+                                    <div class="flex flex-wrap justify-center items-center gap-2 mt-8 pt-4 border-t border-gray-100">
+                                        @if($spaces->onFirstPage())
+                                            <span class="px-3 py-2 bg-gray-100 text-gray-400 rounded-lg text-sm cursor-not-allowed">← Previous</span>
+                                        @else
+                                            <a href="{{ $spaces->appends(request()->query())->previousPageUrl() }}" class="px-3 py-2 bg-white border border-gray-300 text-gray-600 rounded-lg text-sm hover:border-gold">← Previous</a>
+                                        @endif
+                                        <div class="flex flex-wrap gap-1">
+                                            @foreach(range(1, $spaces->lastPage()) as $page)
+                                                @if($page == $spaces->currentPage())
+                                                    <span class="px-3 py-2 accent-gold text-white rounded-lg text-sm">{{ $page }}</span>
+                                                @else
+                                                    <a href="{{ $spaces->appends(request()->query())->url($page) }}" class="px-3 py-2 bg-white border border-gray-300 text-gray-600 rounded-lg text-sm hover:border-gold">{{ $page }}</a>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                        @if($spaces->hasMorePages())
+                                            <a href="{{ $spaces->appends(request()->query())->nextPageUrl() }}" class="px-3 py-2 bg-white border border-gray-300 text-gray-600 rounded-lg text-sm hover:border-gold">Next →</a>
+                                        @else
+                                            <span class="px-3 py-2 bg-gray-100 text-gray-400 rounded-lg text-sm cursor-not-allowed">Next →</span>
+                                        @endif
+                                    </div>
+                                    <div class="text-center text-[10px] text-gray-400 mt-4">Showing {{ $spaces->firstItem() }} to {{ $spaces->lastItem() }} of {{ $spaces->total() }} spaces</div>
+                                @endif
+                            </div>
+                            
+                            <div class="flex justify-end gap-4 pt-8">
+                                <button type="button" onclick="document.getElementById('reservationForm').reset()" class="border border-gray-300 text-gray-500 text-[11px] font-bold uppercase tracking-[0.3em] px-6 md:px-8 py-3 md:py-4 hover:bg-gray-100 transition">Clear</button>
+                                <button type="button" disabled class="bg-gray-300 text-white text-[11px] font-bold uppercase tracking-[0.3em] px-6 md:px-12 py-3 md:py-4 cursor-not-allowed">Select Date & Time First</button>
+                            </div>
+                        @elseif($spaces->count() == 0)
+                            <div class="p-8 text-center bg-yellow-50">
+                                <i class="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-3"></i>
+                                <p class="text-gray-600">No spaces match your current filters. Try adjusting your criteria.</p>
+                            </div>
+                        @else
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest">Select Your Atmosphere <span class="text-red-500">*</span></label>
+                                    <div class="text-[10px] flex gap-4">
+                                        <span class="text-green-600">✓ Available</span>
+                                        <span class="text-gray-400">⭘ Booked</span>
+                                    </div>
+                                </div>
+                                
+                                @error('space_id')
+                                    <div class="text-red-500 text-xs mb-2">{{ $message }}</div>
+                                @enderror
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    @foreach($spaces as $space)
+                                        <label class="relative cursor-pointer group space-card {{ !$space->is_available ? 'disabled opacity-40' : '' }}">
+                                            <input type="radio" name="space_id" value="{{ $space->id }}" class="peer hidden" {{ !$space->is_available ? 'disabled' : '' }} required>
+                                            
+                                            <div class="border-2 {{ $space->is_available ? 'border-gray-100 hover:border-gold' : 'border-gray-200 bg-gray-100' }} overflow-hidden transition-all duration-300 peer-checked:border-gold peer-checked:shadow-lg rounded-xl">
+                                                <div class="aspect-[4/3] bg-gray-100 flex flex-col items-center justify-center text-gray-400 relative overflow-hidden space-card-image">
+                                                    @if(!$space->is_available)
+                                                        <div class="absolute inset-0 bg-gray-300/50 flex items-center justify-center z-10">
+                                                            <span class="text-gray-500 text-xs font-bold uppercase tracking-wider px-2 py-1 bg-gray-200 rounded">Booked</span>
+                                                        </div>
+                                                    @endif
+                                                    @if($space->type == 'premium')
+                                                        <i class="fas fa-crown text-3xl mb-2 transition-transform duration-300 space-card-icon"></i>
+                                                    @else
+                                                        <i class="fas fa-couch text-3xl mb-2 transition-transform duration-300 space-card-icon"></i>
+                                                    @endif
+                                                    <span class="text-[9px] uppercase tracking-widest text-gray-500">{{ $space->type }}</span>
+                                                </div>
+                                                <div class="p-4">
+                                                    <h4 class="serif text-lg text-gray-800 transition-colors duration-300 space-card-title">{{ $space->name }}</h4>
+                                                    <p class="text-[9px] uppercase tracking-[0.2em] text-gray-400 mt-2 flex items-center gap-2">
+                                                        <i class="fas fa-users"></i> {{ $space->capacity }} players
+                                                    </p>
+                                                    <p class="text-[10px] text-gray-400 mt-2">{{ $space->description ?? '' }}</p>
+                                                    
+                                                    <!-- Available text at bottom left corner -->
+                                                    @if($space->is_available)
+                                                        <div class="mt-3 pt-2">
+                                                            <span class="text-[9px] text-green-600 uppercase tracking-wider transition-all duration-300 space-card-available">
+                                                                ✓ Available
+                                                            </span>
+                                                        </div>
+                                                    @else
+                                                        <div class="mt-3 pt-2">
+                                                            <span class="text-[9px] text-gray-400 uppercase tracking-wider">⭘ Not Available</span>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            @if($space->is_available)
+                                                <div class="absolute -top-2 -right-2 w-6 h-6 accent-gold rounded-full flex items-center justify-center opacity-0 peer-checked:opacity-100 transition-opacity">
+                                                    <i class="fas fa-check text-white text-[10px]"></i>
+                                                </div>
+                                            @endif
+                                        </label>
+                                    @endforeach
+                                </div>
+                                
+                                @if($spaces->lastPage() > 1)
+                                    <div class="flex flex-wrap justify-center items-center gap-2 mt-8 pt-4 border-t border-gray-100">
+                                        @if($spaces->onFirstPage())
+                                            <span class="px-3 py-2 bg-gray-100 text-gray-400 rounded-lg text-sm cursor-not-allowed">← Previous</span>
+                                        @else
+                                            <a href="{{ $spaces->appends(request()->query())->previousPageUrl() }}" class="px-3 py-2 bg-white border border-gray-300 text-gray-600 rounded-lg text-sm hover:border-gold">← Previous</a>
+                                        @endif
+                                        <div class="flex flex-wrap gap-1">
+                                            @foreach(range(1, $spaces->lastPage()) as $page)
+                                                @if($page == $spaces->currentPage())
+                                                    <span class="px-3 py-2 accent-gold text-white rounded-lg text-sm">{{ $page }}</span>
+                                                @else
+                                                    <a href="{{ $spaces->appends(request()->query())->url($page) }}" class="px-3 py-2 bg-white border border-gray-300 text-gray-600 rounded-lg text-sm hover:border-gold">{{ $page }}</a>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                        @if($spaces->hasMorePages())
+                                            <a href="{{ $spaces->appends(request()->query())->nextPageUrl() }}" class="px-3 py-2 bg-white border border-gray-300 text-gray-600 rounded-lg text-sm hover:border-gold">Next →</a>
+                                        @else
+                                            <span class="px-3 py-2 bg-gray-100 text-gray-400 rounded-lg text-sm cursor-not-allowed">Next →</span>
+                                        @endif
+                                    </div>
+                                    <div class="text-center text-[10px] text-gray-400 mt-4">Showing {{ $spaces->firstItem() }} to {{ $spaces->lastItem() }} of {{ $spaces->total() }} spaces</div>
+                                @endif
+                            </div>
+
+                            <div class="flex justify-end gap-4 pt-8">
+                                <button type="reset" onclick="document.getElementById('reservationForm').reset()" class="border border-gray-300 text-gray-500 text-[11px] font-bold uppercase tracking-[0.3em] px-6 md:px-8 py-3 md:py-4 hover:bg-gray-100 transition">Clear</button>
+                                <button type="submit" class="accent-gold text-white text-[11px] font-bold uppercase tracking-[0.3em] px-6 md:px-12 py-3 md:py-4 hover:bg-black transition">Confirm Adventure</button>
+>>>>>>> Stashed changes
                             </div>
                         </label>
                     @endforeach
@@ -643,6 +970,7 @@
     </footer>
 
     <script>
+<<<<<<< Updated upstream
         // GSAP is not loaded, so remove or keep only if you add GSAP CDN.
         // We'll keep only the essential JS without GSAP to avoid errors.
         function resetAllFilters() {
@@ -685,6 +1013,105 @@
                     e.preventDefault();
                     alert('⚠️ Please select an available table or room before confirming.');
                     return;
+=======
+        // Auto-refresh when any filter changes
+        const filterInputs = document.querySelectorAll('.filter-input');
+        const filterForm = document.getElementById('filterForm');
+        
+        function submitFilters() {
+            if (!filterForm) return;
+            
+            // Get current values
+            const date = document.getElementById('reservation_date').value;
+            const startTime = document.getElementById('start_time').value;
+            const endTime = document.getElementById('end_time').value;
+            const sizeFilter = document.getElementById('size_filter').value;
+            const isPrivate = document.getElementById('is_private_booking').checked ? '1' : '';
+            
+            // Validate time range if both times are selected
+            if (date && startTime && endTime) {
+                const start = new Date(`2000-01-01T${startTime}:00`);
+                const end = new Date(`2000-01-01T${endTime}:00`);
+                const diffHours = (end - start) / (1000 * 60 * 60);
+                
+                if (diffHours < 2) {
+                    alert('⚠️ Booking must be at least 2 hours.');
+                    return;
+                }
+                if (diffHours > 9) {
+                    alert('⚠️ Booking cannot exceed 9 hours.');
+                    return;
+                }
+                
+                const startMinutes = parseInt(startTime.split(':')[1]);
+                const endMinutes = parseInt(endTime.split(':')[1]);
+                
+                if (![0, 30].includes(startMinutes)) {
+                    alert('⚠️ Start time minutes must be 00 or 30.');
+                    return;
+                }
+                if (![0, 30].includes(endMinutes)) {
+                    alert('⚠️ End time minutes must be 00 or 30.');
+                    return;
+                }
+            }
+            
+            // Set hidden form values
+            document.getElementById('filter_date').value = date;
+            document.getElementById('filter_start_time').value = startTime;
+            document.getElementById('filter_end_time').value = endTime;
+            document.getElementById('filter_size').value = sizeFilter;
+            document.getElementById('filter_private').value = isPrivate;
+            
+            // Submit the form
+            filterForm.submit();
+        }
+        
+        // Add event listeners to all filter inputs
+        filterInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                setTimeout(submitFilters, 100);
+            });
+        });
+        
+        // Also trigger on checkbox change
+        const privateCheckbox = document.getElementById('is_private_booking');
+        if (privateCheckbox) {
+            privateCheckbox.addEventListener('change', function() {
+                setTimeout(submitFilters, 100);
+            });
+        }
+        
+        // Dropdown toggle
+        document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const container = this.closest('.dropdown-container');
+                const menu = container.querySelector('.dropdown-menu');
+                const icon = this.querySelector('.rotate-icon');
+                
+                document.querySelectorAll('.dropdown-container').forEach(other => {
+                    if (other !== container) {
+                        other.querySelector('.dropdown-menu')?.classList.remove('show');
+                        other.querySelector('.rotate-icon')?.classList.remove('rotated');
+                    }
+                });
+                
+                menu.classList.toggle('show');
+                icon.classList.toggle('rotated');
+            });
+        });
+        
+        // Form validation for main submission
+        const reservationForm = document.getElementById('reservationForm');
+        if (reservationForm) {
+            reservationForm.addEventListener('submit', function(e) {
+                const selectedSpace = document.querySelector('input[name="space_id"]:checked');
+                if (!selectedSpace) {
+                    e.preventDefault();
+                    alert('⚠️ Please select an available table or room before confirming your reservation.');
+>>>>>>> Stashed changes
                 }
                 canvasConfetti({ particleCount: 150, spread: 80, origin: { y: 0.5 }, colors: ['#d4a574', '#ffffff'] });
             });
