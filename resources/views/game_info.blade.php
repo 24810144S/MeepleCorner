@@ -6,20 +6,17 @@
     <title>{{ $boardGame->name }} | Meeple Corner Café</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- GSAP -->
+    <!-- GSAP & ScrollTrigger -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <!-- Canvas Confetti -->
+    <!-- Canvas Confetti & tsParticles -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* ===== RESET & GLOBAL ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --color-primary: #1a0f07;
@@ -34,7 +31,6 @@
             --transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
 
-        /* Flex sticky footer */
         body {
             display: flex;
             flex-direction: column;
@@ -45,6 +41,7 @@
             overflow-x: hidden;
         }
 
+        /* noise texture */
         body::before {
             content: "";
             position: fixed;
@@ -57,89 +54,49 @@
             z-index: 1000;
         }
 
+        /* tsParticles background */
+        #tsparticles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* floating emoji */
+        .floating-bg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 55px;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatAround 20s infinite linear;
+        }
+        @keyframes floatAround {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
+            50% { transform: translateY(-25px) rotate(8deg); opacity: 0.12; }
+            100% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
+        }
+
         h1, h2, h3, .logo {
             font-family: var(--font-heading);
             font-weight: 500;
             letter-spacing: -0.02em;
         }
 
-        /* ===== NAVBAR ===== */
-        .navbar {
-            position: relative;
-            z-index: 20;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 2rem;
-            background: rgba(26, 15, 7, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(212, 165, 116, 0.2);
-        }
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--color-accent);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        .logo:hover {
-            color: var(--color-accent-light);
-            letter-spacing: 1px;
-        }
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-        .nav-link {
-            color: var(--color-text-muted);
-            text-decoration: none;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            font-weight: 500;
-            transition: var(--transition);
-            position: relative;
-        }
-        .nav-link:hover, .nav-link.active {
-            color: var(--color-accent);
-        }
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--color-accent);
-        }
-        .user-greeting {
-            font-size: 0.7rem;
-            color: var(--color-text-muted);
-            letter-spacing: 0.1em;
-        }
-        .user-avatar {
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            border: 1px solid var(--color-accent);
-            background: rgba(212,165,116,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-        .user-avatar:hover {
-            border-color: var(--color-accent-light);
-            transform: scale(1.05);
-        }
-
-        /* ===== MAIN CONTENT ===== */
+        /* ===== NAVBAR (included via layout) ===== */
         .main-container {
             flex: 1;
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
             width: 100%;
+            position: relative;
+            z-index: 2;
         }
 
         /* ===== GAME DETAIL CARD ===== */
@@ -305,57 +262,20 @@
         }
 
         @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            .nav-links {
-                gap: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            .game-grid {
-                grid-template-columns: 1fr;
-            }
-            .game-image {
-                min-height: 300px;
-            }
-            .main-container {
-                padding: 1rem;
-            }
-            .action-buttons {
-                flex-direction: column;
-            }
+            .main-container { padding: 1rem; }
+            .game-grid { grid-template-columns: 1fr; }
+            .game-image { min-height: 300px; }
+            .action-buttons { flex-direction: column; }
         }
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <a href="/" class="logo">Meeple Corner Café</a>
-        <div class="nav-links">
-            <a href="/" class="nav-link">Home</a>
-            <a href="{{ route('board-games.index') }}" class="nav-link active">Board Games</a>
-            <a href="/events" class="nav-link">Events</a>
-            <a href="/reservation" class="nav-link">Reservations</a>
-            <a href="/menu" class="nav-link">Menu</a>
-        </div>
-        <div class="flex items-center gap-4">
-            <span class="user-greeting">Welcome, {{ session('member_name', 'Guest') }}</span>
-            <a href="/profile/info" class="user-avatar">
-                <i class="fas fa-user text-gold text-sm"></i>
-            </a>
-            @auth
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                    @csrf
-                    <button type="submit" class="text-[10px] uppercase tracking-widest text-red-400 hover:text-red-300">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Exit
-                    </button>
-                </form>
-            @endauth
-        </div>
-    </nav>
+    <!-- tsParticles + floating emoji -->
+    <div id="tsparticles"></div>
+    <div class="floating-bg">🎲 🃏 🧩 🎯 🎲</div>
+
+    @include('layouts.navbar')
 
     <main class="main-container">
         <div class="game-card">
@@ -393,8 +313,8 @@
                             <i class="fas fa-arrow-left"></i> Back to Library
                         </a>
                         @if($boardGame->is_available)
-                            <a href="/reservation?game={{ $boardGame->id }}" class="btn-book" id="bookBtn">
-                                <i class="fas fa-calendar-check"></i> Reserve This Game
+                            <a href="/reservation" class="btn-book" id="bookBtn">
+                                <i class="fas fa-calendar-check"></i> Reserve Room Now
                             </a>
                         @endif
                     </div>
@@ -418,22 +338,37 @@
     </footer>
 
     <script>
-        // GSAP fade-in animation
+        // 1. Initialize tsParticles
+        tsParticles.load("tsparticles", {
+            fpsLimit: 60,
+            particles: {
+                number: { value: 40, density: { enable: true, value_area: 800 } },
+                color: { value: ["#d4a574", "#e8c9a9", "#2a9d8f", "#9b5de5"] },
+                shape: { type: ["circle", "square", "triangle"] },
+                opacity: { value: 0.3, random: true },
+                size: { value: 5, random: true },
+                move: { enable: true, speed: 1, direction: "none", random: true, straight: false, outModes: "out" }
+            },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } }
+            }
+        });
+
+        // 2. GSAP fade-in animations
         gsap.from(".game-card", { opacity: 0, y: 40, duration: 0.8, ease: "power2.out" });
         gsap.from(".game-image", { opacity: 0, scale: 0.95, duration: 0.8, delay: 0.2 });
         gsap.from(".game-content", { opacity: 0, x: 30, duration: 0.8, delay: 0.3 });
 
-        // Confetti on "Reserve" button click
+        // 3. Confetti on "Reserve" button click (without blocking navigation)
         const bookBtn = document.getElementById('bookBtn');
         if (bookBtn) {
             bookBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                canvasConfetti({ particleCount: 150, spread: 80, origin: { y: 0.5 }, colors: ['#d4a574', '#ffffff'] });
-                setTimeout(() => { window.location.href = this.href; }, 300);
+                canvasConfetti({ particleCount: 150, spread: 90, origin: { y: 0.5 }, colors: ['#d4a574', '#ffffff'] });
+                // Navigation happens naturally (href)
             });
         }
 
-        // Fun facts array (can be customized per game)
+        // 4. Fun facts array (can be extended)
         const funFacts = [
             "🎲 Did you know? {{ $boardGame->name }} was designed in {{ rand(2000, 2020) }}.",
             "🏆 This game won the 'Best Strategy Game' award in its category!",
@@ -460,9 +395,7 @@
         }
         
         rollFactBtn.addEventListener('click', rollFact);
-        
-        // Initial random fact
-        rollFact();
+        rollFact(); // initial random fact
     </script>
 </body>
 </html>
