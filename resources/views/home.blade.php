@@ -105,7 +105,7 @@
 
         .header_image {
             flex: 1;
-            background-image: url("{{ asset('/IND/images/coffee.png') }}");
+            background-image: url("{{ asset('img/coffee.png') }}");
             background-size: cover;
             background-position: center 30%;
             position: relative;
@@ -663,7 +663,7 @@
         <p class="header_subtitle">
             A boutique board game café where every visit is a new adventure. Sip, strategize, and socialize.
         </p>
-        <a href="create" class="cta-button">Explore Our Games</a>
+       <a href="/reservation"><button class="cta-button">Explore Our Games</button></a>
     </div>
     <div class="header_image"></div>
 </header>
@@ -895,14 +895,15 @@
     }
 
     // CTA button confetti
-    const ctaButton = document.querySelector('.cta-button');
-    if (ctaButton) {
-        ctaButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            canvasConfetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
-            setTimeout(() => { window.location.href = '/games'; }, 300);
-        });
-    }
+    const exploreBtn = document.getElementById('exploreBtn');
+        if (exploreBtn) {
+            exploreBtn.addEventListener('click', function(e) {
+                // Fire confetti, but DO NOT prevent default
+                canvasConfetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+                // Allow the browser to navigate naturally
+                // (no e.preventDefault(), no setTimeout redirect)
+            });
+        }
 
     // Add confetti to each game card click
     document.querySelectorAll('.product_card').forEach(card => {
