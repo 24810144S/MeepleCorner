@@ -328,7 +328,7 @@
                             <input type="text" name="last_name" value="{{ old('last_name', $member->last_name) }}" class="form-input" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Address</label>
+                            <label class="form-label">Nickname</label>
                             <input type="text" name="address" value="{{ old('address', $member->address) }}" class="form-input" required>
                         </div>
                         <div class="form-group">
