@@ -73,7 +73,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/profile/password', [MemberController::class, 'updatePassword'])->name('profile.password');
     Route::get('/profile/history', [ReservationController::class, 'profileHistory'])->name('profile.history');
 });
-
-//260415_confirm @fj
+Route::get('/reservation', [ReservationController::class, 'create'])->name('reservation');
+Route::post('/reservation', [ReservationController::class, 'store']);
 Route::get('/reservation/confirm', [ReservationController::class, 'showConfirm'])->name('reservation.confirm');
 Route::post('/reservation/confirm', [ReservationController::class, 'processConfirm'])->name('reservation.process');
