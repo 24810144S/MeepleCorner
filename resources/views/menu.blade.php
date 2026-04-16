@@ -3,189 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Menu | Meeple Corner Café</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+    <!-- tsParticles -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #FDFCF6; font-family: 'Jost', sans-serif; color: #1A1A1A; }
-        .serif { font-family: 'Cormorant Garamond', serif; }
-        .sidebar { width: 260px; background-color: #1a1a1a; color: white; }
-        .sidebar-item { transition: all 0.3s ease; text-transform: uppercase; font-size: 11px; color: #9ca3af; }
-        .sidebar-item:hover, .sidebar-item.active { color: #C5A059; }
-        .sidebar-item.active { border-right: 3px solid #C5A059; background: linear-gradient(to right, #1a1a1a, #262626); }
-        .accent-gold { background-color: #C5A059; }
-        .text-gold { color: #C5A059; }
-        .table-header { background-color: #f8f8f2; border-bottom: 1px solid #e5e7eb; }
-        input, select { border: 1px solid #e5e7eb; background-color: #fcfcfc; }
-        input:focus, select:focus { border-color: #C5A059 !important; outline: none; }
-        
-        .main-wrapper {
-        margin-left: 260px;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-        /* Sidebar base styles */
-        .sidebar { width: 260px; background-color: #1a1a1a; color: white; position: relative; z-index: 20; height: 100vh; overflow-y: auto; }
-        .sidebar-item { transition: all 0.3s ease; text-transform: uppercase; font-size: 11px; color: #9ca3af; cursor: pointer; width: 100%; }
-        .sidebar-item:hover, .sidebar-item.active { color: #C5A059; }
-        .sidebar-item.active { border-right: 3px solid #C5A059; background: linear-gradient(to right, #1a1a1a, #262626); }
-
-        /* Dropdown styles */
-        .dropdown-menu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
-        .dropdown-menu.show { max-height: 400px; }
-        .rotate-icon { transition: transform 0.3s ease; }
-        .rotate-icon.rotated { transform: rotate(90deg); }
-        .sub-sidebar-item {
-            transition: all 0.3s ease;
-            font-size: 10px;
-            color: #7a7a7a;
-            border-left: 3px solid transparent;
-            padding: 10px 16px 10px 32px;
-            border-radius: 4px;
-            width: 100%;
+        /* ===== RESET & GLOBAL ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .sub-sidebar-item:hover { color: #C5A059; border-left-color: #C5A059; background: linear-gradient(to right, #1a1a1a, #222222); }
-        .sub-sidebar-item.active { color: #C5A059; border-left-color: #C5A059; background: linear-gradient(to right, #1a1a1a, #262626); }
+
+        :root {
+            --color-primary: #1a0f07;
+            --color-secondary: #2c1810;
+            --color-accent: #d4a574;
+            --color-accent-light: #e8c9a9;
+            --color-white: #ffffff;
+            --color-text: rgba(255, 255, 255, 0.82);
+            --color-text-muted: rgba(255, 255, 255, 0.55);
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Inter', sans-serif;
+            --transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: var(--font-body);
+            background-color: var(--color-primary);
+            color: var(--color-text);
+            overflow-x: hidden;
+        }
+
+        /* noise texture */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* particles background */
+        #tsparticles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* floating emoji */
+        .floating-bg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 55px;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatAround 20s infinite linear;
+        }
+        @keyframes floatAround {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
+            50% { transform: translateY(-25px) rotate(8deg); opacity: 0.12; }
+            100% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
+        }
+
+        /* main container */
+        .main-container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* header */
+        .menu-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .menu-header h1 {
+            font-family: var(--font-heading);
+            font-size: 2.8rem;
+            color: var(--color-white);
+            margin-bottom: 0.5rem;
+        }
+        .menu-header p {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            letter-spacing: 0.2em;
+        }
+
+        /* category section */
+        .menu-category {
+            margin-bottom: 3rem;
+        }
+        .category-title {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            color: var(--color-accent);
+            border-bottom: 2px solid rgba(212,165,116,0.3);
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.3rem;
+        }
+        .menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .menu-item {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(4px);
+            border-radius: 20px;
+            padding: 1rem;
+            transition: var(--transition);
+            border: 1px solid rgba(212,165,116,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .menu-item:hover {
+            background: rgba(212,165,116,0.08);
+            border-color: var(--color-accent);
+            transform: translateX(8px);
+        }
+        .item-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex: 2;
+        }
+        .item-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: rgba(0,0,0,0.3);
+        }
+        .item-details {
+            flex: 1;
+        }
+        .item-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-white);
+            margin-bottom: 0.25rem;
+        }
+        .item-description {
+            font-size: 0.75rem;
+            color: var(--color-text-muted);
+        }
+        .item-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--color-accent);
+            margin-left: 1rem;
+            min-width: 80px;
+            text-align: right;
+        }
+        .order-btn {
+            background: transparent;
+            border: 1px solid var(--color-accent);
+            color: var(--color-accent);
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-left: 1rem;
+        }
+        .order-btn:hover {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            transform: scale(1.05);
+        }
+
+        /* footer */
+        .footer {
+            background-color: #0c0704;
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(212,165,116,0.2);
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+            letter-spacing: 0.1em;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem;
+            }
+            .menu-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.8rem;
+            }
+            .item-price {
+                text-align: left;
+                margin-left: 0;
+            }
+            .order-btn {
+                margin-left: 0;
+                width: 100%;
+                text-align: center;
+            }
+            .item-info {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
-    @include('layouts.sidebar')
-    <div class="main-wrapper">
 
-        <aside class="sidebar flex flex-col shrink-0" style="background-color: #1a1a1a;">
-            <div class="p-8">
-                <div class="serif text-2xl font-bold tracking-tighter text-white">M<span class="text-gold">.</span>C</div>
-                <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500 mt-2">Boutique Admin</p>
-            </div>
-            <nav class="flex-1 px-4 space-y-2">
-                <!-- Home -->
-                <a href="/" class="sidebar-item flex items-center px-4 py-4 rounded-sm" style="justify-content: flex-start;">
-                    <i class="fas fa-home w-5 text-xs mr-3"></i><span>Home</span>
-                </a>
-                
-                <!-- Reservations -->
-                <a href="/reservation" class="sidebar-item flex items-center px-4 py-4 rounded-sm" style="justify-content: flex-start;">
-                    <i class="fas fa-calendar-alt w-5 text-xs mr-3"></i><span>Reservations</span>
-                </a>
-                
-                <!-- My Account Dropdown -->
-                <div class="dropdown-container">
-                    <div class="sidebar-item dropdown-toggle flex items-center justify-between px-4 py-4 rounded-sm cursor-pointer">
-                        <div class="flex items-center">
-                            <i class="fas fa-user w-5 text-xs mr-3"></i><span>My Account</span>
-                        </div>
-                        <i class="fas fa-chevron-right rotate-icon text-[8px] transition-transform"></i>
-                    </div>
-                    <div class="dropdown-menu ml-6">
-                        <a href="/profile/info" class="sub-sidebar-item flex items-center px-4 py-3 rounded-sm">
-                            <i class="fas fa-id-card w-4 text-[10px] mr-3"></i> My Info
-                        </a>
-                        <a href="/profile/edit" class="sub-sidebar-item flex items-center px-4 py-3 rounded-sm">
-                            <i class="fas fa-edit w-4 text-[10px] mr-3"></i> Edit My Account
-                        </a>
-                        <a href="/profile/history" class="sub-sidebar-item flex items-center px-4 py-3 rounded-sm">
-                            <i class="fas fa-history w-4 text-[10px] mr-3"></i> Reservation History
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Game Library -->
-                <a href="{{ route('board-games') }}" class="sidebar-item flex items-center px-4 py-4 rounded-sm" style="justify-content: flex-start;">
-                    <i class="fas fa-chess-knight w-5 text-xs mr-3"></i><span>Game Library</span>
-                </a>
-                
-                <!-- Menu (ACTIVE) -->
-                <a href="{{ route('menu') }}" class="sidebar-item active flex items-center px-4 py-4 rounded-sm" style="justify-content: flex-start;">
-                    <i class="fas fa-coffee w-5 text-xs mr-3"></i><span>Menu</span>
-                </a>
-            </nav>
-            <div class="p-8 border-t border-white/5">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="text-[10px] uppercase tracking-widest text-red-400 font-bold hover:text-red-300 flex items-center gap-2 w-full">
-                        <i class="fas fa-sign-out-alt"></i> Sign Out
-                    </button>
-                </form>
-            </div>
-        </aside>
+    @include('layouts.navbar')
 
-        <main class="flex-1 flex flex-col">
-            <header class="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-10 shrink-0">
-                <div><h2 class="serif text-2xl text-gray-800 italic">Our Menu</h2></div>
-                <div class="flex items-center space-x-6">
-                    <span class="text-[11px] uppercase tracking-widest text-gray-400">
-                        @if(session()->has('member_name')) Greetings, {{ session('member_name') }} @else Greetings, Guest @endif
-                    </span>
-                    <a href="/profile/info" class="w-10 h-10 border border-gray-100 p-1 rounded-full hover:border-gold transition-colors block">
-                        <div class="w-full h-full bg-gray-200 rounded-full"></div>
-                    </a>
-                </div>
-            </header>
+    <div id="tsparticles"></div>
+    <div class="floating-bg">☕ 🍰 🥪 🎲</div>
 
-            <div class="p-10 max-w-7xl w-full mx-auto">
-                <div class="bg-white border border-gray-100 p-8 shadow-sm">
-                    <div class="mb-8 border-b border-gray-100 pb-4">
-                        <h3 class="serif text-3xl text-gray-800 italic">Kitchen & Bar</h3>
-                        <p class="text-[11px] uppercase tracking-[0.2em] text-gray-400 mt-1">Curated for the discerning palate</p>
-                    </div>
+    <main class="main-container">
+        <div class="menu-header">
+            <h1>☕ Our Menu</h1>
+            <p>Curated for the discerning palate</p>
+        </div>
 
-                    @forelse($groupedMenu as $category => $items)
-                        <div class="mb-12">
-                            <h4 class="text-[13px] font-bold uppercase tracking-[0.3em] text-gold mb-4">{{ $category }}</h4>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                @foreach($items as $item)
-                                    <div class="flex justify-between items-start border-b border-gray-50 pb-3 hover:bg-gray-50/30 px-2 transition">
-                                        <div class="flex-1">
-                                            <div class="flex items-center gap-3">
-                                                @if($item->image)
-                                                    <img src="{{ asset('storage/'.$item->image) }}" class="w-12 h-12 object-cover grayscale hover:grayscale-0 transition">
-                                                @else
-                                                    <div class="w-12 h-12 bg-gray-100 flex items-center justify-center text-gray-300"><i class="fas fa-utensils"></i></div>
-                                                @endif
-                                                <div>
-                                                    <h5 class="font-bold text-gray-800 tracking-wide">{{ $item->name }}</h5>
-                                                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">{{ $item->description }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <span class="text-gold font-bold text-sm ml-4">${{ number_format($item->price, 2) }}</span>
+        @forelse($groupedMenu as $category => $items)
+            <div class="menu-category">
+                <h2 class="category-title">{{ ucfirst($category) }}</h2>
+                <div class="menu-items">
+                    @foreach($items as $item)
+                        <div class="menu-item" data-item-id="{{ $item->id }}" data-item-name="{{ $item->name }}">
+                            <div class="item-info">
+                                @if($item->image)
+                                    <img src="{{ asset('storage/' . $item->image) }}" class="item-image" alt="{{ $item->name }}">
+                                @else
+                                    <div class="item-image flex items-center justify-center bg-gray-800">
+                                        <i class="fas fa-utensils text-gray-500 text-xl"></i>
                                     </div>
-                                @endforeach
+                                @endif
+                                <div class="item-details">
+                                    <div class="item-name">{{ $item->name }}</div>
+                                    <div class="item-description">{{ $item->description }}</div>
+                                </div>
                             </div>
+                            <div class="item-price">${{ number_format($item->price, 2) }}</div>
+                            
                         </div>
-                    @empty
-                        <p class="text-center text-gray-400 py-8">No menu items available yet.</p>
-                    @endforelse
+                    @endforeach
                 </div>
             </div>
+        @empty
+            <div class="text-center text-gray-400 py-8">No menu items available yet.</div>
+        @endforelse
+    </main>
 
-            <footer class="mt-auto p-10 text-center text-[10px] uppercase tracking-[0.3em] text-gray-400 border-t border-gray-50">
-                © 2026 Meeple Corner Café — Established for the Strategic Mind
-            </footer>
-        </main>
-    </div>
+    <footer class="footer">
+        © 2026 Meeple Corner Café — Roll responsibly. Sip slowly. Play often.
+    </footer>
 
     <script>
-    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
-        toggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const container = this.closest('.dropdown-container');
-            const menu = container.querySelector('.dropdown-menu');
-            const icon = this.querySelector('.rotate-icon');
-            
-            document.querySelectorAll('.dropdown-container').forEach(other => {
-                if (other !== container) {
-                    other.querySelector('.dropdown-menu')?.classList.remove('show');
-                    other.querySelector('.rotate-icon')?.classList.remove('rotated');
-                }
-            });
-            
-            menu.classList.toggle('show');
-            icon.classList.toggle('rotated');
+        // GSAP animations
+        gsap.from(".menu-header", { opacity: 0, y: 30, duration: 0.8, ease: "power2.out" });
+        gsap.from(".menu-category", { opacity: 0, y: 20, duration: 0.6, stagger: 0.15, scrollTrigger: { trigger: ".menu-category", start: "top 85%" } });
+
+        // tsParticles
+        tsParticles.load("tsparticles", {
+            fpsLimit: 60,
+            particles: {
+                number: { value: 40, density: { enable: true, value_area: 800 } },
+                color: { value: ["#d4a574", "#e8c9a9", "#2a9d8f", "#9b5de5"] },
+                shape: { type: ["circle", "square", "triangle"] },
+                opacity: { value: 0.3, random: true },
+                size: { value: 5, random: true },
+                move: { enable: true, speed: 1, direction: "none", random: true, straight: false, outModes: "out" }
+            },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } }
+            }
         });
-    });
+
+        // Order button confetti
+        function celebrate() {
+            canvasConfetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors: ['#d4a574', '#e8c9a9', '#ffffff'] });
+        }
+
+        document.querySelectorAll('.order-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const itemName = btn.getAttribute('data-item-name') || 'this item';
+                celebrate();
+                alert(`🎉 You added "${itemName}" to your order! Please visit the counter to complete your purchase.`);
+            });
+        });
+
     </script>
 </body>
 </html>
