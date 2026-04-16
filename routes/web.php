@@ -77,3 +77,4 @@ Route::get('/reservation', [ReservationController::class, 'create'])->name('rese
 Route::post('/reservation', [ReservationController::class, 'store']);
 Route::get('/reservation/confirm', [ReservationController::class, 'showConfirm'])->name('reservation.confirm');
 Route::post('/reservation/confirm', [ReservationController::class, 'processConfirm'])->name('reservation.process');
+Route::post('/reservation/temp', [ReservationController::class, 'storeTemp'])->name('reservation.temp');

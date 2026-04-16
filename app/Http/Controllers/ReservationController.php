@@ -13,6 +13,8 @@ class ReservationController extends Controller
 {
     public function create(Request $request)
     {
+        // Check if user is logged in
+        $isLoggedIn = session()->has('member_id');
         
         // Get filter parameters
         $tableSizeFilter = $request->input('table_size_filter', 'all');
@@ -63,12 +65,15 @@ class ReservationController extends Controller
 
         $spaces = $allSpaces;
 
-        // Get user's reservations
-        $reservations = Reservation::where('member_id', session('member_id'))
-            ->with('space')
-            ->orderBy('reservation_date', 'desc')
-            ->orderBy('start_time', 'desc')
-            ->get();
+        // Get user's reservations (only if logged in)
+        $reservations = [];
+        if ($isLoggedIn) {
+            $reservations = Reservation::where('member_id', session('member_id'))
+                ->with('space')
+                ->orderBy('reservation_date', 'desc')
+                ->orderBy('start_time', 'desc')
+                ->get();
+        }
 
         // Filter options
         $tableSizeOptions = [
@@ -98,11 +103,166 @@ class ReservationController extends Controller
             'startTime',
             'endTime',
             'timeOptions',
-            'bookedSpaceIds'
+            'bookedSpaceIds',
+            'isLoggedIn'
         ));
     }
 
-    // Store reservation data in session and redirect to confirmation page
+    // Store temporary reservation data and redirect to login
+    public function storeTemp(Request $request)
+    {
+        // Validate request
+        $validated = $request->validate([
+            'reservation_date' => 'required|date|after_or_equal:today',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'space_id' => 'required|exists:spaces,id',
+        ]);
+
+        // Parse times
+        $startTime = Carbon::parse($validated['start_time']);
+        $endTime = Carbon::parse($validated['end_time']);
+        
+        // Calculate duration in minutes
+        $durationMinutes = $startTime->diffInMinutes($endTime);
+        
+        // Rule A: Minimum 2 hours
+        if ($durationMinutes < 120) {
+            return back()->withErrors(['end_time' => 'Booking must be at least 2 hours.'])->withInput();
+        }
+        
+        // Rule C: Maximum 9 hours
+        if ($durationMinutes > 540) {
+            return back()->withErrors(['end_time' => 'Booking cannot exceed 9 hours.'])->withInput();
+        }
+        
+        // Rule B: Minutes must be 00 or 30
+        $startMinutes = (int)$startTime->format('i');
+        $endMinutes = (int)$endTime->format('i');
+        
+        if (!in_array($startMinutes, [0, 30])) {
+            return back()->withErrors(['start_time' => 'Start time minutes must be 00 or 30.'])->withInput();
+        }
+        
+        if (!in_array($endMinutes, [0, 30])) {
+            return back()->withErrors(['end_time' => 'End time minutes must be 00 or 30.'])->withInput();
+        }
+        
+        // Hours must be between 08:00 and 22:00
+        $startHour = (int)$startTime->format('H');
+        
+        if ($startHour < 8 || $startHour > 22) {
+            return back()->withErrors(['start_time' => 'Start time must be between 08:00 and 22:00.'])->withInput();
+        }
+
+        // Check for time conflict
+        $hasConflict = Reservation::where('space_id', $validated['space_id'])
+            ->where('reservation_date', $validated['reservation_date'])
+            ->where(function($q) use ($startTime, $endTime) {
+                $q->where('start_time', '<', $endTime->format('H:i:s'))
+                  ->where('end_time', '>', $startTime->format('H:i:s'));
+            })
+            ->exists();
+
+        if ($hasConflict) {
+            return back()->withErrors(['time_slot' => 'This time slot conflicts with an existing booking.'])->withInput();
+        }
+
+        // Store data in session and redirect to login
+        session(['temp_reservation_data' => [
+            'space_id' => $validated['space_id'],
+            'reservation_date' => $validated['reservation_date'],
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+            'is_private_booking' => $request->has('is_private_booking') && $request->input('is_private_booking') == 1 ? 1 : 0,
+        ]]);
+
+        // Store the intended URL to return after login
+        session(['url.intended' => '/reservation/confirm']);
+
+        return redirect('/login');
+    }
+
+    // Show confirmation page before final submission
+    public function showConfirm()
+    {
+        if (!session()->has('member_id')) {
+            return redirect('/login');
+        }
+
+        // Check for temporary reservation data (guest booking)
+        $reservationData = session('temp_reservation_data');
+        
+        // If no temp data, check for regular session data
+        if (!$reservationData) {
+            $reservationData = session('reservation_data');
+        }
+        
+        if (!$reservationData) {
+            return redirect('/reservation')->with('error', 'Please select your booking details first.');
+        }
+
+        $space = Space::find($reservationData['space_id']);
+        $member = Member::find(session('member_id'));
+
+        return view('reservations.confirm', compact('reservationData', 'space', 'member'));
+    }
+
+    // Process final confirmation and redirect to history
+    public function processConfirm(Request $request)
+    {
+        if (!session()->has('member_id')) {
+            return redirect('/login');
+        }
+
+        // Check for temporary reservation data first (guest booking)
+        $reservationData = session('temp_reservation_data');
+        
+        // If no temp data, check for regular session data
+        if (!$reservationData) {
+            $reservationData = session('reservation_data');
+        }
+        
+        if (!$reservationData) {
+            return redirect('/reservation')->with('error', 'Session expired. Please try again.');
+        }
+
+        // Check for time conflict again
+        $hasConflict = Reservation::where('space_id', $reservationData['space_id'])
+            ->where('reservation_date', $reservationData['reservation_date'])
+            ->where(function($q) use ($reservationData) {
+                $q->where('start_time', '<', $reservationData['end_time'])
+                  ->where('end_time', '>', $reservationData['start_time']);
+            })
+            ->exists();
+
+        if ($hasConflict) {
+            session()->forget(['temp_reservation_data', 'reservation_data']);
+            return redirect('/reservation')->withErrors(['time_slot' => 'This time slot is no longer available. Please select another.']);
+        }
+
+        // Create reservation
+        $reservation = Reservation::create([
+            'member_id' => session('member_id'),
+            'space_id' => $reservationData['space_id'],
+            'reservation_date' => $reservationData['reservation_date'],
+            'start_time' => $reservationData['start_time'],
+            'end_time' => $reservationData['end_time'],
+            'status' => 'confirmed',
+            'is_private_booking' => $reservationData['is_private_booking'] ?? 0,
+        ]);
+
+        // Clear session data
+        session()->forget(['temp_reservation_data', 'reservation_data', 'url.intended']);
+        
+        // Store the new reservation ID in session for highlighting
+        session()->flash('new_reservation_id', $reservation->id);
+        session()->flash('booking_success', '🎉 Your booking has been confirmed successfully!');
+
+        return redirect('/profile/history');
+    }
+
+    // Original store method for logged-in users (redirects to confirm)
     public function store(Request $request)
     {
         if (!session()->has('member_id')) {
@@ -176,73 +336,6 @@ class ReservationController extends Controller
         ]]);
 
         return redirect()->route('reservation.confirm');
-    }
-
-    // Show confirmation page before final submission
-    public function showConfirm()
-    {
-        if (!session()->has('member_id')) {
-            return redirect('/login');
-        }
-
-        $reservationData = session('reservation_data');
-        
-        if (!$reservationData) {
-            return redirect('/reservation')->with('error', 'Please select your booking details first.');
-        }
-
-        $space = Space::find($reservationData['space_id']);
-        $member = Member::find(session('member_id'));
-
-        return view('reservations.confirm', compact('reservationData', 'space', 'member'));
-    }
-
-    // Process final confirmation and redirect to history
-    public function processConfirm()
-    {
-        if (!session()->has('member_id')) {
-            return redirect('/login');
-        }
-
-        $reservationData = session('reservation_data');
-        
-        if (!$reservationData) {
-            return redirect('/reservation')->with('error', 'Session expired. Please try again.');
-        }
-
-        // Check for time conflict again
-        $hasConflict = Reservation::where('space_id', $reservationData['space_id'])
-            ->where('reservation_date', $reservationData['reservation_date'])
-            ->where(function($q) use ($reservationData) {
-                $q->where('start_time', '<', $reservationData['end_time'])
-                  ->where('end_time', '>', $reservationData['start_time']);
-            })
-            ->exists();
-
-        if ($hasConflict) {
-            session()->forget('reservation_data');
-            return redirect('/reservation')->withErrors(['time_slot' => 'This time slot is no longer available. Please select another.']);
-        }
-
-        // Create reservation
-        $reservation = Reservation::create([
-            'member_id' => session('member_id'),
-            'space_id' => $reservationData['space_id'],
-            'reservation_date' => $reservationData['reservation_date'],
-            'start_time' => $reservationData['start_time'],
-            'end_time' => $reservationData['end_time'],
-            'status' => 'confirmed',
-            'is_private_booking' => $reservationData['is_private_booking'] ?? 0,
-        ]);
-
-        // Clear session data
-        session()->forget('reservation_data');
-        
-        // Store the new reservation ID in session for highlighting
-        session()->flash('new_reservation_id', $reservation->id);
-        session()->flash('booking_success', '🎉 Your booking has been confirmed successfully!');
-
-        return redirect('/profile/history');
     }
 
     public function cancel(Reservation $reservation)

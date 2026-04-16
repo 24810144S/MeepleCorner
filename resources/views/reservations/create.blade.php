@@ -1032,6 +1032,25 @@
         window.addEventListener('load', function() {
             hideLoading();
         });
+
+        function bookSelectedSpace() {
+            if (selectedSpaceForModal) {
+                var form = document.getElementById('reservationForm');
+                var isLoggedIn = {{ $isLoggedIn ? 'true' : 'false' }};
+                
+                document.getElementById('selected_space_id').value = selectedSpaceForModal;
+                
+                if (isLoggedIn) {
+                    // Logged in user - submit to regular store
+                    form.action = '/reservation';
+                    form.submit();
+                } else {
+                    // Guest - submit to temp store which redirects to login
+                    form.action = '/reservation/temp';
+                    form.submit();
+                }
+            }
+        }
     </script>
 </body>
 </html>

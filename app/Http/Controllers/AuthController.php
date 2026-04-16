@@ -10,27 +10,27 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     public function showLogin(Request $request)
-{
-    // If already logged in, go to reservation
-    if (session()->has('member_id')) {
-        return redirect('/reservation');
-    }
-
-    // Store the intended URL from query string
-    $redirect = $request->query('redirect');
-    if ($redirect) {
-        session(['url.intended' => $redirect]);
-        \Log::info('Stored redirect from query: ' . $redirect);
-    } else {
-        $previous = url()->previous();
-        if (!str_contains($previous, '/login') && $previous !== url('/')) {
-            session(['url.intended' => $previous]);
-            \Log::info('Stored redirect from previous: ' . $previous);
+    {
+        // If already logged in, go to reservation
+        if (session()->has('member_id')) {
+            return redirect('/reservation');
         }
-    }
 
-    return view('auth.login');
-}
+        // Store the intended URL from query string
+        $redirect = $request->query('redirect');
+        if ($redirect) {
+            session(['url.intended' => $redirect]);
+            \Log::info('Stored redirect from query: ' . $redirect);
+        } else {
+            $previous = url()->previous();
+            if (!str_contains($previous, '/login') && $previous !== url('/')) {
+                session(['url.intended' => $previous]);
+                \Log::info('Stored redirect from previous: ' . $previous);
+            }
+        }
+
+        return view('auth.login');
+    }
 
     public function login(Request $request)
     {
@@ -46,20 +46,30 @@ class AuthController extends Controller
         }
 
         // Store session data
-        session()->regenerate(); // Important: prevent session fixation
+        session()->regenerate();
         session([
             'member_id' => $member->id,
             'member_email' => $member->email,
             'member_name' => $member->first_name . ' ' . $member->last_name,
         ]);
 
-        // Also set a cookie for "Remember Me" if checked
         if ($request->has('remember')) {
             session()->put('remember_me', true);
         }
 
-        // Debug: Check if session is set
         \Log::info('User logged in:', ['member_id' => $member->id, 'session_id' => session()->getId()]);
+
+        // Check if there's an intended URL or temp reservation data
+        $intendedUrl = session('url.intended');
+        $tempReservation = session('temp_reservation_data');
+        
+        if ($tempReservation) {
+            // Guest had selected a table, redirect to confirmation page
+            return redirect('/reservation/confirm');
+        } elseif ($intendedUrl) {
+            session()->forget('url.intended');
+            return redirect($intendedUrl);
+        }
 
         return redirect('/reservation');
     }
