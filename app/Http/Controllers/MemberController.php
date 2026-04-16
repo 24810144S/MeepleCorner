@@ -26,10 +26,29 @@ class MemberController extends Controller
 
         $validated['password'] = Hash::make($validated['password']);
         $validated['subscribe_events'] = $request->has('subscribe_events');
+        
+        // Handle security answers
+        $validated['security_q1_id'] = $request->security_q1_id;
+        $validated['security_a1'] = $request->security_a1;
+        $validated['security_a2'] = $request->security_a2;
+        $validated['security_a3'] = $request->security_a3;
 
-        Member::create($validated);
+        $member = Member::create($validated);
+        
+        // Auto-login after registration
+        session()->regenerate();
+        session([
+            'member_id' => $member->id,
+            'member_email' => $member->email,
+            'member_name' => $member->first_name . ' ' . $member->last_name,
+        ]);
 
-        return redirect('/login')->with('success', 'Registration successful! Please log in.');
+        // Check if there's a pending reservation from guest booking
+        if (session()->has('temp_reservation_data')) {
+            return redirect('/reservation/confirm')->with('success', 'Registration successful! Please confirm your booking.');
+        }
+
+        return redirect('/reservation')->with('success', 'Registration successful! Welcome to Meeple Corner Café!');
     }
 
     // Redirect to profile info page

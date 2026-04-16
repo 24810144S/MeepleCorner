@@ -59,18 +59,19 @@ class AuthController extends Controller
 
         \Log::info('User logged in:', ['member_id' => $member->id, 'session_id' => session()->getId()]);
 
-        // Check if there's an intended URL or temp reservation data
-        $intendedUrl = session('url.intended');
-        $tempReservation = session('temp_reservation_data');
-        
-        if ($tempReservation) {
-            // Guest had selected a table, redirect to confirmation page
+        // Priority 1: Check for pending reservation from guest booking
+        if (session()->has('temp_reservation_data')) {
             return redirect('/reservation/confirm');
-        } elseif ($intendedUrl) {
+        }
+        
+        // Priority 2: Check for intended URL
+        $intendedUrl = session('url.intended');
+        if ($intendedUrl && $intendedUrl !== url('/login')) {
             session()->forget('url.intended');
             return redirect($intendedUrl);
         }
-
+        
+        // Priority 3: Default to reservation page
         return redirect('/reservation');
     }
 
