@@ -3,177 +3,442 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Register | Meeple Corner Café</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- tsParticles -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { 
-            background-color: #FDFCF6; /* Soft Cream Background */
-            font-family: 'Jost', sans-serif;
-            color: #222;
+        /* ===== DARK THEME VARIABLES ===== */
+        :root {
+            --color-primary: #1a0f07;
+            --color-secondary: #2c1810;
+            --color-accent: #d4a574;
+            --color-accent-light: #e8c9a9;
+            --color-white: #ffffff;
+            --color-text: rgba(255, 255, 255, 0.82);
+            --color-text-muted: rgba(255, 255, 255, 0.55);
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Inter', sans-serif;
+            --transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
-        .serif { font-family: 'Cormorant Garamond', serif; }
-        .accent-gold { background-color: #C5A059; }
-        .text-gold { color: #C5A059; }
-        .border-gold { border-color: #C5A059; }
-        
-        input, select {
-            border: 1px solid #e5e7eb;
-            transition: all 0.3s ease;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        input:focus, select:focus {
-            border-color: #C5A059 !important;
-            box-shadow: 0 0 0 3px rgba(197,160,89,0.15);
-            outline: none;
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: var(--font-body);
+            background-color: var(--color-primary);
+            color: var(--color-text);
+            overflow-x: hidden;
         }
+
+        /* noise texture */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        /* tsParticles background */
+        #tsparticles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* floating emoji */
+        .floating-bg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 55px;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatAround 20s infinite linear;
+        }
+        @keyframes floatAround {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
+            50% { transform: translateY(-25px) rotate(8deg); opacity: 0.12; }
+            100% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
+        }
+
+        /* main wrapper */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* form card */
         .form-card {
-            background: #ffffff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid rgba(212,165,116,0.2);
+            display: flex;
+            flex-direction: row;
+            box-shadow: 0 25px 45px -12px rgba(0,0,0,0.5);
+        }
+
+        /* left side brand */
+        .brand-side {
+            flex: 1;
+            background: linear-gradient(135deg, rgba(44,24,16,0.6) 0%, rgba(26,15,7,0.8) 100%);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .brand-side h1 {
+            font-family: var(--font-heading);
+            font-size: 2.2rem;
+            color: var(--color-white);
+            margin-bottom: 0.5rem;
+        }
+        .brand-divider {
+            width: 50px;
+            height: 2px;
+            background: var(--color-accent);
+            margin: 1rem 0 2rem;
+        }
+        .brand-features {
+            margin-top: auto;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .feature-item i {
+            color: var(--color-accent);
+            font-size: 1.2rem;
+            margin-top: 0.2rem;
+        }
+        .feature-item p {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
+        }
+
+        /* right side form */
+        .form-side {
+            flex: 2;
+            padding: 2rem;
+        }
+        .form-side h2 {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            color: var(--color-white);
+            margin-bottom: 0.25rem;
+        }
+        .form-subtitle {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--color-text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        /* form elements */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-label {
+            display: block;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--color-accent);
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+        }
+        .form-input, .form-select {
+            width: 100%;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(212,165,116,0.3);
+            border-radius: 40px;
+            padding: 0.7rem 1rem;
+            color: white;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            background: rgba(0,0,0,0.5);
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+        }
+        .checkbox-label input {
+            accent-color: var(--color-accent);
+            width: 1rem;
+            height: 1rem;
+        }
+        .btn-submit {
+            width: 100%;
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border: none;
+            border-radius: 40px;
+            padding: 0.8rem;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+        .btn-submit:hover {
+            background: var(--color-accent-light);
+            transform: translateY(-2px);
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+        }
+        .login-link a {
+            color: var(--color-accent);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        .error-text {
+            color: #f87171;
+            font-size: 0.7rem;
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-card {
+                flex-direction: column;
+            }
+            .brand-side {
+                text-align: center;
+            }
+            .brand-divider {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .feature-item {
+                justify-content: center;
+            }
+            .main-wrapper {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen py-12 px-4">
-    
-    <div class="max-w-5xl w-full flex flex-col md:flex-row form-card rounded-xl overflow-hidden border border-gray-100">
-        
-        <div class="hidden md:flex md:w-1/3 flex-col justify-between p-12 text-white relative overflow-hidden" style="background-color: #1a1a1a;">
-            <div class="relative z-10">
-                <h1 class="serif text-4xl mb-4 leading-tight">Meeple Corner<br>Café</h1>
-                <div class="h-1 w-12 accent-gold mb-8"></div>
-                <p class="text-sm font-light leading-loose opacity-80 uppercase tracking-widest">Coffee • Strategy • Community</p>
+<body>
+
+    <!-- tsParticles + floating emoji -->
+    <div id="tsparticles"></div>
+    <div class="floating-bg">🎲 🃏 🧩 🎯 🎲</div>
+
+    @include('layouts.navbar')
+
+    <div class="main-wrapper">
+        <div class="form-card">
+            <!-- Left brand side -->
+            <div class="brand-side">
+                <div>
+                    <h1>Meeple Corner<br>Café</h1>
+                    <div class="brand-divider"></div>
+                    <p class="text-sm font-light leading-loose opacity-80 uppercase tracking-widest">Coffee • Strategy • Community</p>
+                </div>
+                <div class="brand-features">
+                    <div class="feature-item">
+                        <i class="fas fa-shield-halved"></i>
+                        <p>Secured with three-tier protection</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-envelope-open-text"></i>
+                        <p>Exclusive invitations to game nights</p>
+                    </div>
+                </div>
             </div>
-            
-            <div class="relative z-10 space-y-6">
-                <div class="flex items-start space-x-4">
-                    <i class="fas fa-shield-halved text-gold mt-1"></i>
-                    <p class="text-xs uppercase tracking-wider font-medium">Secured with three-tier protection</p>
-                </div>
-                <div class="flex items-start space-x-4">
-                    <i class="fas fa-envelope-open-text text-gold mt-1"></i>
-                    <p class="text-xs uppercase tracking-wider font-medium">Exclusive invitations to game nights</p>
-                </div>
-            </div>
-            
-            <div class="absolute -bottom-10 -left-10 w-40 h-40 border-8 border-gold opacity-10 rounded-full"></div>
-        </div>
 
-        <div class="flex-1 p-8 md:p-16">
-            <header class="mb-10 text-center md:text-left">
-                <h2 class="serif text-4xl text-gray-800 mb-2">Create Account</h2>
-                <p class="text-gray-400 text-sm italic">Enter your details to join our tabletop family</p>
-            </header>
-            
-            <form id="registrationForm" method="POST" action="/register" class="space-y-6">
-                @csrf
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold uppercase tracking-widest text-gray-400">First Name</label>
-                        <input type="text" name="first_name" required class="w-full px-4 py-3 text-sm rounded-none bg-gray-50">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Last Name</label>
-                        <input type="text" name="last_name" required class="w-full px-4 py-3 text-sm rounded-none bg-gray-50">
-                    </div>
-                </div>
+            <!-- Right form side -->
+            <div class="form-side">
+                <h2>Create Account</h2>
+                <p class="form-subtitle">Enter your details to join our tabletop family</p>
 
-                <div class="space-y-1">
-                    <label class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Mailing Address</label>
-                    <input type="text" name="address" required class="w-full px-4 py-3 text-sm rounded-none bg-gray-50">
-                </div>
+                @if ($errors->any())
+                    <div class="bg-red-500/20 border-l-4 border-red-500 p-3 rounded mb-4">
+                        @foreach ($errors->all() as $error)
+                            <p class="text-sm text-red-300">{{ $error }}</p>
+                        @endforeach
+                    </div>
+                @endif
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Phone</label>
-                        <input type="tel" name="phone" required class="w-full px-4 py-3 text-sm rounded-none bg-gray-50">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Email Address</label>
-                        <input type="email" name="email" required class="w-full px-4 py-3 text-sm rounded-none bg-gray-50">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Password</label>
-                        <input type="password" id="password" name="password" required class="w-full px-4 py-3 text-sm rounded-none bg-gray-50">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Confirm Password</label>
-                        <input type="password" id="password_confirmation" name="password_confirmation" required class="w-full px-4 py-3 text-sm rounded-none bg-gray-50">
-                        <p id="password-error" class="text-[10px] text-red-500 mt-1 hidden">Passwords do not match.</p>
-                    </div>
-                </div>
-
-                <div class="pt-6 border-t border-gray-100 space-y-6">
-                    <h3 class="serif text-2xl text-gray-700">Identity Recovery</h3>
-                    
-                    <div class="space-y-2">
-                        <label class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Question 1: Select a hint</label>
-                        <select name="security_q1_id" class="w-full px-4 py-3 text-sm rounded-none bg-gray-50">
-                            <option>What was the name of your first pet?</option>
-                            <option>In what city were you born?</option>
-                            <option>What was your childhood nickname?</option>
-                        </select>
-                        <input type="text" name="security_a1" placeholder="Your Answer" required class="w-full px-4 py-3 text-sm rounded-none">
-                    </div>
-
-                    <div class="space-y-2">
-                        <label class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Question 2: What is your favorite board game?</label>
-                        <input type="text" name="security_a2" required placeholder="e.g. Catan" class="w-full px-4 py-3 text-sm rounded-none bg-gray-50">
-                    </div>
-
-                    <div class="space-y-3">
-                        <label class="text-[11px] font-bold uppercase tracking-widest text-gray-400">Question 3: Select secret tags</label>
-                        <div class="flex flex-wrap gap-4 p-4 border border-gray-100 bg-gray-50">
-                            <label class="flex items-center space-x-2 text-xs text-gray-600 cursor-pointer">
-                                <input type="checkbox" name="security_a3[]" value="latte" class="accent-gold h-4 w-4"> <span>Latte</span>
-                            </label>
-                            <label class="flex items-center space-x-2 text-xs text-gray-600 cursor-pointer">
-                                <input type="checkbox" name="security_a3[]" value="meeple" class="accent-gold h-4 w-4"> <span>Meeple</span>
-                            </label>
-                            <label class="flex items-center space-x-2 text-xs text-gray-600 cursor-pointer">
-                                <input type="checkbox" name="security_a3[]" value="d20" class="accent-gold h-4 w-4"> <span>D20</span>
-                            </label>
-                            <label class="flex items-center space-x-2 text-xs text-gray-600 cursor-pointer">
-                                <input type="checkbox" name="security_a3[]" value="dice" class="accent-gold h-4 w-4"> <span>Dice</span>
-                            </label>
+                <form method="POST" action="/register" id="registerForm">
+                    @csrf
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input type="text" name="first_name" value="{{ old('first_name') }}" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" name="last_name" value="{{ old('last_name') }}" class="form-input" required>
                         </div>
                     </div>
-                </div>
 
-                <div class="pt-8">
-                    <button type="submit" class="w-full accent-gold text-white text-xs font-bold uppercase tracking-[0.2em] py-5 hover:bg-black transition-all duration-500 shadow-lg">
-                        Confirm Registration
-                    </button>
-                    <p class="text-center mt-6 text-xs text-gray-400">
-                        Already have an account? <a href="/login" class="text-gold font-bold hover:underline ml-1">Login</a>
-                    </p>
+                    <div class="form-group">
+                        <label class="form-label">Mailing Address</label>
+                        <input type="text" name="address" value="{{ old('address') }}" class="form-input" required>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" name="phone" value="{{ old('phone') }}" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" value="{{ old('email') }}" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" id="password" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" name="password_confirmation" id="password_confirmation" class="form-input" required>
+                            <div id="password-error" class="error-text hidden">Passwords do not match.</div>
+                        </div>
+                    </div>
+
+                    <!-- Security Questions -->
+                    <div class="border-t border-gold/20 pt-4 mt-2">
+                        <h3 class="serif text-xl text-white mb-3">Identity Recovery</h3>
+
+                        <div class="form-group">
+                            <label class="form-label">Question 1: Select a hint</label>
+                            <select name="security_q1_id" class="form-select">
+                                <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                                <option value="In what city were you born?">In what city were you born?</option>
+                                <option value="What was your childhood nickname?">What was your childhood nickname?</option>
+                            </select>
+                            <input type="text" name="security_a1" placeholder="Your Answer" class="form-input mt-2" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Question 2: What is your favorite board game?</label>
+                            <input type="text" name="security_a2" placeholder="e.g. Catan" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Question 3: Select secret tags</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label"><input type="checkbox" name="security_a3[]" value="latte"> Latte</label>
+                                <label class="checkbox-label"><input type="checkbox" name="security_a3[]" value="meeple"> Meeple</label>
+                                <label class="checkbox-label"><input type="checkbox" name="security_a3[]" value="d20"> D20</label>
+                                <label class="checkbox-label"><input type="checkbox" name="security_a3[]" value="dice"> Dice</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit">Confirm Registration</button>
+                </form>
+
+                <div class="login-link">
+                    Already have an account? <a href="/login">Login</a>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 
     <script>
-        const form = document.getElementById('registrationForm');
-        const pass = document.getElementById('password');
-        const conf = document.getElementById('password_confirmation');
-        const error = document.getElementById('password-error');
-
-        form.addEventListener('submit', function(e) {
-            if (pass.value !== conf.value) {
-                e.preventDefault(); // Stop submission
-                error.classList.remove('hidden');
-                conf.classList.add('border-red-400');
-                conf.focus();
+        // tsParticles
+        tsParticles.load("tsparticles", {
+            fpsLimit: 60,
+            particles: {
+                number: { value: 40, density: { enable: true, value_area: 800 } },
+                color: { value: ["#d4a574", "#e8c9a9", "#2a9d8f", "#9b5de5"] },
+                shape: { type: ["circle", "square", "triangle"] },
+                opacity: { value: 0.3, random: true },
+                size: { value: 5, random: true },
+                move: { enable: true, speed: 1, direction: "none", random: true, straight: false, outModes: "out" }
+            },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } }
             }
         });
 
-        // Clear error as the user types
-        conf.addEventListener('input', function() {
-            if (pass.value === conf.value) {
-                error.classList.add('hidden');
-                conf.classList.remove('border-red-400');
+        // GSAP animations
+        gsap.from(".form-card", { opacity: 0, y: 30, duration: 0.8, ease: "power2.out" });
+        gsap.from(".brand-side", { opacity: 0, x: -20, duration: 0.6, delay: 0.2 });
+        gsap.from(".form-side", { opacity: 0, x: 20, duration: 0.6, delay: 0.3 });
+
+        // Password match validation
+        const form = document.getElementById('registerForm');
+        const password = document.getElementById('password');
+        const confirm = document.getElementById('password_confirmation');
+        const errorSpan = document.getElementById('password-error');
+
+        form.addEventListener('submit', function(e) {
+            if (password.value !== confirm.value) {
+                e.preventDefault();
+                errorSpan.classList.remove('hidden');
+                confirm.classList.add('border-red-500');
+            }
+        });
+
+        confirm.addEventListener('input', function() {
+            if (password.value === confirm.value) {
+                errorSpan.classList.add('hidden');
+                confirm.classList.remove('border-red-500');
             }
         });
     </script>
