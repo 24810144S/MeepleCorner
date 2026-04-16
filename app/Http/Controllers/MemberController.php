@@ -14,42 +14,54 @@ class MemberController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'last_name' => 'required|max:255',
-            'first_name' => 'required|max:255',
-            'address' => 'required|max:255',
-            'phone' => 'required|max:30',
-            'email' => 'required|email|unique:members,email',
-            'password' => 'required|min:6|confirmed',
-        ]);
+{    
+    $validated = $request->validate([
+        'last_name' => 'required|max:255',
+        'first_name' => 'required|max:255',
+        'address' => 'required|max:255',
+        'phone' => 'required|max:30',
+        'email' => 'required|email|unique:members,email',
+        'password' => 'required|min:6|confirmed',
+    ]);
 
-        $validated['password'] = Hash::make($validated['password']);
-        $validated['subscribe_events'] = $request->has('subscribe_events');
-        
-        // Handle security answers
-        $validated['security_q1_id'] = $request->security_q1_id;
-        $validated['security_a1'] = $request->security_a1;
-        $validated['security_a2'] = $request->security_a2;
-        $validated['security_a3'] = $request->security_a3;
+    $validated['password'] = Hash::make($validated['password']);
+    $validated['subscribe_events'] = $request->has('subscribe_events');
+    
+    // 安全問題欄位
+    $validated['security_q1_id'] = $request->security_q1_id;
+    $validated['security_a1'] = $request->security_a1;
+    $validated['security_a2'] = $request->favorite_genre;
+    $validated['security_a3'] = $request->security_a3;
 
-        $member = Member::create($validated);
-        
-        // Auto-login after registration
-        session()->regenerate();
-        session([
-            'member_id' => $member->id,
-            'member_email' => $member->email,
-            'member_name' => $member->first_name . ' ' . $member->last_name,
-        ]);
+    // 手動建立會員（繞過批量賦值問題）
+    $member = new Member();
+    $member->last_name = $validated['last_name'];
+    $member->first_name = $validated['first_name'];
+    $member->address = $validated['address'];
+    $member->phone = $validated['phone'];
+    $member->email = $validated['email'];
+    $member->password = $validated['password'];
+    $member->subscribe_events = $validated['subscribe_events'];
+    $member->security_q1_id = $validated['security_q1_id'];
+    $member->security_a1 = $validated['security_a1'];
+    $member->security_a2 = $validated['security_a2'];
+    $member->security_a3 = $validated['security_a3'];
+    $member->save();
 
-        // Check if there's a pending reservation from guest booking
-        if (session()->has('temp_reservation_data')) {
-            return redirect('/reservation/confirm')->with('success', 'Registration successful! Please confirm your booking.');
-        }
+    // 自動登入
+    session()->regenerate();
+    session([
+        'member_id' => $member->id,
+        'member_email' => $member->email,
+        'member_name' => $member->first_name . ' ' . $member->last_name,
+    ]);
 
-        return redirect('/reservation')->with('success', 'Registration successful! Welcome to Meeple Corner Café!');
+    if (session()->has('temp_reservation_data')) {
+        return redirect('/reservation/confirm')->with('success', 'Registration successful! Please confirm your booking.');
     }
+
+    return redirect('/reservation')->with('success', 'Registration successful! Welcome to Meeple Corner Café!');
+}
 
     // Redirect to profile info page
     public function profile()
