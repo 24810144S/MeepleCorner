@@ -473,6 +473,15 @@
             background: var(--color-accent-light);
             transform: translateY(-2px);
         }
+        /* Make date picker icon white */
+        .filter-input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+        .filter-input::-webkit-calendar-picker-indicator {
+            background-color: transparent;
+            filter: brightness(0) invert(1);
+        }
 
         /* ===== PAGINATION - ORIGINAL STYLE ===== */
         .pagination {
