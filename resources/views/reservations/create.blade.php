@@ -116,19 +116,23 @@
             letter-spacing: 0.2em;
         }
 
-        /* filter card */
+        /* ===== ENHANCED FILTER CARD ===== */
         .filter-card {
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(8px);
             border-radius: 28px;
-            padding: 1.5rem;
+            padding: 1.8rem;
             margin-bottom: 2rem;
             border: 1px solid rgba(212,165,116,0.15);
+            transition: var(--transition);
+        }
+        .filter-card:hover {
+            border-color: rgba(212,165,116,0.3);
         }
         .filter-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.2rem;
             align-items: end;
         }
         .filter-label {
@@ -140,12 +144,15 @@
             margin-bottom: 0.5rem;
             font-weight: 600;
         }
+        .filter-label i {
+            margin-right: 0.4rem;
+        }
         .filter-input, .filter-select {
             width: 100%;
             background: rgba(0,0,0,0.3);
             border: 1px solid rgba(212,165,116,0.3);
             border-radius: 40px;
-            padding: 0.6rem 1rem;
+            padding: 0.7rem 1.2rem;
             color: white;
             font-size: 0.85rem;
             transition: var(--transition);
@@ -153,6 +160,68 @@
         .filter-input:focus, .filter-select:focus {
             outline: none;
             border-color: var(--color-accent);
+            background: rgba(0,0,0,0.5);
+        }
+        .filter-hint {
+            font-size: 0.7rem;
+            color: var(--color-accent);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state-wrapper {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, rgba(212,165,116,0.05), rgba(0,0,0,0.2));
+            border-radius: 32px;
+            border: 1px dashed rgba(212,165,116,0.3);
+            margin: 2rem 0;
+        }
+        .empty-state-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(212,165,116,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            border: 1px solid rgba(212,165,116,0.3);
+        }
+        .empty-state-icon i {
+            font-size: 2.5rem;
+            color: var(--color-accent);
+        }
+        .empty-state-title {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--color-white);
+            margin-bottom: 0.5rem;
+        }
+        .empty-state-message {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        .empty-state-rules {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .rule-badge {
+            background: rgba(212,165,116,0.1);
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            color: var(--color-accent);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         /* space cards grid */
@@ -163,7 +232,7 @@
             margin: 2rem 0;
         }
 
-        /* space card */
+        /* space card - clickable */
         .space-card {
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(4px);
@@ -178,10 +247,6 @@
             transform: translateY(-8px);
             border-color: var(--color-accent);
             box-shadow: 0 20px 30px -12px rgba(0,0,0,0.5);
-        }
-        .space-card.selected {
-            border: 2px solid var(--color-accent);
-            box-shadow: 0 0 0 2px rgba(212,165,116,0.3);
         }
         .space-card.disabled {
             opacity: 0.5;
@@ -199,16 +264,6 @@
             overflow: hidden;
             opacity: 0.5;
             cursor: not-allowed;
-        }
-        .space-card-default .space-image {
-            filter: grayscale(0.5);
-        }
-        .space-card-default .space-name {
-            color: var(--color-text-muted);
-        }
-        .space-card-default .space-capacity {
-            background: rgba(212,165,116,0.1);
-            color: var(--color-text-muted);
         }
 
         .space-image {
@@ -267,21 +322,159 @@
             color: #4ade80;
             margin-top: 0.5rem;
         }
-        .radio-select {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            width: 1.2rem;
-            height: 1.2rem;
-            accent-color: var(--color-accent);
-            cursor: pointer;
-            z-index: 2;
-        }
-        .space-card.disabled .radio-select {
+
+        /* ===== MODAL STYLES ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
             display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-container {
+            max-width: 500px;
+            width: 90%;
+            background: linear-gradient(135deg, #1a1a1a, #0f0f0f);
+            border-radius: 32px;
+            border: 1px solid rgba(212,165,116,0.3);
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+        .modal-overlay.show .modal-container {
+            transform: scale(1);
+        }
+        .modal-header {
+            padding: 1.2rem 1.5rem;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(212,165,116,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h3 {
+            font-family: var(--font-heading);
+            font-size: 1.4rem;
+            color: var(--color-white);
+            margin: 0;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--color-text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .modal-close:hover {
+            color: var(--color-accent);
+            transform: rotate(90deg);
+        }
+        .modal-body {
+            padding: 1.5rem;
+        }
+        .modal-space-image {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0,0,0,0.4);
+            margin-bottom: 1.5rem;
+        }
+        .modal-space-name {
+            font-size: 1.8rem;
+            font-family: var(--font-heading);
+            color: var(--color-white);
+            margin-bottom: 0.5rem;
+        }
+        .modal-space-details {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+        .modal-detail-badge {
+            background: rgba(212,165,116,0.15);
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            color: var(--color-accent);
+        }
+        .modal-space-description {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 1rem 0;
+        }
+        .recommended-game {
+            background: rgba(212,165,116,0.08);
+            border-left: 3px solid var(--color-accent);
+            padding: 1rem;
+            border-radius: 16px;
+            margin: 1rem 0;
+        }
+        .recommended-game h4 {
+            font-size: 0.8rem;
+            color: var(--color-accent);
+            margin-bottom: 0.5rem;
+        }
+        .recommended-game-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .game-tag {
+            background: rgba(212,165,116,0.1);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: var(--color-text);
+        }
+        .modal-footer {
+            padding: 1rem 1.5rem 1.5rem;
+        }
+        .modal-book-btn {
+            width: 100%;
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border: none;
+            border-radius: 40px;
+            padding: 1rem;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+        .modal-book-btn:hover {
+            background: var(--color-accent-light);
+            transform: translateY(-2px);
         }
 
-        /* pagination */
+        /* ===== PAGINATION - ORIGINAL STYLE ===== */
         .pagination {
             display: flex;
             flex-wrap: wrap;
@@ -291,7 +484,7 @@
             padding-top: 1rem;
             border-top: 1px solid rgba(212,165,116,0.2);
         }
-        .page-link {
+        .pagination .page-link {
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(212,165,116,0.2);
             border-radius: 40px;
@@ -300,13 +493,19 @@
             font-size: 0.8rem;
             transition: var(--transition);
             text-decoration: none;
+            display: inline-block;
         }
-        .page-link:hover, .page-link.active {
+        .pagination .page-link:hover {
             background: var(--color-accent);
             color: var(--color-primary);
             border-color: var(--color-accent);
         }
-        .page-disabled {
+        .pagination .active span {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border-color: var(--color-accent);
+        }
+        .pagination .disabled span {
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -315,53 +514,6 @@
             font-size: 0.7rem;
             color: var(--color-text-muted);
             margin-top: 1rem;
-        }
-
-        /* action buttons */
-        .action-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 1rem;
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid rgba(212,165,116,0.2);
-        }
-        .btn-clear {
-            background: transparent;
-            border: 1px solid rgba(212,165,116,0.5);
-            color: var(--color-accent);
-            padding: 0.8rem 2rem;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .btn-clear:hover {
-            background: rgba(212,165,116,0.1);
-        }
-        .btn-submit {
-            background: var(--color-accent);
-            color: var(--color-primary);
-            border: none;
-            padding: 0.8rem 2.5rem;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .btn-submit:hover {
-            background: var(--color-accent-light);
-            transform: translateY(-2px);
-        }
-        .btn-submit:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         /* alerts */
@@ -373,12 +525,6 @@
             margin-bottom: 1.5rem;
             color: #fca5a5;
         }
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            background: rgba(255,255,255,0.03);
-            border-radius: 28px;
-        }
 
         /* loading overlay */
         .loading-overlay {
@@ -388,7 +534,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.7);
-            z-index: 9999;
+            z-index: 9998;
             display: none;
             justify-content: center;
             align-items: center;
@@ -436,15 +582,15 @@
             .filter-grid {
                 grid-template-columns: 1fr;
             }
-            .action-buttons {
-                flex-direction: column;
-            }
-            .btn-clear, .btn-submit {
-                width: 100%;
-                text-align: center;
-            }
             .spaces-grid {
                 grid-template-columns: 1fr;
+            }
+            .modal-container {
+                width: 95%;
+            }
+            .empty-state-rules {
+                flex-direction: column;
+                align-items: center;
             }
         }
     </style>
@@ -460,6 +606,41 @@
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Modal Popup -->
+    <div id="spaceModal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3><i class="fas fa-chair text-gold mr-2"></i> Table Details</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="modalSpaceImage" class="modal-space-image">
+                    <i class="fas fa-couch text-5xl text-gold"></i>
+                </div>
+                <h2 id="modalSpaceName" class="modal-space-name"></h2>
+                <div class="modal-space-details">
+                    <span id="modalCapacity" class="modal-detail-badge"><i class="fas fa-users"></i> 0 players</span>
+                    <span id="modalType" class="modal-detail-badge"><i class="fas fa-tag"></i> Standard</span>
+                    <span id="modalStatus" class="modal-detail-badge"><i class="fas fa-check-circle"></i> Available</span>
+                </div>
+                <p id="modalDescription" class="modal-space-description"></p>
+                <div class="recommended-game">
+                    <h4><i class="fas fa-dice-d6 mr-2"></i> Recommended Games</h4>
+                    <div id="recommendedGameList" class="recommended-game-list">
+                        Loading...
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modalBookBtn" class="modal-book-btn" onclick="bookSelectedSpace()">
+                    <i class="fas fa-calendar-check"></i> BOOK THIS TABLE
+                </button>
+            </div>
+        </div>
     </div>
 
     <main class="main-container">
@@ -483,6 +664,7 @@
             </div>
         @endif
 
+        <!-- ENHANCED FILTER CARD -->
         <div class="filter-card">
             @if ($errors->any())
                 <div class="alert-error mb-6">
@@ -492,15 +674,14 @@
                 </div>
             @endif
 
-            <!-- Auto-submit form - no Apply Filters button -->
             <form method="GET" action="/reservation" id="filterForm">
                 <div class="filter-grid">
                     <div>
-                        <label class="filter-label">📅 Date</label>
+                        <label class="filter-label"><i class="fas fa-calendar-alt"></i> Date</label>
                         <input type="date" name="reservation_date" id="reservation_date" value="{{ $selectedDate }}" class="filter-input auto-submit" min="{{ date('Y-m-d') }}">
                     </div>
                     <div>
-                        <label class="filter-label">⏰ Start Time</label>
+                        <label class="filter-label"><i class="fas fa-hourglass-start"></i> Start Time</label>
                         <select name="start_time" id="start_time" class="filter-select auto-submit">
                             <option value="">Select start</option>
                             @foreach($timeOptions as $time)
@@ -509,7 +690,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="filter-label">⏰ End Time</label>
+                        <label class="filter-label"><i class="fas fa-hourglass-end"></i> End Time</label>
                         <select name="end_time" id="end_time" class="filter-select auto-submit">
                             <option value="">Select end</option>
                             @foreach($timeOptions as $time)
@@ -518,7 +699,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="filter-label">📏 Table Size</label>
+                        <label class="filter-label"><i class="fas fa-arrows-alt"></i> Table Size</label>
                         <select name="table_size_filter" id="table_size_filter" class="filter-select auto-submit">
                             @foreach($tableSizeOptions as $value => $label)
                                 <option value="{{ $value }}" {{ $tableSizeFilter == $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -526,34 +707,47 @@
                         </select>
                     </div>
                     <div>
-                        <label class="filter-label">🏠 Private Room</label>
+                        <label class="filter-label"><i class="fas fa-door-closed"></i> Private Room</label>
                         <div class="flex items-center gap-2 mt-2">
-                            <input type="checkbox" name="is_private_booking" id="is_private_booking" value="1" class="auto-submit" {{ $isPrivateBooking ? 'checked' : '' }}>
+                            <input type="checkbox" name="is_private_booking" id="is_private_booking" value="1" class="auto-submit w-4 h-4 accent-gold" {{ $isPrivateBooking ? 'checked' : '' }}>
                             <label for="is_private_booking" class="text-sm text-white cursor-pointer">Book as Private Room</label>
                         </div>
-                        <p class="text-[10px] text-gray-400 mt-1">(Medium/Large tables only)</p>
+                        <div class="filter-hint">
+                            <i class="fas fa-info-circle"></i> Medium/Large tables only
+                        </div>
                     </div>
                 </div>
-                <p class="text-[10px] text-gray-400 mt-4 italic">⏰ Booking must be at least 2 hours, max 9 hours. Minutes must be 00 or 30. Hours: 08:00-22:00</p>
+                <div class="filter-hint mt-4 justify-center">
+                    <i class="fas fa-clock"></i> Booking: min 2h, max 9h | Minutes: 00 or 30 | Hours: 08:00-22:00
+                </div>
             </form>
         </div>
 
         <form method="POST" action="/reservation" id="reservationForm">
             @csrf
-            <input type="hidden" name="reservation_date" value="{{ $selectedDate }}">
-            <input type="hidden" name="start_time" value="{{ $startTime }}">
-            <input type="hidden" name="end_time" value="{{ $endTime }}">
-            <input type="hidden" name="is_private_booking" value="{{ $isPrivateBooking ? 1 : 0 }}">
+            <input type="hidden" name="reservation_date" id="form_date" value="{{ $selectedDate }}">
+            <input type="hidden" name="start_time" id="form_start_time" value="{{ $startTime }}">
+            <input type="hidden" name="end_time" id="form_end_time" value="{{ $endTime }}">
+            <input type="hidden" name="table_size_filter" id="form_table_size" value="{{ $tableSizeFilter }}">
+            <input type="hidden" name="is_private_booking" id="form_is_private" value="{{ $isPrivateBooking ? 1 : 0 }}">
+            <input type="hidden" name="space_id" id="selected_space_id" value="">
 
             @if(!$selectedDate || !$startTime || !$endTime)
-                <!-- Default state: Show all tables as gray (disabled) -->
-                <div class="empty-state">
-                    <i class="fas fa-calendar-alt text-5xl text-gold mb-4 opacity-50"></i>
-                    <p class="text-gray-400">Please select a date, start time, and end time to see available spaces.</p>
-                    <p class="text-xs text-gray-500 mt-2">Minimum 2 hours booking, maximum 9 hours.</p>
+                <!-- BEAUTIFIED EMPTY STATE -->
+                <div class="empty-state-wrapper">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3 class="empty-state-title">Awaiting Your Selection</h3>
+                    <p class="empty-state-message">Please select a date, start time, and end time to see available spaces.</p>
+                    <div class="empty-state-rules">
+                        <span class="rule-badge"><i class="fas fa-hourglass-half"></i> Minimum 2 hours</span>
+                        <span class="rule-badge"><i class="fas fa-hourglass-end"></i> Maximum 9 hours</span>
+                        <span class="rule-badge"><i class="fas fa-clock"></i> Minutes: 00 or 30</span>
+                        <span class="rule-badge"><i class="fas fa-sun"></i> Hours: 08:00 - 22:00</span>
+                    </div>
                 </div>
                 
-                <!-- Show grayed out spaces as preview -->
                 <div class="spaces-grid">
                     @foreach($spaces as $space)
                         <div class="space-card-default">
@@ -572,55 +766,42 @@
                                 <h3 class="space-name">{{ $space->name }}</h3>
                                 <span class="space-capacity"><i class="fas fa-users mr-1"></i> {{ $space->capacity }} players</span>
                                 <p class="space-description">{{ $space->description ?? 'A perfect spot for your gaming session.' }}</p>
-                                <div class="text-[10px] text-gray-500 mt-2">Select date & time to check availability</div>
+                                <div class="text-[10px] text-gray-500 mt-2 text-center">Select date & time to check availability</div>
                             </div>
                         </div>
                     @endforeach
                 </div>
 
-                <!-- Pagination for default view -->
+                <!-- RESTORED PAGINATION STYLE -->
                 @if($spaces->lastPage() > 1)
                     <div class="pagination">
-                        @if($spaces->onFirstPage())
-                            <span class="page-link page-disabled">← Previous</span>
-                        @else
-                            <a href="{{ $spaces->appends(request()->query())->previousPageUrl() }}" class="page-link">← Previous</a>
-                        @endif
-
-                        @foreach(range(1, $spaces->lastPage()) as $page)
-                            @if($page == $spaces->currentPage())
-                                <span class="page-link active">{{ $page }}</span>
-                            @else
-                                <a href="{{ $spaces->appends(request()->query())->url($page) }}" class="page-link">{{ $page }}</a>
-                            @endif
-                        @endforeach
-
-                        @if($spaces->hasMorePages())
-                            <a href="{{ $spaces->appends(request()->query())->nextPageUrl() }}" class="page-link">Next →</a>
-                        @else
-                            <span class="page-link page-disabled">Next →</span>
-                        @endif
+                        {{ $spaces->links() }}
                     </div>
                     <div class="pagination-info">
                         Showing {{ $spaces->firstItem() }} to {{ $spaces->lastItem() }} of {{ $spaces->total() }} spaces
                     </div>
                 @endif
                 
-                <div class="action-buttons">
-                    <button type="reset" class="btn-clear" id="clearFormBtn">Clear Selection</button>
-                    <button type="button" disabled class="btn-submit">Select Date & Time First</button>
-                </div>
             @elseif($spaces->count() == 0)
-                <div class="empty-state">
-                    <i class="fas fa-exclamation-triangle text-5xl text-yellow-500 mb-4"></i>
-                    <p class="text-gray-300">No spaces match your filters. Try adjusting your criteria.</p>
-                    <button type="button" onclick="resetAllFilters()" class="btn-clear mt-4">Reset Filters</button>
+                <div class="empty-state-wrapper">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3 class="empty-state-title">No Spaces Available</h3>
+                    <p class="empty-state-message">No spaces match your current filters. Try adjusting your criteria.</p>
+                    <button type="button" onclick="resetAllFilters()" class="book-now-btn" style="width: auto; padding: 0.5rem 1.5rem; margin-top: 1rem;">Reset Filters</button>
                 </div>
             @else
                 <div class="spaces-grid">
                     @foreach($spaces as $space)
-                        <label class="space-card {{ !$space->is_available ? 'disabled' : '' }} {{ old('space_id') == $space->id ? 'selected' : '' }}">
-                            <input type="radio" name="space_id" value="{{ $space->id }}" class="radio-select" {{ !$space->is_available ? 'disabled' : '' }} {{ old('space_id') == $space->id ? 'checked' : '' }} required>
+                        <div class="space-card {{ !$space->is_available ? 'disabled' : '' }}" 
+                             data-space-id="{{ $space->id }}" 
+                             data-space-name="{{ $space->name }}" 
+                             data-space-capacity="{{ $space->capacity }}" 
+                             data-space-type="{{ $space->type }}" 
+                             data-space-description="{{ $space->description }}" 
+                             data-space-available="{{ $space->is_available ? 'true' : 'false' }}"
+                             onclick="if({{ $space->is_available ? 'true' : 'false' }}) showModal(this)">
                             <div class="space-image">
                                 @if(!$space->is_available)
                                     <div class="booked-badge">Booked</div>
@@ -644,46 +825,21 @@
                                 @if($space->show_private_badge)
                                     <div class="text-[10px] text-amber-400 mt-1">🏠 Private Room Booking</div>
                                 @endif
-                                <p class="space-description">{{ $space->description ?? 'A perfect spot for your gaming session.' }}</p>
-                                @if(!$space->is_available)
-                                    <p class="text-red-400 text-xs mt-2">Not available for this time slot</p>
-                                @endif
+                                <p class="space-description">{{ Str::limit($space->description ?? 'A perfect spot for your gaming session.', 80) }}</p>
                             </div>
-                        </label>
+                        </div>
                     @endforeach
                 </div>
 
+                <!-- RESTORED PAGINATION STYLE -->
                 @if($spaces->lastPage() > 1)
                     <div class="pagination">
-                        @if($spaces->onFirstPage())
-                            <span class="page-link page-disabled">← Previous</span>
-                        @else
-                            <a href="{{ $spaces->appends(request()->query())->previousPageUrl() }}" class="page-link">← Previous</a>
-                        @endif
-
-                        @foreach(range(1, $spaces->lastPage()) as $page)
-                            @if($page == $spaces->currentPage())
-                                <span class="page-link active">{{ $page }}</span>
-                            @else
-                                <a href="{{ $spaces->appends(request()->query())->url($page) }}" class="page-link">{{ $page }}</a>
-                            @endif
-                        @endforeach
-
-                        @if($spaces->hasMorePages())
-                            <a href="{{ $spaces->appends(request()->query())->nextPageUrl() }}" class="page-link">Next →</a>
-                        @else
-                            <span class="page-link page-disabled">Next →</span>
-                        @endif
+                        {{ $spaces->links() }}
                     </div>
                     <div class="pagination-info">
                         Showing {{ $spaces->firstItem() }} to {{ $spaces->lastItem() }} of {{ $spaces->total() }} spaces
                     </div>
                 @endif
-
-                <div class="action-buttons">
-                    <button type="reset" class="btn-clear" id="clearFormBtn">Clear Selection</button>
-                    <button type="submit" class="btn-submit" id="confirmBtn">Review & Confirm</button>
-                </div>
             @endif
         </form>
     </main>
@@ -693,6 +849,95 @@
     </footer>
 
     <script>
+        // Recommended games based on table capacity (multiple games)
+        const recommendedGamesList = {
+            2: ['Patchwork', '7 Wonders Duel', 'Jaipur', 'Chess', 'Hive', 'Onitama', 'Lost Cities', 'Schotten Totten'],
+            3: ['Catan', 'Ticket to Ride', 'Carcassonne', 'Azul', 'Splendor', 'King of Tokyo', 'Dominion', 'Small World'],
+            4: ['Catan', 'Pandemic', 'Codenames', 'Ticket to Ride', 'Terraforming Mars', 'Wingspan', 'Sagrada', 'Everdell'],
+            5: ['Catan (5-6 players)', 'Pandemic', 'Mysterium', 'King of Tokyo', 'Betrayal at House on the Hill', 'Cosmic Encounter', 'The Resistance', 'Bang!'],
+            6: ['Codenames', 'Werewolf', 'Dixit', '7 Wonders', 'Sushi Go Party', 'Mafia de Cuba', 'Deception: Murder in Hong Kong', 'One Night Ultimate Werewolf'],
+            8: ['Twilight Imperium', 'D&D Campaign', 'Codenames', 'Telestrations', 'Eclipse', 'Rising Sun', 'Scythe', 'Root'],
+            10: ['D&D Campaign', 'Werewolf', 'Two Rooms and a Boom', 'Ultimate Werewolf', 'Blood on the Clocktower', 'The Resistance: Avalon', 'Captain Sonar', 'Formula D']
+        };
+
+        let selectedSpaceForModal = null;
+
+        function showModal(cardElement) {
+            const isAvailable = cardElement.getAttribute('data-space-available') === 'true';
+            if (!isAvailable) return;
+            
+            const id = cardElement.getAttribute('data-space-id');
+            const name = cardElement.getAttribute('data-space-name');
+            const capacity = parseInt(cardElement.getAttribute('data-space-capacity'));
+            const type = cardElement.getAttribute('data-space-type');
+            const description = cardElement.getAttribute('data-space-description');
+            
+            selectedSpaceForModal = id;
+            
+            document.getElementById('modalSpaceName').textContent = name;
+            document.getElementById('modalCapacity').innerHTML = '<i class="fas fa-users"></i> ' + capacity + ' players';
+            document.getElementById('modalType').innerHTML = '<i class="fas fa-tag"></i> ' + (type === 'private' ? 'Private Room' : type === 'premium' ? 'Premium Table' : 'Standard Table');
+            document.getElementById('modalStatus').innerHTML = '<i class="fas fa-check-circle"></i> Available';
+            document.getElementById('modalDescription').textContent = description || 'A perfect spot for your gaming session.';
+            
+            // Get recommended games based on capacity
+            let capacityKey = capacity;
+            if (capacity <= 2) capacityKey = 2;
+            else if (capacity <= 3) capacityKey = 3;
+            else if (capacity <= 4) capacityKey = 4;
+            else if (capacity <= 5) capacityKey = 5;
+            else if (capacity <= 6) capacityKey = 6;
+            else if (capacity <= 8) capacityKey = 8;
+            else capacityKey = 10;
+            
+            const games = recommendedGamesList[capacityKey] || recommendedGamesList[4];
+            const gameTags = games.map(game => `<span class="game-tag"><i class="fas fa-dice-d6 mr-1 text-gold"></i> ${game}</span>`).join('');
+            document.getElementById('recommendedGameList').innerHTML = gameTags;
+            
+            // Change icon based on type
+            const modalImage = document.getElementById('modalSpaceImage');
+            if (type === 'private') {
+                modalImage.innerHTML = '<i class="fas fa-door-closed text-6xl text-gold"></i>';
+            } else if (type === 'premium') {
+                modalImage.innerHTML = '<i class="fas fa-crown text-6xl text-gold"></i>';
+            } else {
+                modalImage.innerHTML = '<i class="fas fa-couch text-6xl text-gold"></i>';
+            }
+            
+            document.getElementById('spaceModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+            
+            // GSAP animation for modal
+            gsap.from(".modal-container", { scale: 0.8, opacity: 0, duration: 0.3, ease: "back.out(0.5)" });
+        }
+
+        function closeModal() {
+            document.getElementById('spaceModal').classList.remove('show');
+            document.body.style.overflow = '';
+            selectedSpaceForModal = null;
+        }
+
+        function bookSelectedSpace() {
+            if (selectedSpaceForModal) {
+                document.getElementById('selected_space_id').value = selectedSpaceForModal;
+                document.getElementById('reservationForm').submit();
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('spaceModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('spaceModal').classList.contains('show')) {
+                closeModal();
+            }
+        });
+
         // Initialize tsParticles
         tsParticles.load("tsparticles", {
             fpsLimit: 60,
@@ -711,7 +956,6 @@
 
         // GSAP animation
         gsap.from(".page-header", { opacity: 0, y: 30, duration: 0.8, ease: "power2.out" });
-        gsap.from(".filter-card", { opacity: 0, y: 20, duration: 0.6, delay: 0.2 });
 
         // Auto-submit on any filter change
         const autoSubmitElements = document.querySelectorAll('.auto-submit');
@@ -733,10 +977,8 @@
             }
         }
 
-        // Add event listeners to all auto-submit elements
         autoSubmitElements.forEach(element => {
             element.addEventListener('change', function() {
-                // Validate time selection before submitting
                 const startTime = document.getElementById('start_time')?.value;
                 const endTime = document.getElementById('end_time')?.value;
                 const selectedDate = document.getElementById('reservation_date')?.value;
@@ -773,7 +1015,6 @@
             });
         });
 
-        // Also trigger on checkbox click
         const privateCheckbox = document.getElementById('is_private_booking');
         if (privateCheckbox) {
             privateCheckbox.addEventListener('change', function() {
@@ -785,38 +1026,6 @@
             document.getElementById('table_size_filter').value = 'all';
             document.getElementById('is_private_booking').checked = false;
             autoSubmit();
-        }
-
-        const clearBtn = document.getElementById('clearFormBtn');
-        if (clearBtn) {
-            clearBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelectorAll('input[name="space_id"]').forEach(radio => {
-                    radio.checked = false;
-                    radio.closest('.space-card')?.classList.remove('selected');
-                });
-            });
-        }
-
-        document.querySelectorAll('.space-card input[type="radio"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                document.querySelectorAll('.space-card').forEach(card => card.classList.remove('selected'));
-                if (this.checked) this.closest('.space-card').classList.add('selected');
-            });
-            if (radio.checked) radio.closest('.space-card').classList.add('selected');
-        });
-
-        const confirmBtn = document.getElementById('confirmBtn');
-        if (confirmBtn) {
-            confirmBtn.addEventListener('click', function(e) {
-                const selected = document.querySelector('input[name="space_id"]:checked');
-                if (!selected) {
-                    e.preventDefault();
-                    alert('⚠️ Please select an available table or room before confirming.');
-                    return;
-                }
-                canvasConfetti({ particleCount: 150, spread: 80, origin: { y: 0.5 }, colors: ['#d4a574', '#ffffff'] });
-            });
         }
         
         // Hide loading overlay when page loads
