@@ -51,6 +51,7 @@ class AuthController extends Controller
             'member_id' => $member->id,
             'member_email' => $member->email,
             'member_name' => $member->first_name . ' ' . $member->last_name,
+            'member_nickname' => $member->address, 
         ]);
 
         if ($request->has('remember')) {
