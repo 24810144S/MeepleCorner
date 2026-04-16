@@ -22,9 +22,9 @@
         <div class="relative" id="userMenu">
             <button id="userMenuBtn" class="user-menu-button">
                 @if(session()->has('member_id'))
-                    <span class="user-greeting">Welcome, {{ session('member_name', 'Member') }}</span>
+                    <span class="user-greeting">Welcome, {{ session('member_nickname', 'Member') }}</span>
                     <div class="user-avatar">
-                        {{ strtoupper(substr(session('member_name', 'G'), 0, 1)) }}
+                        {{ strtoupper(substr(session('member_nickname', 'G'), 0, 1)) }}
                     </div>
                 @else
                     <span class="user-greeting">Welcome, Guest</span>
