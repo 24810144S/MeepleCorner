@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Meeple Corner Café</title>
-    <!-- Google Fonts (same as homepage) -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- GSAP (optional for fade‑in) -->
+    <!-- GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <!-- tsParticles -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -32,14 +34,16 @@
         }
 
         body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             font-family: var(--font-body);
             background-color: var(--color-primary);
             color: var(--color-text);
-            min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* subtle noise texture (same as homepage) */
+        /* subtle noise texture */
         body::before {
             content: "";
             position: fixed;
@@ -52,67 +56,43 @@
             z-index: 1000;
         }
 
-        /* ===== NAVBAR (same as homepage) ===== */
-        .navbar {
-            position: relative;
-            z-index: 20;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 2rem;
-            background: rgba(26, 15, 7, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(212, 165, 116, 0.2);
-        }
-        .logo {
-            font-family: var(--font-heading);
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--color-accent);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        .logo:hover {
-            color: var(--color-accent-light);
-            letter-spacing: 1px;
-        }
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-        .nav-link {
-            color: var(--color-text-muted);
-            text-decoration: none;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            font-weight: 500;
-            transition: var(--transition);
-            position: relative;
-        }
-        .nav-link:hover {
-            color: var(--color-accent);
-        }
-        .nav-link.active {
-            color: var(--color-accent);
-        }
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
+        /* tsParticles background */
+        #tsparticles {
+            position: fixed;
+            top: 0;
             left: 0;
             width: 100%;
-            height: 2px;
-            background: var(--color-accent);
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* floating emoji */
+        .floating-bg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 55px;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatAround 20s infinite linear;
+        }
+        @keyframes floatAround {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
+            50% { transform: translateY(-25px) rotate(8deg); opacity: 0.12; }
+            100% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
         }
 
         /* ===== MAIN CONTAINER (centered card) ===== */
         .login-wrapper {
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: calc(100vh - 80px);
             padding: 2rem;
+            position: relative;
+            z-index: 2;
         }
 
         /* ===== LOGIN CARD (glassmorphism) ===== */
@@ -305,16 +285,6 @@
         }
 
         @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            .nav-links {
-                gap: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
             .login-card {
                 flex-direction: column;
             }
@@ -333,20 +303,12 @@
 </head>
 <body>
 
-    <!-- NAVBAR (exactly like homepage) -->
-    <nav class="navbar">
-        <a href="/" class="logo">Meeple Corner Café</a>
-        <div class="nav-links">
-            <a href="/" class="nav-link">Home</a>
-            <a href="/board-games" class="nav-link">Board Games</a>
-            <a href="/events" class="nav-link">Events</a>
-            <a href="/reservation" class="nav-link">Reservations</a>
-            <a href="/menu" class="nav-link">Menu</a>
-        </div>
-        <div class="flex items-center gap-4">
-            <span class="user-greeting" style="font-size:0.7rem; color:var(--color-text-muted);">Welcome, Guest</span>
-        </div>
-    </nav>
+    <!-- tsParticles container + floating emoji -->
+    <div id="tsparticles"></div>
+    <div class="floating-bg">🎲 🃏 🧩 🎯 🎲</div>
+
+    <!-- Include the shared navbar -->
+    @include('layouts.navbar')
 
     <div class="login-wrapper">
         <div class="login-card">
@@ -378,10 +340,7 @@
 
                 <form method="POST" action="/login">
                     @csrf
-                    <!-- Get redirect from query string, default to reservation page -->
-                    @php 
-                        $redirect = request()->query('redirect', url()->previous() !== url()->current() ? url()->previous() : '/reservation');
-                    @endphp
+                    <!-- Capture redirect from query string or session -->
                     <input type="hidden" name="redirect" value="{{ request()->query('redirect', session('url.intended', '/reservation')) }}">
                     
                     <div class="input-group">
@@ -419,7 +378,23 @@
     </div>
 
     <script>
-        // GSAP fade-in animation for the login card
+        // Initialize tsParticles (same as other pages)
+        tsParticles.load("tsparticles", {
+            fpsLimit: 60,
+            particles: {
+                number: { value: 40, density: { enable: true, value_area: 800 } },
+                color: { value: ["#d4a574", "#e8c9a9", "#2a9d8f", "#9b5de5"] },
+                shape: { type: ["circle", "square", "triangle"] },
+                opacity: { value: 0.3, random: true },
+                size: { value: 5, random: true },
+                move: { enable: true, speed: 1, direction: "none", random: true, straight: false, outModes: "out" }
+            },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } }
+            }
+        });
+
+        // GSAP fade-in animations
         gsap.from(".login-card", { opacity: 0, y: 30, duration: 0.8, ease: "power2.out" });
         gsap.from(".login-brand", { opacity: 0, x: -20, duration: 0.6, delay: 0.2 });
         gsap.from(".login-form", { opacity: 0, x: 20, duration: 0.6, delay: 0.3 });
