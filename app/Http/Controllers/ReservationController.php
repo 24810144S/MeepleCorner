@@ -13,10 +13,7 @@ class ReservationController extends Controller
 {
     public function create(Request $request)
     {
-        if (!session()->has('member_id')) {
-            return redirect('/login');
-        }
-
+        
         // Get filter parameters
         $tableSizeFilter = $request->input('table_size_filter', 'all');
         $isPrivateBooking = $request->input('is_private_booking', false);
