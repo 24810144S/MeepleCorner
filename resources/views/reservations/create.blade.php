@@ -116,7 +116,7 @@
             letter-spacing: 0.2em;
         }
 
-        /* ===== ENHANCED FILTER CARD ===== */
+        /* ===== REDESIGNED FILTER CARD ===== */
         .filter-card {
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(8px);
@@ -129,46 +129,215 @@
         .filter-card:hover {
             border-color: rgba(212,165,116,0.3);
         }
-        .filter-grid {
+
+        /* Row layout */
+        .filter-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.2rem;
-            align-items: end;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
         }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
         .filter-label {
-            display: block;
             font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.2em;
             color: var(--color-accent);
-            margin-bottom: 0.5rem;
             font-weight: 600;
         }
         .filter-label i {
             margin-right: 0.4rem;
         }
+
         .filter-input, .filter-select {
             width: 100%;
             background: rgba(0,0,0,0.3);
             border: 1px solid rgba(212,165,116,0.3);
             border-radius: 40px;
-            padding: 0.7rem 1.2rem;
+            padding: 0.8rem 1.2rem;
             color: white;
-            font-size: 0.85rem;
-            transition: var(--transition);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
         }
         .filter-input:focus, .filter-select:focus {
             outline: none;
             border-color: var(--color-accent);
             background: rgba(0,0,0,0.5);
         }
-        .filter-hint {
-            font-size: 0.7rem;
+
+        /* ===== DATE PICKER STYLES ===== */
+        input[type="date"] {
+            color: white;
+            background: rgba(0,0,0,0.3);
+            position: relative;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            background-color: #d4a574;
+            padding: 5px;
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0.9;
+            filter: brightness(1);
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+            background-color: #e8c9a9;
+            transform: scale(1.05);
+        }
+        input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+            color: white;
+        }
+        input[type="date"]::-webkit-datetime-edit-month-field,
+        input[type="date"]::-webkit-datetime-edit-day-field,
+        input[type="date"]::-webkit-datetime-edit-year-field {
+            color: white;
+        }
+        input[type="date"]::-webkit-datetime-edit-text {
+            color: #d4a574;
+        }
+
+        /* ===== PRIVATE ROOM SECTION ===== */
+        .private-room-container {
+            background: linear-gradient(135deg, rgba(212,165,116,0.05), rgba(0,0,0,0.1));
+            border-radius: 60px;
+            padding: 0.25rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(212,165,116,0.15);
+        }
+
+        .private-room-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 56px;
+            padding: 0.5rem 1.5rem;
+        }
+
+        .private-room-toggle-area {
+            display: flex;
+            align-items: center;
+        }
+
+        .private-room-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .private-room-checkbox {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .private-room-slider {
+            position: relative;
+            display: inline-block;
+            width: 64px;
+            height: 32px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(212,165,116,0.4);
+            border-radius: 40px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .private-room-slider::before {
+            content: "";
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            left: 3px;
+            bottom: 2px;
+            background: #d4a574;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        .private-room-checkbox:checked + .private-room-slider {
+            background: rgba(212,165,116,0.2);
+            border-color: #d4a574;
+        }
+
+        .private-room-checkbox:checked + .private-room-slider::before {
+            transform: translateX(30px);
+            background: #d4a574;
+        }
+
+        .private-room-text {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--color-white);
+        }
+
+        .private-room-text i {
             color: var(--color-accent);
-            margin-top: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .private-room-info {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+            background: rgba(212,165,116,0.1);
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+        }
+
+        .private-room-info i {
+            color: var(--color-accent);
+        }
+
+        /* ===== RULES BANNER ===== */
+        .rules-banner {
+            background: rgba(212,165,116,0.05);
+            border-radius: 40px;
+            padding: 0.6rem 1rem;
+            border: 1px solid rgba(212,165,116,0.1);
+        }
+
+        .rules-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+        }
+
+        .rules-content span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .rules-content i {
+            color: var(--color-accent);
+        }
+
+        .advance-notice {
+            color: #fbbf24;
+        }
+
+        .advance-notice i {
+            color: #fbbf24;
         }
 
         /* ===== EMPTY STATE ===== */
@@ -224,6 +393,41 @@
             gap: 0.5rem;
         }
 
+        /* ===== ADVANCE NOTICE CARD ===== */
+        .advance-notice-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(0,0,0,0.2));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 20px;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+        .advance-notice-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(245, 158, 11, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .advance-notice-icon i {
+            font-size: 1.2rem;
+            color: #fbbf24;
+        }
+        .advance-notice-content h4 {
+            font-size: 0.85rem;
+            color: #fbbf24;
+            margin-bottom: 0.2rem;
+        }
+        .advance-notice-content p {
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+        }
+
         /* space cards grid */
         .spaces-grid {
             display: grid;
@@ -232,7 +436,7 @@
             margin: 2rem 0;
         }
 
-        /* space card - clickable */
+        /* space card */
         .space-card {
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(4px);
@@ -321,6 +525,25 @@
             font-size: 0.7rem;
             color: #4ade80;
             margin-top: 0.5rem;
+        }
+        .book-now-btn {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--color-accent);
+            color: var(--color-accent);
+            padding: 0.6rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+        .book-now-btn:hover {
+            background: var(--color-accent);
+            color: var(--color-primary);
         }
 
         /* ===== MODAL STYLES ===== */
@@ -473,17 +696,8 @@
             background: var(--color-accent-light);
             transform: translateY(-2px);
         }
-        /* Make date picker icon white */
-        .filter-input::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-            cursor: pointer;
-        }
-        .filter-input::-webkit-calendar-picker-indicator {
-            background-color: transparent;
-            filter: brightness(0) invert(1);
-        }
 
-        /* ===== PAGINATION - ORIGINAL STYLE ===== */
+        /* ===== PAGINATION ===== */
         .pagination {
             display: flex;
             flex-wrap: wrap;
@@ -584,12 +798,28 @@
             margin-top: 2rem;
         }
 
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .filter-row {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+        }
+
         @media (max-width: 768px) {
             .main-container {
                 padding: 1rem;
             }
-            .filter-grid {
+            .filter-row {
                 grid-template-columns: 1fr;
+            }
+            .private-room-wrapper {
+                flex-direction: column;
+                text-align: center;
+                padding: 1rem;
+            }
+            .rules-content {
+                gap: 0.8rem;
             }
             .spaces-grid {
                 grid-template-columns: 1fr;
@@ -667,7 +897,7 @@
                 @endif
                 @if($isPrivateBooking)
                     <span class="filter-badge">
-                        <i class="fas fa-door-closed"></i> Private Room Mode: ON
+                        <i class="fas fa-door-closed"></i> Inside a Private Room: ON
                     </span>
                 @endif
             </div>
@@ -684,12 +914,13 @@
             @endif
 
             <form method="GET" action="/reservation" id="filterForm">
-                <div class="filter-grid">
-                    <div>
+                <!-- Row 1: Date, Start Time, End Time -->
+                <div class="filter-row">
+                    <div class="filter-group">
                         <label class="filter-label"><i class="fas fa-calendar-alt"></i> Date</label>
                         <input type="date" name="reservation_date" id="reservation_date" value="{{ $selectedDate }}" class="filter-input auto-submit" min="{{ date('Y-m-d') }}">
                     </div>
-                    <div>
+                    <div class="filter-group">
                         <label class="filter-label"><i class="fas fa-hourglass-start"></i> Start Time</label>
                         <select name="start_time" id="start_time" class="filter-select auto-submit">
                             <option value="">Select start</option>
@@ -698,7 +929,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div>
+                    <div class="filter-group">
                         <label class="filter-label"><i class="fas fa-hourglass-end"></i> End Time</label>
                         <select name="end_time" id="end_time" class="filter-select auto-submit">
                             <option value="">Select end</option>
@@ -707,7 +938,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div>
+                    <div class="filter-group">
                         <label class="filter-label"><i class="fas fa-arrows-alt"></i> Table Size</label>
                         <select name="table_size_filter" id="table_size_filter" class="filter-select auto-submit">
                             @foreach($tableSizeOptions as $value => $label)
@@ -715,20 +946,40 @@
                             @endforeach
                         </select>
                     </div>
-                    <div>
-                        <label class="filter-label"><i class="fas fa-door-closed"></i> Private Room</label>
-                        <div class="flex items-center gap-2 mt-2">
-                            <input type="checkbox" name="is_private_booking" id="is_private_booking" value="1" class="auto-submit w-4 h-4 accent-gold" {{ $isPrivateBooking ? 'checked' : '' }}>
-                            <label for="is_private_booking" class="text-sm text-white cursor-pointer">Book as Private Room</label>
+                </div>
+
+                <!-- Row 2: Private Room Toggle -->
+                <div class="private-room-container">
+                    <div class="private-room-wrapper">
+                        <div class="private-room-toggle-area">
+                            <label class="private-room-toggle">
+                                <input type="checkbox" name="is_private_booking" id="is_private_booking" value="1" class="private-room-checkbox auto-submit" {{ $isPrivateBooking ? 'checked' : '' }}>
+                                <span class="private-room-slider"></span>
+                                <span class="private-room-text">
+                                    <i class="fas fa-door-closed"></i>
+                                    <span>Inside a Private Room</span>
+                                </span>
+                            </label>
                         </div>
-                        <div class="filter-hint">
-                            <i class="fas fa-info-circle"></i> Medium/Large tables only
+                        <div class="private-room-info">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Medium/Large tables only (4+ players)</span>
                         </div>
                     </div>
                 </div>
-                <div class="filter-hint mt-4 justify-center">
-                    <i class="fas fa-clock"></i> Booking: min 2h, max 9h | Minutes: 00 or 30 | Hours: 08:00-22:00
-                </div>
+
+                <!-- Rule Banner -->
+                @if($selectedDate && $startTime && $endTime)
+                    <div class="rules-banner">
+                        <div class="rules-content">
+                            <span><i class="fas fa-hourglass-half"></i> Min 2h</span>
+                            <span><i class="fas fa-hourglass-end"></i> Max 9h</span>
+                            <span><i class="fas fa-clock"></i>XX:00 or XX:30</span>
+                            <span><i class="fas fa-sun"></i> 08:00-22:00</span>
+                            <span class="advance-notice"><i class="fas fa-calendar-check"></i> 2h advance notice</span>
+                        </div>
+                    </div>
+                @endif
             </form>
         </div>
 
@@ -742,13 +993,25 @@
             <input type="hidden" name="space_id" id="selected_space_id" value="">
 
             @if(!$selectedDate || !$startTime || !$endTime)
-                <!-- BEAUTIFIED EMPTY STATE -->
                 <div class="empty-state-wrapper">
                     <div class="empty-state-icon">
                         <i class="fas fa-calendar-alt"></i>
                     </div>
                     <h3 class="empty-state-title">Awaiting Your Selection</h3>
                     <p class="empty-state-message">Please select a date, start time, and end time to see available spaces.</p>
+                    
+                    <!-- 2-HOUR ADVANCE NOTICE CARD -->
+                    <div class="advance-notice-card">
+                        <div class="advance-notice-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="advance-notice-content">
+                            <h4>2 Hours Advance Notice Required</h4>
+                            <p>Bookings must be made at least 2 hours before the start time</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Booking Rules in Empty State -->
                     <div class="empty-state-rules">
                         <span class="rule-badge"><i class="fas fa-hourglass-half"></i> Minimum 2 hours</span>
                         <span class="rule-badge"><i class="fas fa-hourglass-end"></i> Maximum 9 hours</span>
@@ -756,7 +1019,7 @@
                         <span class="rule-badge"><i class="fas fa-sun"></i> Hours: 08:00 - 22:00</span>
                     </div>
                 </div>
-                
+                            
                 <div class="spaces-grid">
                     @foreach($spaces as $space)
                         <div class="space-card-default">
@@ -831,8 +1094,8 @@
                                 @if($space->is_available)
                                     <div class="availability">✓ Available</div>
                                 @endif
-                                @if($space->show_private_badge)
-                                    <div class="text-[10px] text-amber-400 mt-1">🏠 Private Room Booking</div>
+                                @if($space->show_private_badge && $space->capacity >= 4)
+                                    <div class="text-[10px] text-amber-400 mt-1">🏠 Inside a Private Room</div>
                                 @endif
                                 <p class="space-description">{{ Str::limit($space->description ?? 'A perfect spot for your gaming session.', 80) }}</p>
                             </div>
@@ -1041,25 +1304,6 @@
         window.addEventListener('load', function() {
             hideLoading();
         });
-
-        function bookSelectedSpace() {
-            if (selectedSpaceForModal) {
-                var form = document.getElementById('reservationForm');
-                var isLoggedIn = {{ $isLoggedIn ? 'true' : 'false' }};
-                
-                document.getElementById('selected_space_id').value = selectedSpaceForModal;
-                
-                if (isLoggedIn) {
-                    // Logged in user - submit to regular store
-                    form.action = '/reservation';
-                    form.submit();
-                } else {
-                    // Guest - submit to temp store which redirects to login
-                    form.action = '/reservation/temp';
-                    form.submit();
-                }
-            }
-        }
     </script>
 </body>
 </html>

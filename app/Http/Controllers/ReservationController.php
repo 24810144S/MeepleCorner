@@ -59,7 +59,9 @@ class ReservationController extends Controller
         // Mark spaces as available or not
         $allSpaces->getCollection()->transform(function ($space) use ($bookedSpaceIds, $isPrivateBooking) {
             $space->is_available = !in_array($space->id, $bookedSpaceIds);
+            // Only medium (4-6) and large (7+) tables can be private rooms
             $space->show_private_badge = $isPrivateBooking && $space->capacity >= 4;
+            $space->can_be_private = $space->capacity >= 4;
             return $space;
         });
 
@@ -108,7 +110,7 @@ class ReservationController extends Controller
         ));
     }
 
-    // Store temporary reservation data and redirect to login
+    // Store temporary reservation data and redirect to login (for guests)
     public function storeTemp(Request $request)
     {
         // Validate request
@@ -119,9 +121,35 @@ class ReservationController extends Controller
             'space_id' => 'required|exists:spaces,id',
         ]);
 
+        // Get the space to check capacity
+        $space = Space::find($validated['space_id']);
+        $isPrivateBooking = $request->has('is_private_booking') && $request->input('is_private_booking') == 1;
+
+        // If trying to book as private room but table is small (capacity <= 3)
+        if ($isPrivateBooking && $space->capacity <= 3) {
+            return back()->withErrors(['is_private_booking' => 'Small tables cannot be booked as private rooms. Please select a medium or large table.'])->withInput();
+        }
+
         // Parse times
         $startTime = Carbon::parse($validated['start_time']);
         $endTime = Carbon::parse($validated['end_time']);
+        $selectedDate = Carbon::parse($validated['reservation_date']);
+        $now = Carbon::now();
+        
+        // Check if booking is less than 2 hours from now (ONLY for today's bookings)
+        $today = Carbon::now()->format('Y-m-d');
+        if ($validated['reservation_date'] == $today) {
+            $bookingDateTime = Carbon::parse($selectedDate->format('Y-m-d') . ' ' . $startTime->format('H:i:s'));
+            $hoursFromNow = $now->diffInHours($bookingDateTime, false);
+            
+            if ($bookingDateTime->isPast()) {
+                return back()->withErrors(['start_time' => 'Cannot book a time slot that has already passed.'])->withInput();
+            }
+            
+            if ($hoursFromNow < 2) {
+                return back()->withErrors(['start_time' => 'Bookings must be made at least 2 hours in advance. Please select a later time.'])->withInput();
+            }
+        }
         
         // Calculate duration in minutes
         $durationMinutes = $startTime->diffInMinutes($endTime);
@@ -174,92 +202,12 @@ class ReservationController extends Controller
             'reservation_date' => $validated['reservation_date'],
             'start_time' => $validated['start_time'],
             'end_time' => $validated['end_time'],
-            'is_private_booking' => $request->has('is_private_booking') && $request->input('is_private_booking') == 1 ? 1 : 0,
+            'is_private_booking' => $isPrivateBooking ? 1 : 0,
         ]]);
 
-        // Store the intended URL to return after login
         session(['url.intended' => '/reservation/confirm']);
 
         return redirect('/login');
-    }
-
-    // Show confirmation page before final submission
-    public function showConfirm()
-    {
-        if (!session()->has('member_id')) {
-            return redirect('/login');
-        }
-
-        // Check for temporary reservation data (guest booking)
-        $reservationData = session('temp_reservation_data');
-        
-        // If no temp data, check for regular session data
-        if (!$reservationData) {
-            $reservationData = session('reservation_data');
-        }
-        
-        if (!$reservationData) {
-            return redirect('/reservation')->with('error', 'Please select your booking details first.');
-        }
-
-        $space = Space::find($reservationData['space_id']);
-        $member = Member::find(session('member_id'));
-
-        return view('reservations.confirm', compact('reservationData', 'space', 'member'));
-    }
-
-    // Process final confirmation and redirect to history
-    public function processConfirm(Request $request)
-    {
-        if (!session()->has('member_id')) {
-            return redirect('/login');
-        }
-
-        // Check for temporary reservation data first (guest booking)
-        $reservationData = session('temp_reservation_data');
-        
-        // If no temp data, check for regular session data
-        if (!$reservationData) {
-            $reservationData = session('reservation_data');
-        }
-        
-        if (!$reservationData) {
-            return redirect('/reservation')->with('error', 'Session expired. Please try again.');
-        }
-
-        // Check for time conflict again
-        $hasConflict = Reservation::where('space_id', $reservationData['space_id'])
-            ->where('reservation_date', $reservationData['reservation_date'])
-            ->where(function($q) use ($reservationData) {
-                $q->where('start_time', '<', $reservationData['end_time'])
-                  ->where('end_time', '>', $reservationData['start_time']);
-            })
-            ->exists();
-
-        if ($hasConflict) {
-            session()->forget(['temp_reservation_data', 'reservation_data']);
-            return redirect('/reservation')->withErrors(['time_slot' => 'This time slot is no longer available. Please select another.']);
-        }
-
-        // Create reservation
-        $reservation = Reservation::create([
-            'member_id' => session('member_id'),
-            'space_id' => $reservationData['space_id'],
-            'reservation_date' => $reservationData['reservation_date'],
-            'start_time' => $reservationData['start_time'],
-            'end_time' => $reservationData['end_time'],
-            'status' => 'confirmed',
-            'is_private_booking' => $reservationData['is_private_booking'] ?? 0,
-        ]);
-
-        // Clear session data
-        session()->forget(['temp_reservation_data', 'reservation_data', 'url.intended']);
-        
-        // Store the new reservation ID in session for highlighting
-        session()->flash('new_reservation_id', $reservation->id);
-        session()->flash('booking_success', '🎉 Your booking has been confirmed successfully!');
-
-        return redirect('/profile/history');
     }
 
     // Original store method for logged-in users (redirects to confirm)
@@ -277,9 +225,35 @@ class ReservationController extends Controller
             'space_id' => 'required|exists:spaces,id',
         ]);
 
+        // Get the space to check capacity
+        $space = Space::find($validated['space_id']);
+        $isPrivateBooking = $request->has('is_private_booking') && $request->input('is_private_booking') == 1;
+
+        // If trying to book as private room but table is small (capacity <= 3)
+        if ($isPrivateBooking && $space->capacity <= 3) {
+            return back()->withErrors(['is_private_booking' => 'Small tables cannot be booked as private rooms. Please select a medium or large table.'])->withInput();
+        }
+
         // Parse times
         $startTime = Carbon::parse($validated['start_time']);
         $endTime = Carbon::parse($validated['end_time']);
+        $selectedDate = Carbon::parse($validated['reservation_date']);
+        $now = Carbon::now();
+        
+        // Check if booking is less than 2 hours from now (ONLY for today's bookings)
+        $today = Carbon::now()->format('Y-m-d');
+        if ($validated['reservation_date'] == $today) {
+            $bookingDateTime = Carbon::parse($selectedDate->format('Y-m-d') . ' ' . $startTime->format('H:i:s'));
+            $hoursFromNow = $now->diffInHours($bookingDateTime, false);
+            
+            if ($bookingDateTime->isPast()) {
+                return back()->withErrors(['start_time' => 'Cannot book a time slot that has already passed.'])->withInput();
+            }
+            
+            if ($hoursFromNow < 2) {
+                return back()->withErrors(['start_time' => 'Bookings must be made at least 2 hours in advance. Please select a later time.'])->withInput();
+            }
+        }
         
         // Calculate duration in minutes
         $durationMinutes = $startTime->diffInMinutes($endTime);
@@ -332,10 +306,89 @@ class ReservationController extends Controller
             'reservation_date' => $validated['reservation_date'],
             'start_time' => $validated['start_time'],
             'end_time' => $validated['end_time'],
-            'is_private_booking' => $request->has('is_private_booking') && $request->input('is_private_booking') == 1 ? 1 : 0,
+            'is_private_booking' => $isPrivateBooking ? 1 : 0,
         ]]);
 
         return redirect()->route('reservation.confirm');
+    }
+
+    // Show confirmation page before final submission
+    public function showConfirm()
+    {
+        if (!session()->has('member_id')) {
+            return redirect('/login');
+        }
+
+        // Check for temporary reservation data (guest booking)
+        $reservationData = session('temp_reservation_data');
+        
+        // If no temp data, check for regular session data
+        if (!$reservationData) {
+            $reservationData = session('reservation_data');
+        }
+        
+        if (!$reservationData) {
+            return redirect('/reservation')->with('error', 'Please select your booking details first.');
+        }
+
+        $space = Space::find($reservationData['space_id']);
+        $member = Member::find(session('member_id'));
+
+        return view('reservations.confirm', compact('reservationData', 'space', 'member'));
+    }
+
+    // Process final confirmation and redirect to history
+    public function processConfirm()
+    {
+        if (!session()->has('member_id')) {
+            return redirect('/login');
+        }
+
+        // Check for temporary reservation data first (guest booking)
+        $reservationData = session('temp_reservation_data');
+        
+        // If no temp data, check for regular session data
+        if (!$reservationData) {
+            $reservationData = session('reservation_data');
+        }
+        
+        if (!$reservationData) {
+            return redirect('/reservation')->with('error', 'Session expired. Please try again.');
+        }
+
+        // Check for time conflict again
+        $hasConflict = Reservation::where('space_id', $reservationData['space_id'])
+            ->where('reservation_date', $reservationData['reservation_date'])
+            ->where(function($q) use ($reservationData) {
+                $q->where('start_time', '<', $reservationData['end_time'])
+                  ->where('end_time', '>', $reservationData['start_time']);
+            })
+            ->exists();
+
+        if ($hasConflict) {
+            session()->forget(['temp_reservation_data', 'reservation_data']);
+            return redirect('/reservation')->withErrors(['time_slot' => 'This time slot is no longer available. Please select another.']);
+        }
+
+        // Create reservation
+        $reservation = Reservation::create([
+            'member_id' => session('member_id'),
+            'space_id' => $reservationData['space_id'],
+            'reservation_date' => $reservationData['reservation_date'],
+            'start_time' => $reservationData['start_time'],
+            'end_time' => $reservationData['end_time'],
+            'status' => 'confirmed',
+            'is_private_booking' => $reservationData['is_private_booking'] ?? 0,
+        ]);
+
+        // Clear session data
+        session()->forget(['temp_reservation_data', 'reservation_data', 'url.intended']);
+        
+        // Store the new reservation ID in session for highlighting
+        session()->flash('new_reservation_id', $reservation->id);
+        session()->flash('booking_success', '🎉 Your booking has been confirmed successfully!');
+
+        return redirect('/profile/history');
     }
 
     public function cancel(Reservation $reservation)
