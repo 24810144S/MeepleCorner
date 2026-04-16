@@ -6,8 +6,13 @@
     <title>Reservations | Meeple Corner Café</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+    <!-- tsParticles -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -27,29 +32,22 @@
             --color-white: #ffffff;
             --color-text: rgba(255, 255, 255, 0.82);
             --color-text-muted: rgba(255, 255, 255, 0.55);
-            --spacing-xs: 0.75rem;
-            --spacing-sm: 1.5rem;
-            --spacing-md: 2.5rem;
-            --spacing-lg: 5rem;
-            --spacing-xl: 8rem;
             --font-heading: 'Playfair Display', serif;
             --font-body: 'Inter', sans-serif;
             --transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
 
-        /* FLEX STICKY FOOTER FIX */
         body {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             font-family: var(--font-body);
-            line-height: 1.6;
             background-color: var(--color-primary);
             color: var(--color-text);
             overflow-x: hidden;
         }
 
-        /* subtle noise texture overlay */
+        /* noise texture */
         body::before {
             content: "";
             position: fixed;
@@ -62,102 +60,63 @@
             z-index: 1000;
         }
 
-        /* ===== TYPOGRAPHY ===== */
-        h1, h2, h3, .logo, .stat_number {
-            font-family: var(--font-heading);
-            font-weight: 500;
-            letter-spacing: -0.02em;
-        }
-
-        /* ===== NAVBAR ===== */
-        .navbar {
-            position: relative;
-            z-index: 20;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 2rem;
-            background: rgba(26, 15, 7, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(212, 165, 116, 0.2);
-        }
-        .logo {
-            font-family: var(--font-heading);
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--color-accent);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        .logo:hover {
-            color: var(--color-accent-light);
-            letter-spacing: 1px;
-        }
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-        .nav-link {
-            color: var(--color-text-muted);
-            text-decoration: none;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            font-weight: 500;
-            transition: var(--transition);
-            position: relative;
-        }
-        .nav-link:hover {
-            color: var(--color-accent);
-        }
-        .nav-link.active {
-            color: var(--color-accent);
-        }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
+        /* particles background */
+        #tsparticles {
+            position: fixed;
+            top: 0;
             left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--color-accent);
-            transition: width 0.3s ease;
-        }
-        .nav-link:hover::after,
-        .nav-link.active::after {
             width: 100%;
-        }
-        .user-greeting {
-            font-size: 0.7rem;
-            color: var(--color-text-muted);
-            letter-spacing: 0.1em;
-        }
-        .user-avatar {
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            border: 1px solid var(--color-accent);
-            background: rgba(212,165,116,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-        .user-avatar:hover {
-            border-color: var(--color-accent-light);
-            transform: scale(1.05);
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
 
-        /* ===== MAIN CONTAINER (pushes footer down) ===== */
+        /* floating emoji */
+        .floating-bg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 55px;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatAround 20s infinite linear;
+        }
+        @keyframes floatAround {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
+            50% { transform: translateY(-25px) rotate(8deg); opacity: 0.12; }
+            100% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
+        }
+
+        /* main container */
         .main-container {
             flex: 1;
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
             width: 100%;
+            position: relative;
+            z-index: 2;
         }
 
-        /* ===== FILTER CARD ===== */
+        /* header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            font-family: var(--font-heading);
+            font-size: 2.8rem;
+            color: var(--color-white);
+            margin-bottom: 0.5rem;
+        }
+        .page-header p {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            letter-spacing: 0.2em;
+        }
+
+        /* filter card */
         .filter-card {
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(8px);
@@ -195,62 +154,16 @@
             outline: none;
             border-color: var(--color-accent);
         }
-        .btn-filter {
-            background: var(--color-accent);
-            color: var(--color-primary);
-            border: none;
-            border-radius: 40px;
-            padding: 0.6rem 1.2rem;
-            font-size: 0.7rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .btn-filter:hover {
-            background: var(--color-accent-light);
-            transform: translateY(-2px);
-        }
-        .btn-reset {
-            background: transparent;
-            border: 1px solid rgba(212,165,116,0.5);
-            color: var(--color-accent);
-        }
-        .btn-reset:hover {
-            background: rgba(212,165,116,0.1);
-        }
 
-        /* Gray/Disabled card style for default state */
-        .space-card-default {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(212,165,116,0.1);
-            border-radius: 28px;
-            overflow: hidden;
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .space-card-default .space-image {
-            filter: grayscale(0.5);
-        }
-        .space-card-default .space-name {
-            color: var(--color-text-muted);
-        }
-        .space-card-default .space-capacity {
-            background: rgba(212,165,116,0.1);
-            color: var(--color-text-muted);
-        }
-        .space-card-default .space-description {
-            color: var(--color-text-muted);
-        }
-
-        /* ===== SPACE CARDS ===== */
+        /* space cards grid */
         .spaces-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 2rem;
             margin: 2rem 0;
         }
+
+        /* space card */
         .space-card {
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(4px);
@@ -277,6 +190,27 @@
         .space-card.disabled:hover {
             transform: none;
         }
+
+        /* default gray card */
+        .space-card-default {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(212,165,116,0.1);
+            border-radius: 28px;
+            overflow: hidden;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .space-card-default .space-image {
+            filter: grayscale(0.5);
+        }
+        .space-card-default .space-name {
+            color: var(--color-text-muted);
+        }
+        .space-card-default .space-capacity {
+            background: rgba(212,165,116,0.1);
+            color: var(--color-text-muted);
+        }
+
         .space-image {
             height: 200px;
             background-size: cover;
@@ -347,7 +281,7 @@
             display: none;
         }
 
-        /* ===== PAGINATION ===== */
+        /* pagination */
         .pagination {
             display: flex;
             flex-wrap: wrap;
@@ -383,7 +317,7 @@
             margin-top: 1rem;
         }
 
-        /* ===== ACTION BUTTONS ===== */
+        /* action buttons */
         .action-buttons {
             display: flex;
             justify-content: flex-end;
@@ -425,8 +359,12 @@
             background: var(--color-accent-light);
             transform: translateY(-2px);
         }
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
 
-        /* ===== ALERTS & EMPTY STATES ===== */
+        /* alerts */
         .alert-error {
             background: rgba(220, 38, 38, 0.2);
             border-left: 4px solid #ef4444;
@@ -442,26 +380,15 @@
             border-radius: 28px;
         }
 
-        /* ===== FOOTER (sticky) ===== */
-        .footer {
-            background-color: #0c0704;
-            padding: 2rem;
-            text-align: center;
-            border-top: 1px solid rgba(212,165,116,0.2);
-            font-size: 0.7rem;
-            color: var(--color-text-muted);
-            letter-spacing: 0.1em;
-        }
-
-        /* Loading indicator */
+        /* loading overlay */
         .loading-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
             display: none;
             justify-content: center;
             align-items: center;
@@ -478,17 +405,31 @@
             to { transform: rotate(360deg); }
         }
 
+        /* filter badge */
+        .filter-badge {
+            display: inline-block;
+            background: rgba(212,165,116,0.15);
+            color: var(--color-accent);
+            font-size: 0.7rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* footer */
+        .footer {
+            background-color: #0c0704;
+            padding: 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(212,165,116,0.2);
+            font-size: 0.7rem;
+            color: var(--color-text-muted);
+            letter-spacing: 0.1em;
+            margin-top: 2rem;
+        }
+
         @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            .nav-links {
-                gap: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
             .main-container {
                 padding: 1rem;
             }
@@ -502,63 +443,47 @@
                 width: 100%;
                 text-align: center;
             }
+            .spaces-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+
+    @include('layouts.navbar')
+
+    <!-- Particles Background -->
+    <div id="tsparticles"></div>
+    <div class="floating-bg">🎲 🃏 🧩 🎯 🎲</div>
 
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loading-spinner"></div>
     </div>
 
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <a href="/" class="logo">Meeple Corner Café</a>
-        <div class="nav-links">
-            <a href="/" class="nav-link">Home</a>
-            <a href="/board-games" class="nav-link">Board Games</a>
-            <a href="/events" class="nav-link">Events</a>
-            <a href="/reservation" class="nav-link active">Reservations</a>
-            <a href="/menu" class="nav-link">Menu</a>
-        </div>
-        <div class="flex items-center gap-4">
-            <span class="user-greeting">Welcome, {{ session('member_name', 'Guest') }}</span>
-            <a href="/profile/info" class="user-avatar">
-                <i class="fas fa-user text-gold text-sm"></i>
-            </a>
-            @auth
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                    @csrf
-                    <button type="submit" class="text-[10px] uppercase tracking-widest text-red-400 hover:text-red-300">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Exit
-                    </button>
-                </form>
-            @endauth
-        </div>
-    </nav>
-
-    <!-- MAIN CONTENT (flex:1 ensures footer is pushed down) -->
     <main class="main-container">
-        @if($tableSizeFilter !== 'all')
+        <div class="page-header">
+            <h1>🎲 Book Your Adventure</h1>
+            <p>Select a date, time, and your perfect gaming spot</p>
+        </div>
+
+        @if($tableSizeFilter !== 'all' || $isPrivateBooking)
             <div class="flex flex-wrap gap-2 mb-4">
                 @if($tableSizeFilter !== 'all')
-                    <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full text-gold">
-                        Table Filter: {{ $tableSizeOptions[$tableSizeFilter] ?? $tableSizeFilter }}
+                    <span class="filter-badge">
+                        <i class="fas fa-table"></i> Table: {{ $tableSizeOptions[$tableSizeFilter] ?? $tableSizeFilter }}
                     </span>
                 @endif
                 @if($isPrivateBooking)
-                    <span class="text-[10px] bg-white/10 px-3 py-1 rounded-full text-gold">
-                        Private Room Mode: ON
+                    <span class="filter-badge">
+                        <i class="fas fa-door-closed"></i> Private Room Mode: ON
                     </span>
                 @endif
             </div>
         @endif
 
         <div class="filter-card">
-            <h2 class="serif text-3xl text-white mb-2">Book Your Adventure</h2>
-            <p class="text-sm text-text-muted mb-6">Select a date, time, and your perfect gaming spot.</p>
-
             @if ($errors->any())
                 <div class="alert-error mb-6">
                     @foreach ($errors->all() as $error)
@@ -571,11 +496,11 @@
             <form method="GET" action="/reservation" id="filterForm">
                 <div class="filter-grid">
                     <div>
-                        <label class="filter-label">Date</label>
+                        <label class="filter-label">📅 Date</label>
                         <input type="date" name="reservation_date" id="reservation_date" value="{{ $selectedDate }}" class="filter-input auto-submit" min="{{ date('Y-m-d') }}">
                     </div>
                     <div>
-                        <label class="filter-label">Start Time</label>
+                        <label class="filter-label">⏰ Start Time</label>
                         <select name="start_time" id="start_time" class="filter-select auto-submit">
                             <option value="">Select start</option>
                             @foreach($timeOptions as $time)
@@ -584,7 +509,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="filter-label">End Time</label>
+                        <label class="filter-label">⏰ End Time</label>
                         <select name="end_time" id="end_time" class="filter-select auto-submit">
                             <option value="">Select end</option>
                             @foreach($timeOptions as $time)
@@ -593,7 +518,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="filter-label">Table Size</label>
+                        <label class="filter-label">📏 Table Size</label>
                         <select name="table_size_filter" id="table_size_filter" class="filter-select auto-submit">
                             @foreach($tableSizeOptions as $value => $label)
                                 <option value="{{ $value }}" {{ $tableSizeFilter == $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -601,7 +526,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="filter-label">Private Room</label>
+                        <label class="filter-label">🏠 Private Room</label>
                         <div class="flex items-center gap-2 mt-2">
                             <input type="checkbox" name="is_private_booking" id="is_private_booking" value="1" class="auto-submit" {{ $isPrivateBooking ? 'checked' : '' }}>
                             <label for="is_private_booking" class="text-sm text-white cursor-pointer">Book as Private Room</label>
@@ -683,13 +608,13 @@
                 
                 <div class="action-buttons">
                     <button type="reset" class="btn-clear" id="clearFormBtn">Clear Selection</button>
-                    <button type="button" disabled class="btn-submit opacity-50 cursor-not-allowed">Select Date & Time First</button>
+                    <button type="button" disabled class="btn-submit">Select Date & Time First</button>
                 </div>
             @elseif($spaces->count() == 0)
                 <div class="empty-state">
                     <i class="fas fa-exclamation-triangle text-5xl text-yellow-500 mb-4"></i>
                     <p class="text-gray-300">No spaces match your filters. Try adjusting your criteria.</p>
-                    <button type="button" onclick="resetAllFilters()" class="btn-filter mt-4">Reset Filters</button>
+                    <button type="button" onclick="resetAllFilters()" class="btn-clear mt-4">Reset Filters</button>
                 </div>
             @else
                 <div class="spaces-grid">
@@ -768,6 +693,26 @@
     </footer>
 
     <script>
+        // Initialize tsParticles
+        tsParticles.load("tsparticles", {
+            fpsLimit: 60,
+            particles: {
+                number: { value: 40, density: { enable: true, value_area: 800 } },
+                color: { value: ["#d4a574", "#e8c9a9", "#2a9d8f", "#9b5de5"] },
+                shape: { type: ["circle", "square", "triangle"] },
+                opacity: { value: 0.3, random: true },
+                size: { value: 5, random: true },
+                move: { enable: true, speed: 1, direction: "none", random: true, straight: false, outModes: "out" }
+            },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } }
+            }
+        });
+
+        // GSAP animation
+        gsap.from(".page-header", { opacity: 0, y: 30, duration: 0.8, ease: "power2.out" });
+        gsap.from(".filter-card", { opacity: 0, y: 20, duration: 0.6, delay: 0.2 });
+
         // Auto-submit on any filter change
         const autoSubmitElements = document.querySelectorAll('.auto-submit');
         const filterForm = document.getElementById('filterForm');
@@ -840,15 +785,6 @@
             document.getElementById('table_size_filter').value = 'all';
             document.getElementById('is_private_booking').checked = false;
             autoSubmit();
-        }
-
-        // Reset button handler
-        const resetBtn = document.querySelector('.btn-reset');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                resetAllFilters();
-            });
         }
 
         const clearBtn = document.getElementById('clearFormBtn');
