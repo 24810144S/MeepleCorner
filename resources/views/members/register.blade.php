@@ -254,6 +254,10 @@
             color: #f87171;
             font-size: 0.7rem;
             margin-top: 0.25rem;
+            display: none;
+        }
+        .border-red-500 {
+            border-color: #f87171 !important;
         }
 
         @media (max-width: 768px) {
@@ -320,6 +324,10 @@
 
                 <form method="POST" action="/register" id="registerForm">
                     @csrf
+                    <div class="form-group">
+                        <label class="form-label">Nickname</label>
+                        <input type="text" name="address" value="{{ old('address') }}" class="form-input" required>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-group">
                             <label class="form-label">First Name</label>
@@ -329,11 +337,6 @@
                             <label class="form-label">Last Name</label>
                             <input type="text" name="last_name" value="{{ old('last_name') }}" class="form-input" required>
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Mailing Address</label>
-                        <input type="text" name="address" value="{{ old('address') }}" class="form-input" required>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -355,7 +358,7 @@
                         <div class="form-group">
                             <label class="form-label">Confirm Password</label>
                             <input type="password" name="password_confirmation" id="password_confirmation" class="form-input" required>
-                            <div id="password-error" class="error-text hidden">Passwords do not match.</div>
+                            <div id="password-error" class="error-text">Passwords do not match.</div>
                         </div>
                     </div>
 
@@ -364,7 +367,7 @@
                         <h3 class="serif text-xl text-white mb-3">Identity Recovery</h3>
 
                         <div class="form-group">
-                            <label class="form-label">Question 1: Select a hint</label>
+                            <label class="form-label">Question 1: Select a question</label>
                             <select name="security_q1_id" class="form-select">
                                 <option value="What was the name of your first pet?">What was the name of your first pet?</option>
                                 <option value="In what city were you born?">In what city were you born?</option>
@@ -374,17 +377,31 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Question 2: What is your favorite board game?</label>
-                            <input type="text" name="security_a2" placeholder="e.g. Catan" class="form-input" required>
+                            <label class="form-label">Question 2: What is your favorite board game genre?</label>
+                            <select name="favorite_genre" class="form-select" required>
+                                <option value="" disabled selected>– Select a genre –</option>
+                                <option value="strategy">Strategy</option>
+                                <option value="party">Party</option>
+                                <option value="cooperative">Cooperative</option>
+                                <option value="deck-building">Deck‑building</option>
+                                <option value="roll_and_write">Roll and Write</option>
+                                <option value="worker_placement">Worker Placement</option>
+                                <option value="social_deduction">Social Deduction</option>
+                                <option value="card_games">Card Games</option>
+                                <option value="family">Family</option>
+                                <option value="abstract">Abstract</option>
+                                <option value="wargame">Wargame</option>
+                                <option value="other">Other</option>
+                            </select>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Question 3: Select secret tags</label>
+                            <label class="form-label">Question 3: What is your favorite season of the year?</label>
                             <div class="checkbox-group">
-                                <label class="checkbox-label"><input type="checkbox" name="security_a3[]" value="latte"> Latte</label>
-                                <label class="checkbox-label"><input type="checkbox" name="security_a3[]" value="meeple"> Meeple</label>
-                                <label class="checkbox-label"><input type="checkbox" name="security_a3[]" value="d20"> D20</label>
-                                <label class="checkbox-label"><input type="checkbox" name="security_a3[]" value="dice"> Dice</label>
+                                <label class="checkbox-label"><input type="radio" name="security_a3" value="winter"> Winter</label>
+                                <label class="checkbox-label"><input type="radio" name="security_a3" value="spring"> Spring</label>
+                                <label class="checkbox-label"><input type="radio" name="security_a3" value="summer"> Summer</label>
+                                <label class="checkbox-label"><input type="radio" name="security_a3" value="fall"> Fall</label>
                             </div>
                         </div>
                     </div>
@@ -400,45 +417,61 @@
     </div>
 
     <script>
-        // tsParticles
-        tsParticles.load("tsparticles", {
-            fpsLimit: 60,
-            particles: {
-                number: { value: 40, density: { enable: true, value_area: 800 } },
-                color: { value: ["#d4a574", "#e8c9a9", "#2a9d8f", "#9b5de5"] },
-                shape: { type: ["circle", "square", "triangle"] },
-                opacity: { value: 0.3, random: true },
-                size: { value: 5, random: true },
-                move: { enable: true, speed: 1, direction: "none", random: true, straight: false, outModes: "out" }
-            },
-            interactivity: {
-                events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } }
+        document.addEventListener('DOMContentLoaded', function() {
+            // tsParticles
+            tsParticles.load("tsparticles", {
+                fpsLimit: 60,
+                particles: {
+                    number: { value: 40, density: { enable: true, value_area: 800 } },
+                    color: { value: ["#d4a574", "#e8c9a9", "#2a9d8f", "#9b5de5"] },
+                    shape: { type: ["circle", "square", "triangle"] },
+                    opacity: { value: 0.3, random: true },
+                    size: { value: 5, random: true },
+                    move: { enable: true, speed: 1, direction: "none", random: true, straight: false, outModes: "out" }
+                },
+                interactivity: {
+                    events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } }
+                }
+            });
+
+            // GSAP animations
+            gsap.from(".form-card", { opacity: 0, y: 30, duration: 0.8, ease: "power2.out" });
+            gsap.from(".brand-side", { opacity: 0, x: -20, duration: 0.6, delay: 0.2 });
+            gsap.from(".form-side", { opacity: 0, x: 20, duration: 0.6, delay: 0.3 });
+
+            // Password validation
+            const password = document.getElementById('password');
+            const confirm = document.getElementById('password_confirmation');
+            const errorSpan = document.getElementById('password-error');
+
+            if (errorSpan) {
+                errorSpan.style.display = 'none';
             }
-        });
 
-        // GSAP animations
-        gsap.from(".form-card", { opacity: 0, y: 30, duration: 0.8, ease: "power2.out" });
-        gsap.from(".brand-side", { opacity: 0, x: -20, duration: 0.6, delay: 0.2 });
-        gsap.from(".form-side", { opacity: 0, x: 20, duration: 0.6, delay: 0.3 });
-
-        // Password match validation
-        const form = document.getElementById('registerForm');
-        const password = document.getElementById('password');
-        const confirm = document.getElementById('password_confirmation');
-        const errorSpan = document.getElementById('password-error');
-
-        form.addEventListener('submit', function(e) {
-            if (password.value !== confirm.value) {
-                e.preventDefault();
-                errorSpan.classList.remove('hidden');
-                confirm.classList.add('border-red-500');
+            function validatePasswords() {
+                if (!password || !confirm) return;
+                if (password.value !== confirm.value) {
+                    if (errorSpan) errorSpan.style.display = 'block';
+                    confirm.style.borderColor = '#f87171';
+                } else {
+                    if (errorSpan) errorSpan.style.display = 'none';
+                    confirm.style.borderColor = '';
+                }
             }
-        });
 
-        confirm.addEventListener('input', function() {
-            if (password.value === confirm.value) {
-                errorSpan.classList.add('hidden');
-                confirm.classList.remove('border-red-500');
+            password.addEventListener('input', validatePasswords);
+            confirm.addEventListener('input', validatePasswords);
+
+            const form = document.getElementById('registerForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (password.value !== confirm.value) {
+                        e.preventDefault();
+                        if (errorSpan) errorSpan.style.display = 'block';
+                        confirm.style.borderColor = '#f87171';
+                        alert('Passwords do not match. Please correct them.');
+                    }
+                });
             }
         });
     </script>
