@@ -390,7 +390,7 @@
                     <div class="info-value">{{ $member->last_name }}</div>
                 </div>
                 <div class="info-item">
-                    <span class="info-label"><i class="fas fa-map-marker-alt mr-1"></i> Address</span>
+                    <span class="info-label"><i class="fas fa-map-marker-alt mr-1"></i> Nickname</span>
                     <div class="info-value">{{ $member->address }}</div>
                 </div>
                 <div class="info-item">
