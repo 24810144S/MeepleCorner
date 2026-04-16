@@ -6,11 +6,16 @@
     <title>Confirm Booking | Meeple Corner Café</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+    <!-- tsParticles -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* ===== RESET & GLOBAL ===== */
         * {
             margin: 0;
             padding: 0;
@@ -31,13 +36,16 @@
         }
 
         body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             font-family: var(--font-body);
-            line-height: 1.6;
             background-color: var(--color-primary);
             color: var(--color-text);
-            min-height: 100vh;
+            overflow-x: hidden;
         }
 
+        /* noise texture */
         body::before {
             content: "";
             position: fixed;
@@ -50,81 +58,63 @@
             z-index: 1000;
         }
 
-        h1, h2, h3, .logo {
-            font-family: var(--font-heading);
-            font-weight: 500;
-            letter-spacing: -0.02em;
+        /* particles background */
+        #tsparticles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
         }
 
-        .navbar {
-            position: relative;
-            z-index: 20;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 2rem;
-            background: rgba(26, 15, 7, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+        /* floating emoji */
+        .floating-bg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 55px;
+            opacity: 0.1;
+            pointer-events: none;
+            z-index: 1;
+            animation: floatAround 20s infinite linear;
         }
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--color-accent);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        .logo:hover {
-            color: var(--color-accent-light);
-            letter-spacing: 1px;
-        }
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-        }
-        .nav-link {
-            color: var(--color-text-muted);
-            text-decoration: none;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            font-weight: 500;
-            transition: var(--transition);
-            position: relative;
-        }
-        .nav-link:hover {
-            color: var(--color-accent);
-        }
-        .nav-link.active {
-            color: var(--color-accent);
-        }
-        .user-greeting {
-            font-size: 0.7rem;
-            color: var(--color-text-muted);
-            letter-spacing: 0.1em;
-        }
-        .user-avatar {
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            border: 1px solid var(--color-accent);
-            background: rgba(212,165,116,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-        .user-avatar:hover {
-            border-color: var(--color-accent-light);
-            transform: scale(1.05);
+        @keyframes floatAround {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
+            50% { transform: translateY(-25px) rotate(8deg); opacity: 0.12; }
+            100% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
         }
 
+        /* main container */
         .main-container {
+            flex: 1;
             max-width: 800px;
-            margin: 2rem auto;
+            margin: 0 auto;
             padding: 2rem;
+            width: 100%;
+            position: relative;
+            z-index: 2;
         }
 
+        /* header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            font-family: var(--font-heading);
+            font-size: 2.8rem;
+            color: var(--color-white);
+            margin-bottom: 0.5rem;
+        }
+        .page-header p {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+            letter-spacing: 0.2em;
+        }
+
+        /* confirm card */
         .confirm-card {
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(8px);
@@ -160,6 +150,7 @@
             padding: 2rem;
         }
 
+        /* warning box */
         .warning-box {
             background: rgba(234, 179, 8, 0.1);
             border-left: 4px solid #eab308;
@@ -170,19 +161,21 @@
             align-items: center;
             gap: 1rem;
         }
-
         .warning-box i {
             color: #eab308;
             font-size: 1.5rem;
         }
+        .warning-box p {
+            font-size: 0.85rem;
+        }
 
+        /* details section */
         .details-section {
             background: rgba(0,0,0,0.2);
             border-radius: 24px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
         }
-
         .section-title {
             font-size: 1.2rem;
             color: var(--color-accent);
@@ -191,24 +184,22 @@
             align-items: center;
             gap: 0.5rem;
         }
-
         .detail-row {
             display: flex;
             justify-content: space-between;
             padding: 0.75rem 0;
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-
         .detail-label {
             color: var(--color-text-muted);
             font-size: 0.85rem;
         }
-
         .detail-value {
             color: var(--color-white);
             font-weight: 500;
         }
 
+        /* private badge */
         .private-badge {
             background: rgba(212,165,116,0.2);
             color: var(--color-accent);
@@ -221,30 +212,29 @@
             margin-top: 1rem;
         }
 
+        /* info section */
         .info-section {
             background: rgba(212,165,116,0.05);
             border-radius: 24px;
             padding: 1.5rem;
             margin-bottom: 1.5rem;
         }
-
         .info-title {
             font-size: 1rem;
             color: var(--color-white);
             margin-bottom: 0.5rem;
         }
-
         .info-text {
             color: var(--color-text-muted);
             font-size: 0.85rem;
         }
 
+        /* action buttons */
         .action-buttons {
             display: flex;
             gap: 1rem;
             margin-top: 1.5rem;
         }
-
         .btn-back {
             flex: 1;
             background: transparent;
@@ -265,7 +255,6 @@
             background: rgba(212,165,116,0.1);
             transform: translateX(-4px);
         }
-
         .btn-confirm {
             flex: 1;
             background: var(--color-accent);
@@ -285,6 +274,7 @@
             transform: translateY(-2px);
         }
 
+        /* footer */
         .footer {
             background-color: #0c0704;
             padding: 2rem;
@@ -297,72 +287,58 @@
         }
 
         @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 1rem;
-                padding: 1rem;
-            }
-            .nav-links {
-                gap: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
             .main-container {
                 padding: 1rem;
             }
             .action-buttons {
                 flex-direction: column;
             }
+            .detail-row {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            .detail-label {
+                font-size: 0.7rem;
+            }
+            .detail-value {
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
 <body>
 
-    <nav class="navbar">
-        <a href="/" class="logo">Meeple Corner Café</a>
-        <div class="nav-links">
-            <a href="/" class="nav-link">Home</a>
-            <a href="/board-games" class="nav-link">Board Games</a>
-            <a href="/events" class="nav-link">Events</a>
-            <a href="/reservation" class="nav-link">Reservations</a>
-            <a href="/menu" class="nav-link">Menu</a>
-        </div>
-        <div class="flex items-center gap-4">
-            <span class="user-greeting">Welcome, {{ session('member_name', 'Guest') }}</span>
-            <a href="/profile/info" class="user-avatar">
-                <i class="fas fa-user text-gold text-sm"></i>
-            </a>
-            @auth
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                    @csrf
-                    <button type="submit" class="text-[10px] uppercase tracking-widest text-red-400 hover:text-red-300">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Exit
-                    </button>
-                </form>
-            @endauth
-        </div>
-    </nav>
+    @include('layouts.navbar')
+
+    <!-- Particles Background -->
+    <div id="tsparticles"></div>
+    <div class="floating-bg">🎲 🃏 🧩 🎯 🎲</div>
 
     <main class="main-container">
+        <div class="page-header">
+            <h1>📋 Review Your Booking</h1>
+            <p>Please verify your details before confirming</p>
+        </div>
+
         <div class="confirm-card">
             <div class="confirm-header">
                 <div class="confirm-icon">
                     <i class="fas fa-clipboard-list"></i>
                 </div>
-                <h1 class="confirm-title">Review Your Booking</h1>
-                <p class="confirm-subtitle">Please verify your details before confirming</p>
+                <h1 class="confirm-title">Booking Summary</h1>
+                <p class="confirm-subtitle">Double-check everything looks good</p>
             </div>
 
             <div class="confirm-body">
                 <div class="warning-box">
                     <i class="fas fa-exclamation-triangle"></i>
-                    <p class="text-sm">Please double-check your booking details. Once confirmed, changes cannot be made online.</p>
+                    <p>Please double-check your booking details. Once confirmed, changes cannot be made online.</p>
                 </div>
 
                 <div class="details-section">
                     <div class="section-title">
                         <i class="fas fa-ticket-alt"></i>
-                        <span>Booking Summary</span>
+                        <span>Booking Details</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label"><i class="far fa-calendar-alt mr-2"></i> Date</span>
@@ -430,6 +406,27 @@
     </footer>
 
     <script>
+        // Initialize tsParticles
+        tsParticles.load("tsparticles", {
+            fpsLimit: 60,
+            particles: {
+                number: { value: 40, density: { enable: true, value_area: 800 } },
+                color: { value: ["#d4a574", "#e8c9a9", "#2a9d8f", "#9b5de5"] },
+                shape: { type: ["circle", "square", "triangle"] },
+                opacity: { value: 0.3, random: true },
+                size: { value: 5, random: true },
+                move: { enable: true, speed: 1, direction: "none", random: true, straight: false, outModes: "out" }
+            },
+            interactivity: {
+                events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } }
+            }
+        });
+
+        // GSAP animation
+        gsap.from(".page-header", { opacity: 0, y: 30, duration: 0.8, ease: "power2.out" });
+        gsap.from(".confirm-card", { opacity: 0, y: 20, duration: 0.6, delay: 0.2 });
+        gsap.from(".confirm-header", { opacity: 0, scale: 0.95, duration: 0.5, delay: 0.3 });
+
         // Small confetti on page load for visual delight
         document.addEventListener('DOMContentLoaded', function() {
             canvasConfetti({ particleCount: 50, spread: 50, origin: { y: 0.7 }, colors: ['#d4a574'] });
