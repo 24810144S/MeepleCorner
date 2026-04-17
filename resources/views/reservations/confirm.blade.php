@@ -388,7 +388,7 @@
 
                 <div class="action-buttons">
                     <a href="/reservation" class="btn-back">
-                        <i class="fas fa-arrow-left mr-2"></i> Back to Edit
+                        <i class="fas fa-arrow-left mr-2"></i> I'll take another look
                     </a>
                     <form method="POST" action="{{ route('reservation.process') }}" style="flex: 1;">
                         @csrf
