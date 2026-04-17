@@ -115,6 +115,33 @@
             letter-spacing: 0.2em;
         }
 
+        /* filter buttons */
+        .filter-bar {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        .filter-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(212,165,116,0.3);
+            color: var(--color-text-muted);
+            padding: 0.5rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--color-accent);
+            color: var(--color-primary);
+            border-color: var(--color-accent);
+        }
+
         /* card container */
         .games-grid {
             display: grid;
@@ -185,14 +212,8 @@
             letter-spacing: 1px;
             transition: var(--transition);
         }
-
         .game_link:hover { letter-spacing: 2px; }
 
-        .stories {
-            padding: var(--spacing-xl) var(--spacing-lg);
-            background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
-            position: relative;
-        }
         .availability {
             font-size: 0.7rem;
             margin-bottom: 1rem;
@@ -272,6 +293,13 @@
             .games-grid {
                 grid-template-columns: 1fr;
             }
+            .filter-bar {
+                gap: 0.5rem;
+            }
+            .filter-btn {
+                padding: 0.3rem 0.8rem;
+                font-size: 0.6rem;
+            }
         }
     </style>
 </head>
@@ -293,9 +321,24 @@
             </div>
         </div>
 
+        <!-- Filter buttons -->
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">All Games</button>
+            <button class="filter-btn" data-filter="small">Small (2‑3 players)</button>
+            <button class="filter-btn" data-filter="medium">Medium (4‑6 players)</button>
+            <button class="filter-btn" data-filter="large">Large (6‑8 players)</button>
+        </div>
+
         <div class="games-grid" id="gamesGrid">
             @forelse($boardGames as $game)
-                <a href="{{ route('board-games.show', $game) }}" class="game_link"><div class="game-card" data-game-id="{{ $game->id }}" data-game-name="{{ $game->name }}">
+                @php
+                    // Determine size category based on max_players
+                    $maxPlayers = $game->max_players;
+                    if ($maxPlayers <= 3) $sizeCat = 'small';
+                    elseif ($maxPlayers <= 6) $sizeCat = 'medium';
+                    else $sizeCat = 'large';
+                @endphp
+                <div class="game-card" data-game-id="{{ $game->id }}" data-game-name="{{ $game->name }}" data-size="{{ $sizeCat }}">
                     <div class="relative overflow-hidden">
                         @if($game->image)
                             <img src="{{ asset('storage/' . $game->image) }}" class="game-img" alt="{{ $game->name }}">
@@ -320,11 +363,11 @@
                         <div class="availability {{ $game->is_available ? 'available' : 'unavailable' }}">
                             {{ $game->is_available ? '✓ Available now' : '✗ Currently borrowed' }}
                         </div>
-                        <button class="play-btn" data-game-id="{{ $game->id }}" data-game-name="{{ $game->name }}">
+                        <a href="{{ route('board-games.show', $game) }}" class="play-btn">
                             <i class="fas fa-dice-d6"></i> Details
-                        </button>
+                        </a>
                     </div>
-                </div></a>
+                </div>
             @empty
                 <div class="text-center text-gray-400 col-span-full py-8">No board games available yet. Check back soon!</div>
             @endforelse
@@ -360,14 +403,40 @@
             canvasConfetti({ particleCount, spread: 70, origin: { y: 0.6 }, colors: ['#d4a574', '#e8c9a9', '#ffffff'] });
         }
 
-        // Random game picker
+        // Filter functionality
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const gameCards = document.querySelectorAll('.game-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active class
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const filterValue = btn.getAttribute('data-filter');
+
+                // Show/hide cards based on data-size attribute
+                gameCards.forEach(card => {
+                    if (filterValue === 'all') {
+                        card.style.display = '';
+                    } else {
+                        const cardSize = card.getAttribute('data-size');
+                        card.style.display = cardSize === filterValue ? '' : 'none';
+                    }
+                });
+            });
+        });
+
+        // Random game picker (only visible games)
         const randomBtn = document.getElementById('randomGameBtn');
-        const games = document.querySelectorAll('.game-card');
+        function getVisibleGames() {
+            return Array.from(gameCards).filter(card => card.style.display !== 'none');
+        }
 
         randomBtn.addEventListener('click', () => {
-            if (games.length === 0) return;
-            const randomIndex = Math.floor(Math.random() * games.length);
-            const targetGame = games[randomIndex];
+            const visibleGames = getVisibleGames();
+            if (visibleGames.length === 0) return;
+            const randomIndex = Math.floor(Math.random() * visibleGames.length);
+            const targetGame = visibleGames[randomIndex];
             const gameName = targetGame.getAttribute('data-game-name') || 'this game';
             targetGame.scrollIntoView({ behavior: 'smooth', block: 'center' });
             targetGame.style.transition = 'all 0.2s';
@@ -379,17 +448,8 @@
             }, 200);
         });
 
-        // "I want to play!" buttons
-        document.querySelectorAll('.play-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const gameName = btn.getAttribute('data-game-name') || 'this game';
-                celebrate(80);
-                alert(`🎉 Great choice! You're interested in "${gameName}". Please reserve a table or ask our staff.`);
-            });
-        });
-
-        // Card click confetti
+        // Details button already links to game page, no extra alert needed
+        // Card click confetti (but not when clicking the details button)
         document.querySelectorAll('.game-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 if (e.target.closest('.play-btn')) return;
