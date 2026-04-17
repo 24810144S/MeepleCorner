@@ -586,7 +586,7 @@
         <p class="header_subtitle">
             A boutique board game café where every visit is a new adventure. Sip, strategize, and socialize.
         </p>
-        <a href="/reservation" class="cta-button">Explore Our Games</a>
+        <a href="/reservation" class="cta-button">Book Tables</a>
     </div>
     <div class="header_image"></div>
 </header>
