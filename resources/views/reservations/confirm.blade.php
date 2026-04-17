@@ -381,9 +381,11 @@
 
                 <div class="info-section">
                     <div class="info-title">
-                        <i class="fas fa-dice-d6 mr-2"></i> Recommended Game
+                        <i class="fas fa-dice-d6 mr-2"></i> Recommended Games
                     </div>
-                    <div class="info-text">🎲 Catan: Starfarers - Perfect for {{ $space->capacity }} players! Ask our staff to set it up.</div>
+                    <div class="info-text" id="recommendedGamesList">
+                        Loading recommended games for {{ $space->capacity }} players...
+                    </div>
                 </div>
 
                 <div class="action-buttons">
@@ -431,6 +433,30 @@
         document.addEventListener('DOMContentLoaded', function() {
             canvasConfetti({ particleCount: 50, spread: 50, origin: { y: 0.7 }, colors: ['#d4a574'] });
         });
+        // Recommended games based on table capacity
+        const recommendedGamesList = {
+            2: ['Chess', 'Jaipur', 'Patchwork', 'Hive', 'Love Letter'],
+            3: ['Sushi Go!', 'Love Letter', 'Catan', 'Carcassonne', 'Ticket to Ride', 'Splendor', 'Azul'],
+            4: ['Catan', 'Carcassonne', 'Ticket to Ride', 'Splendor', 'Azul', 'Wingspan', '7 Wonders', 'Just One'],
+            5: ['Catan', 'Carcassonne', 'Ticket to Ride', 'Wingspan', 'Dixit', 'Codenames', 'The Resistance: Avalon'],
+            6: ['Dixit', 'Codenames', 'Werewolf', '7 Wonders', 'Just One', 'The Resistance: Avalon', 'One Night Ultimate Werewolf'],
+            8: ['Werewolf', 'Codenames', 'The Resistance: Avalon', 'Dungeons & Dragons', '7 Wonders', 'One Night Ultimate Werewolf'],
+            10: ['Werewolf', 'Dungeons & Dragons', 'Codenames', 'The Resistance: Avalon', 'One Night Ultimate Werewolf', 'Just One']
+        };
+        
+        const capacity = {{ $space->capacity }};
+        let capacityKey = capacity;
+        if (capacity <= 2) capacityKey = 2;
+        else if (capacity <= 3) capacityKey = 3;
+        else if (capacity <= 4) capacityKey = 4;
+        else if (capacity <= 5) capacityKey = 5;
+        else if (capacity <= 6) capacityKey = 6;
+        else if (capacity <= 8) capacityKey = 8;
+        else capacityKey = 10;
+        
+        const games = recommendedGamesList[capacityKey] || recommendedGamesList[4];
+        const gamesHtml = games.map(game => `<span style="display: inline-block; background: rgba(212,165,116,0.1); padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; margin: 0.2rem;">🎲 ${game}</span>`).join('');
+        document.getElementById('recommendedGamesList').innerHTML = gamesHtml;
     </script>
 </body>
 </html>
