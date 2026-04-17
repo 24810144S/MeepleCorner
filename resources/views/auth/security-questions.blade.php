@@ -13,6 +13,7 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* 保持原有的所有 CSS 樣式（不變） */
         :root {
             --color-primary: #1a0f07;
             --color-secondary: #2c1810;
@@ -167,6 +168,72 @@
             margin-bottom: 1.5rem;
             color: #fca5a5;
         }
+        .home-btn {
+            display: inline-block;
+            background: var(--color-accent);
+            color: var(--color-primary);
+            padding: 0.8rem 1.5rem;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+        /* Exceeded attempts message styles */
+        .exceeded-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
+            border: 1px solid rgba(212,165,116,0.3);
+            backdrop-filter: blur(4px);
+            margin: 1rem 0;
+        }
+        .exceeded-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(220,38,38,0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            border: 2px solid #ef4444;
+        }
+        .exceeded-icon i {
+            font-size: 2.5rem;
+            color: #ef4444;
+        }
+        .exceeded-title {
+            font-family: var(--font-heading);
+            font-size: 1.8rem;
+            color: var(--color-white);
+            margin-bottom: 0.75rem;
+        }
+        .exceeded-message {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 2rem;
+        }
+        .exceeded-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: var(--color-accent);
+            color: var(--color-primary);
+            padding: 0.75rem 2rem;
+            border-radius: 40px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .exceeded-btn:hover {
+            background: var(--color-accent-light);
+            transform: translateY(-2px);
+        }
         @media (max-width: 768px) {
             .form-card { flex-direction: column; }
             .brand-side { text-align: center; }
@@ -187,28 +254,75 @@
                 <p>Answer both questions correctly to reset your password.</p>
             </div>
             <div class="form-side">
-                <h2>Verify Identity</h2>
-                @if ($errors->any())
-                    <div class="alert-error">@foreach ($errors->all() as $error) <p>{{ $error }}</p> @endforeach</div>
+                @if($exhausted ?? false)
+                    <div class="exceeded-container text-center">
+                        <div class="exceeded-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="exceeded-title">Access Locked</h3>
+                        <p class="exceeded-message">
+                            You have exceeded the maximum number of attempts.<br>
+                            For security reasons, please return to the homepage and start over.
+                        </p>
+                        <a href="/" class="exceeded-btn">
+                            <i class="fas fa-home mr-2"></i> Return to Homepage
+                        </a>
+                    </div>
+                @else
+                    <h2>Verify Identity</h2>
+                    <p class="form-subtitle">
+                        @if(($attempts ?? 0) == 0) First attempt @else Second attempt (different questions) @endif
+                    </p>
+
+                    @if ($errors->any())
+                        <div class="alert-error">
+                            @foreach ($errors->all() as $error)
+                                <p>{{ $error }}</p>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    <form method="POST" action="{{ route('password.security-verify-answers') }}">
+                        @csrf
+                        <div class="form-group">
+                            <label class="form-label">{{ $question1 }}</label>
+                            @if($question1 == 'What is your favorite board game genre?')
+                                <select name="answer1" class="form-select" required>
+                                    <option value="">Select a genre</option>
+                                    <option value="strategy">Strategy</option>
+                                    <option value="party">Party</option>
+                                    <option value="cooperative">Cooperative</option>
+                                    <option value="deck-building">Deck‑building</option>
+                                    <option value="roll_and_write">Roll and Write</option>
+                                    <option value="worker_placement">Worker Placement</option>
+                                    <option value="social_deduction">Social Deduction</option>
+                                    <option value="card_games">Card Games</option>
+                                    <option value="family">Family</option>
+                                    <option value="abstract">Abstract</option>
+                                    <option value="wargame">Wargame</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            @else
+                                <input type="text" name="answer1" class="form-input" required>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">{{ $question2 }}</label>
+                            @if($question2 == 'What is your favorite season of the year?')
+                                <select name="answer2" class="form-select" required>
+                                    <option value="">Select a season</option>
+                                    <option value="winter">Winter</option>
+                                    <option value="spring">Spring</option>
+                                    <option value="summer">Summer</option>
+                                    <option value="fall">Fall</option>
+                                </select>
+                            @else
+                                <input type="text" name="answer2" class="form-input" required>
+                            @endif
+                        </div>
+                        <button type="submit" class="btn-submit">Verify Answers</button>
+                    </form>
                 @endif
-                <form method="POST" action="{{ route('password.security-verify-answers') }}">
-                    @csrf
-                    <div class="form-group">
-                        <label class="form-label">{{ $question1 }}</label>
-                        <input type="text" name="answer1" class="form-input" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">{{ $question3 }}</label>
-                        <select name="answer3" class="form-select" required>
-                            <option value="">Select a season</option>
-                            <option value="winter">Winter</option>
-                            <option value="spring">Spring</option>
-                            <option value="summer">Summer</option>
-                            <option value="fall">Fall</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-submit">Verify Answers</button>
-                </form>
                 <div class="login-link"><a href="/forgot-password">Start over</a></div>
             </div>
         </div>
