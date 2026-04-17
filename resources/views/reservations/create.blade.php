@@ -471,7 +471,7 @@
         }
 
         .space-image {
-            height: 200px;
+            height: 240px;
             background-size: cover;
             background-position: center;
             position: relative;
@@ -479,9 +479,16 @@
             align-items: center;
             justify-content: center;
             background-color: rgba(0,0,0,0.4);
+            transition: transform 0.3s ease;
         }
+
+        .space-card:hover .space-image {
+            transform: scale(1.02);
+        }
+
+        /* Space type icon - bigger */
         .space-type-icon {
-            font-size: 3rem;
+            font-size: 4rem;
             color: var(--color-accent);
             text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
@@ -533,14 +540,16 @@
         }
 
         .space-content {
-            padding: 1.5rem;
+            padding: 1.2rem;
         }
+
         .space-name {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             font-family: var(--font-heading);
             color: var(--color-white);
             margin-bottom: 0.5rem;
         }
+
         .space-capacity {
             display: inline-block;
             background: rgba(212,165,116,0.2);
@@ -548,26 +557,21 @@
             font-size: 0.7rem;
             padding: 0.2rem 0.8rem;
             border-radius: 30px;
-            margin-bottom: 1rem;
-        }
-        .space-description {
-            font-size: 0.85rem;
-            color: var(--color-text-muted);
-            line-height: 1.5;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
 
-        /* ===== MESSAGE STYLES ===== */
         .availability {
             font-size: 0.7rem;
             color: #4ade80;
             margin-top: 0.5rem;
         }
+
         .booked-message {
             font-size: 0.7rem;
             color: #f87171;
             margin-top: 0.5rem;
         }
+
         .private-disabled-message {
             font-size: 0.7rem;
             color: #fbbf24;
@@ -577,6 +581,7 @@
             display: inline-block;
             margin-top: 0.5rem;
         }
+
         .gray-message {
             font-size: 0.7rem;
             color: #9ca3af;
@@ -925,23 +930,20 @@
                 transform: translateY(0);
             }
         }
-        /* Private Room Indicator - Clean and minimal */
         .private-room-indicator {
-            background: transparent;
-            padding: 0.2rem 0;
+            background: rgba(212, 165, 116, 0.1);
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
             font-size: 0.65rem;
             color: #d4a574;
-            margin: 0.2rem 0 0.3rem 0;
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
+            margin: 0.5rem 0;
+            display: inline-block;
             font-weight: 500;
-            letter-spacing: 0.3px;
         }
 
         .private-room-indicator i {
             font-size: 0.65rem;
-            color: #e8c9a9;
+            margin-right: 0.3rem;
         }
     </style>
 </head>
@@ -1139,35 +1141,15 @@
                         <span class="rule-badge"><i class="fas fa-sun"></i> Hours: 08:00 - 22:00</span>
                     </div>
                 </div>
-                            
+                                    
                 <div class="spaces-grid">
                     @foreach($spaces as $space)
-                        <div class="space-card {{ !$space->is_available ? 'disabled' : '' }}" 
-                            data-space-id="{{ $space->id }}" 
-                            data-space-name="{{ $space->name }}" 
-                            data-space-capacity="{{ $space->capacity }}" 
-                            data-space-type="{{ $space->type }}" 
-                            data-space-description="{{ $space->description }}" 
-                            data-space-available="{{ $space->is_available ? 'true' : 'false' }}"
-                            onclick="if({{ $space->is_available ? 'true' : 'false' }}) showModal(this)">
-                            <div class="space-image">
-                                @if(!$space->is_available)
-                                    @if($space->disabled_type == 'private_only')
-                                        <div class="private-only-badge">
-                                            <i class="fas fa-ban"></i> Private Only
-                                        </div>
-                                    @elseif($space->disabled_type == 'booked')
-                                        <div class="booked-badge">
-                                            <i class="fas fa-clock"></i> Booked
-                                        </div>
-                                    @elseif($space->disabled_type == 'gray')
-                                        <div class="gray-badge">
-                                            <i class="fas fa-lock"></i> {{ $space->disabled_reason }}
-                                        </div>
-                                    @else
-                                        <div class="booked-badge">Booked</div>
-                                    @endif
-                                @endif
+                        <div class="space-card disabled" style="cursor: not-allowed;">
+                            <!-- BIGGER IMAGE AREA -->
+                            <div class="space-image" style="height: 240px;">
+                                <div class="gray-badge">
+                                    <i class="fas fa-clock"></i> Select date & time first
+                                </div>
                                 <div class="space-type-icon">
                                     @if($space->type == 'private')
                                         <i class="fas fa-door-closed"></i>
@@ -1178,34 +1160,14 @@
                                     @endif
                                 </div>
                             </div>
+                            
+                            <!-- SIMPLIFIED CONTENT - NO DESCRIPTION -->
                             <div class="space-content">
                                 <h3 class="space-name">{{ $space->name }}</h3>
                                 <span class="space-capacity"><i class="fas fa-users mr-1"></i> {{ $space->capacity }} players</span>
-                                
-                                <!-- DIRECT CONDITION - Check private booking and capacity -->
-                                @if($isPrivateBooking && $space->capacity >= 4 && $space->is_available)
-                                    <div class="private-room-indicator">
-                                        <i class="fas fa-door-closed"></i> 🔒 Private Room Booking
-                                    </div>
-                                @endif
-                                
-                                @if($space->is_available)
-                                    <div class="availability">✓ Available</div>
-                                @else
-                                    @if($space->disabled_type == 'private_only')
-                                        <div class="private-disabled-message">
-                                            <i class="fas fa-ban"></i> Not available for private rooms
-                                        </div>
-                                    @elseif($space->disabled_type == 'booked')
-                                        <div class="booked-message">✗ Already booked for this time</div>
-                                    @else
-                                        <div class="gray-message">
-                                            <i class="fas fa-clock"></i> {{ $space->disabled_reason }}
-                                        </div>
-                                    @endif
-                                @endif
-                                
-                                <p class="space-description">{{ Str::limit($space->description ?? 'A perfect spot for your gaming session.', 80) }}</p>
+                                <div class="gray-message" style="margin-top: 0.5rem;">
+                                    <i class="fas fa-clock"></i> Select date & time first
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -1234,18 +1196,20 @@
                 <div class="spaces-grid">
                     @foreach($spaces as $space)
                         <div class="space-card {{ !$space->is_available ? 'disabled' : '' }}" 
-                             data-space-id="{{ $space->id }}" 
-                             data-space-name="{{ $space->name }}" 
-                             data-space-capacity="{{ $space->capacity }}" 
-                             data-space-type="{{ $space->type }}" 
-                             data-space-description="{{ $space->description }}" 
-                             data-space-available="{{ $space->is_available ? 'true' : 'false' }}"
-                             onclick="if({{ $space->is_available ? 'true' : 'false' }}) showModal(this)">
-                            <div class="space-image">
+                            data-space-id="{{ $space->id }}" 
+                            data-space-name="{{ $space->name }}" 
+                            data-space-capacity="{{ $space->capacity }}" 
+                            data-space-type="{{ $space->type }}" 
+                            data-space-description="{{ $space->description }}" 
+                            data-space-available="{{ $space->is_available ? 'true' : 'false' }}"
+                            onclick="if({{ $space->is_available ? 'true' : 'false' }}) showModal(this)">
+                            
+                            <!-- BIGGER IMAGE AREA -->
+                            <div class="space-image" style="height: 240px;">
                                 @if(!$space->is_available)
                                     @if($space->disabled_type == 'private_only')
                                         <div class="private-only-badge">
-                                            <i class="fas fa-ban"></i> Not Available
+                                            <i class="fas fa-ban"></i> Private Only
                                         </div>
                                     @elseif($space->disabled_type == 'booked')
                                         <div class="booked-badge">
@@ -1269,9 +1233,18 @@
                                     @endif
                                 </div>
                             </div>
+                            
+                            <!-- SIMPLIFIED CONTENT - NO DESCRIPTION -->
                             <div class="space-content">
                                 <h3 class="space-name">{{ $space->name }}</h3>
                                 <span class="space-capacity"><i class="fas fa-users mr-1"></i> {{ $space->capacity }} players</span>
+                                
+                                <!-- Private Room Indicator -->
+                                @if($isPrivateBooking && $space->capacity >= 4 && $space->is_available)
+                                    <div class="private-room-indicator">
+                                        <i class="fas fa-door-closed"></i> Private Room Booking
+                                    </div>
+                                @endif
                                 
                                 @if($space->is_available)
                                     <div class="availability">✓ Available</div>
@@ -1289,7 +1262,7 @@
                                     @endif
                                 @endif
                                 
-                                <p class="space-description">{{ Str::limit($space->description ?? 'A perfect spot for your gaming session.', 80) }}</p>
+                                <!-- REMOVED: description paragraph -->
                             </div>
                         </div>
                     @endforeach
