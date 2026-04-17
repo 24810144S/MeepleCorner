@@ -80,9 +80,9 @@ class ReservationController extends Controller
         // Filter options
         $tableSizeOptions = [
             'all' => 'All Sizes',
-            'small' => 'Small (1-3 players)',
+            'small' => 'Small (2-3 players)',
             'medium' => 'Medium (4-6 players)',
-            'large' => 'Large (7+ players)',
+            'large' => 'Large (7-8 players)',
         ];
 
         // Time options (08:00 to 22:00, with 00 and 30 minutes)
