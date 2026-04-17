@@ -298,7 +298,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('password.update') }}">
+                <form method="POST" action="/reset-password">
                     @csrf
                     <input type="hidden" name="token" value="{{ $token }}">
 

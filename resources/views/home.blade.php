@@ -649,7 +649,7 @@
     </style>
 </head>
 <body>
-
+@include('layouts.navbar')
 <!-- HEADER -->
 <header class="header">
     <div class="header_content">
