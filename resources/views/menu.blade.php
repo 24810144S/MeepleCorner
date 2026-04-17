@@ -242,6 +242,8 @@
 
     @include('layouts.navbar')
 
+
+    
     <div id="tsparticles"></div>
     <div class="floating-bg">☕ 🍰 🥪 🎲</div>
 
@@ -255,25 +257,25 @@
             <div class="menu-category">
                 <h2 class="category-title">{{ ucfirst($category) }}</h2>
                 <div class="menu-items">
-                    @foreach($items as $item)
-                        <div class="menu-item" data-item-id="{{ $item->id }}" data-item-name="{{ $item->name }}">
-                            <div class="item-info">
-                                @if($item->image)
-                                    <img src="{{ asset('storage/' . $item->image) }}" class="item-image" alt="{{ $item->name }}">
-                                @else
-                                    <div class="item-image flex items-center justify-center bg-gray-800">
-                                        <i class="fas fa-utensils text-gray-500 text-xl"></i>
-                                    </div>
-                                @endif
-                                <div class="item-details">
-                                    <div class="item-name">{{ $item->name }}</div>
-                                    <div class="item-description">{{ $item->description }}</div>
-                                </div>
-                            </div>
-                            <div class="item-price">${{ number_format($item->price, 2) }}</div>
-                            
-                        </div>
-                    @endforeach
+                    
+    <h2>{{ $category }}</h2>
+
+@foreach($groupedMenu as $category => $items)
+    <h2>{{ $category }}</h2>
+
+    @foreach($items as $menuItem)
+        <div style="margin-bottom:20px;">
+            <p>{{ $menuItem->name }}</p>
+            <p>{{ $menuItem->image }}</p>
+            <p>{{ asset($menuItem->image) }}</p>
+
+            <img src="{{ asset($menuItem->image) }}"
+                 alt="{{ $menuItem->name }}"
+                 width="150"
+                 style="border:1px solid #ccc;">
+        </div>
+    @endforeach
+@endforeach
                 </div>
             </div>
         @empty
