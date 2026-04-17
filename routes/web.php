@@ -80,3 +80,9 @@ Route::post('/reservation/confirm', [ReservationController::class, 'processConfi
 Route::post('/reservation/temp', [ReservationController::class, 'storeTemp'])->name('reservation.temp');
 Route::get('/reset-password/{token}', [PasswordResetController::class, 'showResetForm']);
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']);
+// Security questions reset flow
+Route::post('/forgot-password/security-verify-email', [PasswordResetController::class, 'verifyEmailForSecurity'])->name('password.security-verify-email');
+Route::get('/forgot-password/security-questions', [PasswordResetController::class, 'showSecurityQuestions'])->name('password.security-questions');
+Route::post('/forgot-password/security-verify-answers', [PasswordResetController::class, 'verifyAnswers'])->name('password.security-verify-answers');
+Route::get('/reset-password', [PasswordResetController::class, 'showSecurityResetForm'])->name('password.security-reset');
+Route::post('/reset-password/security', [PasswordResetController::class, 'resetPasswordWithSecurity'])->name('password.security-update');
