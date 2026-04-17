@@ -23,6 +23,11 @@ class ReservationController extends Controller
         $startTime = $request->input('start_time');
         $endTime = $request->input('end_time');
 
+        // Force private room OFF when Small filter is selected
+        if ($tableSizeFilter === 'small') {
+            $isPrivateBooking = false;
+        }
+
         // Build query for spaces - show public tables only (standard and premium)
         $query = Space::whereIn('type', ['standard', 'premium'])->where('is_active', true);
 

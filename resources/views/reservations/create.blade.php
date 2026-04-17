@@ -898,6 +898,51 @@
                 align-items: center;
             }
         }
+        /* Private room info icon */
+        #privateRoomInfoIcon {
+            cursor: help;
+            transition: all 0.3s ease;
+        }
+
+        #privateRoomInfoIcon:hover {
+            opacity: 1 !important;
+            transform: scale(1.1);
+            color: #e8c9a9;
+        }
+
+        /* Private room info message animation */
+        #privateRoomInfoMessage {
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Private Room Indicator - Clean and minimal */
+        .private-room-indicator {
+            background: transparent;
+            padding: 0.2rem 0;
+            font-size: 0.65rem;
+            color: #d4a574;
+            margin: 0.2rem 0 0.3rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .private-room-indicator i {
+            font-size: 0.65rem;
+            color: #e8c9a9;
+        }
     </style>
 </head>
 <body>
@@ -932,6 +977,12 @@
                     <span id="modalType" class="modal-detail-badge"><i class="fas fa-tag"></i> Standard</span>
                     <span id="modalStatus" class="modal-detail-badge"><i class="fas fa-check-circle"></i> Available</span>
                 </div>
+                
+                <!-- Add private room indicator in modal -->
+                <div id="modalPrivateIndicator" style="display: none;" class="private-room-indicator" style="margin: 0.5rem 0;">
+                    <i class="fas fa-door-closed"></i> This will be booked as a Private Room
+                </div>
+                
                 <p id="modalDescription" class="modal-space-description"></p>
                 <div class="recommended-game">
                     <h4><i class="fas fa-dice-d6 mr-2"></i> Recommended Games</h4>
@@ -1015,6 +1066,7 @@
                 </div>
 
                 <!-- Row 2: Private Room Toggle -->
+                @if($tableSizeFilter !== 'small')
                 <div class="private-room-container">
                     <div class="private-room-wrapper">
                         <div class="private-room-toggle-area">
@@ -1033,6 +1085,8 @@
                         </div>
                     </div>
                 </div>
+
+                @endif
 
                 <!-- Rule Banner -->
                 @if($selectedDate && $startTime && $endTime)
@@ -1127,6 +1181,13 @@
                             <div class="space-content">
                                 <h3 class="space-name">{{ $space->name }}</h3>
                                 <span class="space-capacity"><i class="fas fa-users mr-1"></i> {{ $space->capacity }} players</span>
+                                
+                                <!-- DIRECT CONDITION - Check private booking and capacity -->
+                                @if($isPrivateBooking && $space->capacity >= 4 && $space->is_available)
+                                    <div class="private-room-indicator">
+                                        <i class="fas fa-door-closed"></i> 🔒 Private Room Booking
+                                    </div>
+                                @endif
                                 
                                 @if($space->is_available)
                                     <div class="availability">✓ Available</div>
@@ -1283,6 +1344,17 @@
             document.getElementById('modalStatus').innerHTML = '<i class="fas fa-check-circle"></i> Available';
             document.getElementById('modalDescription').textContent = description || 'A perfect spot for your gaming session.';
             
+            // ADD THIS: Show private room indicator in modal if private booking is ON and table qualifies
+            const isPrivateBooking = document.getElementById('is_private_booking')?.checked || false;
+            const modalPrivateIndicator = document.getElementById('modalPrivateIndicator');
+            if (modalPrivateIndicator) {
+                if (isPrivateBooking && capacity >= 4) {
+                    modalPrivateIndicator.style.display = 'flex';
+                } else {
+                    modalPrivateIndicator.style.display = 'none';
+                }
+            }
+            
             // Get recommended games based on capacity
             let capacityKey = capacity;
             if (capacity <= 2) capacityKey = 2;
@@ -1435,6 +1507,72 @@
         window.addEventListener('load', function() {
             hideLoading();
         });
+        // Private Room Info Tooltip - Show on hover or click
+        const infoIcon = document.getElementById('privateRoomInfoIcon');
+        const infoMessage = document.getElementById('privateRoomInfoMessage');
+        const privateCheckboxNew = document.getElementById('is_private_booking');
+
+        // Show message when hovering over info icon
+        if (infoIcon && infoMessage) {
+            // Hover effect
+            infoIcon.addEventListener('mouseenter', function() {
+                infoMessage.style.display = 'block';
+            });
+            
+            infoIcon.addEventListener('mouseleave', function() {
+                // Don't hide immediately if checkbox is checked (optional)
+                if (!privateCheckboxNew || !privateCheckboxNew.checked) {
+                    setTimeout(() => {
+                        if (!infoIcon.matches(':hover')) {
+                            infoMessage.style.display = 'none';
+                        }
+                    }, 300);
+                }
+            });
+            
+            // Also show message when checkbox is toggled ON
+            if (privateCheckboxNew) {
+                privateCheckboxNew.addEventListener('change', function() {
+                    if (this.checked) {
+                        infoMessage.style.display = 'block';
+                        // Auto-hide after 5 seconds
+                        setTimeout(() => {
+                            if (!infoIcon.matches(':hover')) {
+                                infoMessage.style.display = 'none';
+                            }
+                        }, 5000);
+                    } else {
+                        // Don't hide immediately, give user time to see
+                        setTimeout(() => {
+                            if (!infoIcon.matches(':hover')) {
+                                infoMessage.style.display = 'none';
+                            }
+                        }, 1000);
+                    }
+                });
+            }
+        }
+
+        // Alternative: Click to toggle message (if you prefer click instead of hover)
+        if (infoIcon && infoMessage) {
+            infoIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (infoMessage.style.display === 'none' || infoMessage.style.display === '') {
+                    infoMessage.style.display = 'block';
+                } else {
+                    infoMessage.style.display = 'none';
+                }
+            });
+            
+            // Close message when clicking outside
+            document.addEventListener('click', function(e) {
+                if (infoMessage && 
+                    !infoIcon.contains(e.target) && 
+                    !infoMessage.contains(e.target)) {
+                    infoMessage.style.display = 'none';
+                }
+            });
+        }
     </script>
 </body>
 </html>
