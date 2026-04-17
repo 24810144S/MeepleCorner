@@ -357,7 +357,7 @@
                         <label class="checkbox-label">
                             <input type="checkbox" name="remember"> Remember Me
                         </label>
-                        <a href="/forgot-password" class="forgot-link">Forgot Password?</a>
+                        <a href="#" id="forgotLink" class="forgot-link">Forgot Password?</a>
                     </div>
 
                     <button type="submit" class="btn-login">Authenticate</button>
@@ -393,7 +393,16 @@
                 events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } }
             }
         });
-
+        document.getElementById('forgotLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        const email = document.querySelector('input[name="email"]').value;
+        if (!email) {
+            alert('請先輸入您的電子郵件地址。');
+            return;
+        }
+        // 直接跳轉，並將 email 作為 URL 參數
+        window.location.href = '/forgot-password?email=' + encodeURIComponent(email);
+    });
         // GSAP fade-in animations
         gsap.from(".login-card", { opacity: 0, y: 30, duration: 0.8, ease: "power2.out" });
         gsap.from(".login-brand", { opacity: 0, x: -20, duration: 0.6, delay: 0.2 });
