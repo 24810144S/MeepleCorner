@@ -1260,14 +1260,15 @@
 
     <script>
         // Recommended games based on table capacity (multiple games)
+        // Recommended games based on table capacity - UPDATED with actual database games
         const recommendedGamesList = {
-            2: ['Patchwork', '7 Wonders Duel', 'Jaipur', 'Chess', 'Hive', 'Onitama', 'Lost Cities', 'Schotten Totten'],
-            3: ['Catan', 'Ticket to Ride', 'Carcassonne', 'Azul', 'Splendor', 'King of Tokyo', 'Dominion', 'Small World'],
-            4: ['Catan', 'Pandemic', 'Codenames', 'Ticket to Ride', 'Terraforming Mars', 'Wingspan', 'Sagrada', 'Everdell'],
-            5: ['Catan (5-6 players)', 'Pandemic', 'Mysterium', 'King of Tokyo', 'Betrayal at House on the Hill', 'Cosmic Encounter', 'The Resistance', 'Bang!'],
-            6: ['Codenames', 'Werewolf', 'Dixit', '7 Wonders', 'Sushi Go Party', 'Mafia de Cuba', 'Deception: Murder in Hong Kong', 'One Night Ultimate Werewolf'],
-            8: ['Twilight Imperium', 'D&D Campaign', 'Codenames', 'Telestrations', 'Eclipse', 'Rising Sun', 'Scythe', 'Root'],
-            10: ['D&D Campaign', 'Werewolf', 'Two Rooms and a Boom', 'Ultimate Werewolf', 'Blood on the Clocktower', 'The Resistance: Avalon', 'Captain Sonar', 'Formula D']
+            2: ['Chess', 'Jaipur', 'Patchwork', 'Hive', 'Love Letter'],
+            3: ['Sushi Go!', 'Love Letter', 'Catan', 'Carcassonne', 'Ticket to Ride', 'Splendor', 'Azul'],
+            4: ['Catan', 'Carcassonne', 'Ticket to Ride', 'Splendor', 'Azul', 'Wingspan', '7 Wonders', 'Just One'],
+            5: ['Catan', 'Carcassonne', 'Ticket to Ride', 'Wingspan', 'Dixit', 'Codenames', 'The Resistance: Avalon'],
+            6: ['Dixit', 'Codenames', 'Werewolf', '7 Wonders', 'Just One', 'The Resistance: Avalon', 'One Night Ultimate Werewolf'],
+            8: ['Werewolf', 'Codenames', 'The Resistance: Avalon', 'Dungeons & Dragons', '7 Wonders', 'One Night Ultimate Werewolf'],
+            10: ['Werewolf', 'Dungeons & Dragons', 'Codenames', 'The Resistance: Avalon', 'One Night Ultimate Werewolf', 'Just One']
         };
 
         let selectedSpaceForModal = null;
