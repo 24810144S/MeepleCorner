@@ -92,4 +92,27 @@ class AuthController extends Controller
         session()->regenerate();
         return redirect('/');
     }
+    public function checkEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:members,email',
+        ]);
+
+        return redirect()->route('password.request', ['email' => $request->email]);
+    }
+   
+
+    public function checkEmailExists(Request $request)
+{
+    // 可先加上這行日誌，確認請求有到達
+    \Log::info('checkEmailExists 被呼叫', $request->all());
+
+    $request->validate([
+        'email' => 'required|email',
+    ]);
+
+    $exists = Member::where('email', $request->email)->exists();
+
+    return response()->json(['exists' => $exists]);
+}
 }
