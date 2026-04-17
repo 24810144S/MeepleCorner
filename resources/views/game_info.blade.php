@@ -280,8 +280,8 @@
     <main class="main-container">
         <div class="game-card">
             <div class="game-grid">
-                <!-- Left: Image -->
-                <div class="game-image" style="background-image: url('{{ $boardGame->image ? asset('storage/' . $boardGame->image) : 'https://images.unsplash.com/photo-1611996575749-79a3a239f9f5?auto=format&fit=crop&w=800' }}');"></div>
+                <!-- Left: Image – changed to asset($boardGame->image) to match menu pattern -->
+                <div class="game-image" style="background-image: url('{{ $boardGame->image ? asset($boardGame->image) : 'https://images.unsplash.com/photo-1611996575749-79a3a239f9f5?auto=format&fit=crop&w=800' }}');"></div>
                 
                 <!-- Right: Details -->
                 <div class="game-content">
