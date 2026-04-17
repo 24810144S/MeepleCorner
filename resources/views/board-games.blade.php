@@ -16,7 +16,7 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ===== RESET & GLOBAL ===== */
+        /* ===== RESET & GLOBAL (unchanged) ===== */
         * {
             margin: 0;
             padding: 0;
@@ -341,7 +341,8 @@
                 <div class="game-card" data-game-id="{{ $game->id }}" data-game-name="{{ $game->name }}" data-size="{{ $sizeCat }}">
                     <div class="relative overflow-hidden">
                         @if($game->image)
-                            <img src="{{ asset('storage/' . $game->image) }}" class="game-img" alt="{{ $game->name }}">
+                            <!-- CHANGED: removed 'storage/' prefix to match menu item pattern -->
+                            <img src="{{ asset($game->image) }}" class="game-img" alt="{{ $game->name }}">
                         @else
                             <div class="game-img flex items-center justify-center bg-gray-800">
                                 <i class="fas fa-chess-board text-4xl text-gray-500"></i>
