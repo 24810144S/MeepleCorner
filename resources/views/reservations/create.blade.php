@@ -1111,7 +1111,7 @@
                         <span class="rule-badge"><i class="fas fa-sun"></i> Hours: 08:00 - 22:00</span>
                     </div>
                 </div>
-                                    
+                                            
                 <div class="spaces-grid">
                     @foreach($spaces as $space)
                         <div class="space-card disabled" style="cursor: not-allowed;">
@@ -1130,7 +1130,6 @@
                                 <div class="gray-badge">
                                     <i class="fas fa-clock"></i> Select date & time first
                                 </div>
-                            </div>
                             </div>
                             
                             <!-- SIMPLIFIED CONTENT - NO DESCRIPTION -->
