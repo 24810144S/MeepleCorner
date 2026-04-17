@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password | Meeple Corner Café</title>
+    <title>Security Questions | Meeple Corner Café</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- GSAP -->
@@ -13,7 +13,6 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Same CSS as before – keep all your styles */
         :root {
             --color-primary: #1a0f07;
             --color-secondary: #2c1810;
@@ -47,15 +46,7 @@
             pointer-events: none;
             z-index: 1000;
         }
-        #tsparticles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
+        #tsparticles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
         .floating-bg {
             position: fixed;
             bottom: 20px;
@@ -122,13 +113,6 @@
             color: var(--color-white);
             margin-bottom: 0.25rem;
         }
-        .form-subtitle {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: var(--color-text-muted);
-            margin-bottom: 1.5rem;
-        }
         .form-group { margin-bottom: 1.2rem; }
         .form-label {
             display: block;
@@ -139,7 +123,7 @@
             margin-bottom: 0.3rem;
             font-weight: 600;
         }
-        .form-input {
+        .form-input, .form-select {
             width: 100%;
             background: rgba(0,0,0,0.3);
             border: 1px solid rgba(212,165,116,0.3);
@@ -149,7 +133,7 @@
             font-size: 0.85rem;
             transition: var(--transition);
         }
-        .form-input:focus {
+        .form-input:focus, .form-select:focus {
             outline: none;
             border-color: var(--color-accent);
             background: rgba(0,0,0,0.5);
@@ -173,43 +157,8 @@
             background: var(--color-accent-light);
             transform: translateY(-2px);
         }
-        .option-divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 1.5rem 0;
-        }
-        .option-divider::before,
-        .option-divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid rgba(212,165,116,0.3);
-        }
-        .option-divider span {
-            margin: 0 1rem;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: var(--color-text-muted);
-        }
-        .login-link {
-            text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.7rem;
-            color: var(--color-text-muted);
-        }
-        .login-link a {
-            color: var(--color-accent);
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .alert-success {
-            background: rgba(74,222,128,0.15);
-            border-left: 4px solid #4ade80;
-            padding: 0.75rem 1rem;
-            border-radius: 16px;
-            margin-bottom: 1.5rem;
-            color: #86efac;
-        }
+        .login-link { text-align: center; margin-top: 1.5rem; font-size: 0.7rem; color: var(--color-text-muted); }
+        .login-link a { color: var(--color-accent); text-decoration: none; font-weight: bold; }
         .alert-error {
             background: rgba(220,38,38,0.2);
             border-left: 4px solid #ef4444;
@@ -233,72 +182,34 @@
     <div class="main-wrapper">
         <div class="form-card">
             <div class="brand-side">
-                <div>
-                    <h1>Reset<br>Password</h1>
-                    <div class="brand-divider"></div>
-                    <p class="text-sm font-light leading-loose opacity-80 uppercase tracking-widest">Choose your recovery method</p>
-                </div>
-                <div class="brand-features">
-                    <div class="feature-item">
-                        <i class="fas fa-shield-halved"></i>
-                        <p>Secured with three-tier protection</p>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fas fa-envelope-open-text"></i>
-                        <p>Exclusive invitations to game nights</p>
-                    </div>
-                </div>
+                <h1>Security Verification</h1>
+                <div class="brand-divider"></div>
+                <p>Answer both questions correctly to reset your password.</p>
             </div>
             <div class="form-side">
-                <h2>Recovery Options</h2>
-                <p class="form-subtitle">Select how you want to reset your password</p>
-
-                @if(session('success'))
-                    <div class="alert-success">
-                        <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-                    </div>
-                @endif
+                <h2>Verify Identity</h2>
                 @if ($errors->any())
-                    <div class="alert-error">
-                        @foreach ($errors->all() as $error)
-                            <p><i class="fas fa-exclamation-circle mr-2"></i> {{ $error }}</p>
-                        @endforeach
-                    </div>
+                    <div class="alert-error">@foreach ($errors->all() as $error) <p>{{ $error }}</p> @endforeach</div>
                 @endif
-
-                <!-- Option 1: Email Reset -->
-                <div>
-                    <h3 class="text-gold text-sm mb-2">📧 Option 1 – Send Reset Link via Email</h3>
-                    <form method="POST" action="/forgot-password">
-                        @csrf
-                        <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" name="email" class="form-input" required>
-                        </div>
-                        <button type="submit" class="btn-submit">Send Reset Link</button>
-                    </form>
-                </div>
-
-                <div class="option-divider">
-                    <span>or</span>
-                </div>
-
-                <!-- Option 2: Security Questions -->
-                <div>
-                    <h3 class="text-gold text-sm mb-2">🔐 Option 2 – Answer Security Questions</h3>
-                    <form method="POST" action="/forgot-password/security-verify-email">
-                        @csrf
-                        <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" name="email" class="form-input" required>
-                        </div>
-                        <button type="submit" class="btn-submit">Continue with Security Questions</button>
-                    </form>
-                </div>
-
-                <div class="login-link">
-                    Remember your password? <a href="/login">Back to Login</a>
-                </div>
+                <form method="POST" action="{{ route('password.security-verify-answers') }}">
+                    @csrf
+                    <div class="form-group">
+                        <label class="form-label">{{ $question1 }}</label>
+                        <input type="text" name="answer1" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">{{ $question3 }}</label>
+                        <select name="answer3" class="form-select" required>
+                            <option value="">Select a season</option>
+                            <option value="winter">Winter</option>
+                            <option value="spring">Spring</option>
+                            <option value="summer">Summer</option>
+                            <option value="fall">Fall</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-submit">Verify Answers</button>
+                </form>
+                <div class="login-link"><a href="/forgot-password">Start over</a></div>
             </div>
         </div>
     </div>

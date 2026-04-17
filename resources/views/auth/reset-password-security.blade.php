@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password | Meeple Corner Café</title>
+    <title>Set New Password | Meeple Corner Café</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- GSAP -->
@@ -13,7 +13,7 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Same CSS as before – keep all your styles */
+        /* ===== DARK THEME VARIABLES ===== */
         :root {
             --color-primary: #1a0f07;
             --color-secondary: #2c1810;
@@ -26,7 +26,13 @@
             --font-body: 'Inter', sans-serif;
             --transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             display: flex;
             flex-direction: column;
@@ -36,6 +42,8 @@
             color: var(--color-text);
             overflow-x: hidden;
         }
+
+        /* noise texture */
         body::before {
             content: "";
             position: fixed;
@@ -47,6 +55,8 @@
             pointer-events: none;
             z-index: 1000;
         }
+
+        /* tsParticles background */
         #tsparticles {
             position: fixed;
             top: 0;
@@ -56,6 +66,8 @@
             z-index: 0;
             pointer-events: none;
         }
+
+        /* floating emoji */
         .floating-bg {
             position: fixed;
             bottom: 20px;
@@ -71,6 +83,8 @@
             50% { transform: translateY(-25px) rotate(8deg); opacity: 0.12; }
             100% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
         }
+
+        /* main wrapper */
         .main-wrapper {
             flex: 1;
             display: flex;
@@ -80,6 +94,8 @@
             position: relative;
             z-index: 2;
         }
+
+        /* form card */
         .form-card {
             max-width: 900px;
             width: 100%;
@@ -92,6 +108,8 @@
             flex-direction: row;
             box-shadow: 0 25px 45px -12px rgba(0,0,0,0.5);
         }
+
+        /* left side brand */
         .brand-side {
             flex: 1;
             background: linear-gradient(135deg, rgba(44,24,16,0.6) 0%, rgba(26,15,7,0.8) 100%);
@@ -112,6 +130,28 @@
             background: var(--color-accent);
             margin: 1rem 0 2rem;
         }
+        .brand-features {
+            margin-top: auto;
+        }
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .feature-item i {
+            color: var(--color-accent);
+            font-size: 1.2rem;
+            margin-top: 0.2rem;
+        }
+        .feature-item p {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-text-muted);
+        }
+
+        /* right side form */
         .form-side {
             flex: 2;
             padding: 2rem;
@@ -129,7 +169,11 @@
             color: var(--color-text-muted);
             margin-bottom: 1.5rem;
         }
-        .form-group { margin-bottom: 1.2rem; }
+
+        /* form elements */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
         .form-label {
             display: block;
             font-size: 0.65rem;
@@ -173,24 +217,6 @@
             background: var(--color-accent-light);
             transform: translateY(-2px);
         }
-        .option-divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 1.5rem 0;
-        }
-        .option-divider::before,
-        .option-divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid rgba(212,165,116,0.3);
-        }
-        .option-divider span {
-            margin: 0 1rem;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: var(--color-text-muted);
-        }
         .login-link {
             text-align: center;
             margin-top: 1.5rem;
@@ -202,14 +228,6 @@
             text-decoration: none;
             font-weight: bold;
         }
-        .alert-success {
-            background: rgba(74,222,128,0.15);
-            border-left: 4px solid #4ade80;
-            padding: 0.75rem 1rem;
-            border-radius: 16px;
-            margin-bottom: 1.5rem;
-            color: #86efac;
-        }
         .alert-error {
             background: rgba(220,38,38,0.2);
             border-left: 4px solid #ef4444;
@@ -218,25 +236,43 @@
             margin-bottom: 1.5rem;
             color: #fca5a5;
         }
+
         @media (max-width: 768px) {
-            .form-card { flex-direction: column; }
-            .brand-side { text-align: center; }
-            .brand-divider { margin-left: auto; margin-right: auto; }
-            .main-wrapper { padding: 1rem; }
+            .form-card {
+                flex-direction: column;
+            }
+            .brand-side {
+                text-align: center;
+            }
+            .brand-divider {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .feature-item {
+                justify-content: center;
+            }
+            .main-wrapper {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
 <body>
+
+    <!-- tsParticles + floating emoji -->
     <div id="tsparticles"></div>
     <div class="floating-bg">🎲 🃏 🧩 🎯 🎲</div>
+
     @include('layouts.navbar')
+
     <div class="main-wrapper">
         <div class="form-card">
+            <!-- Left brand side -->
             <div class="brand-side">
                 <div>
-                    <h1>Reset<br>Password</h1>
+                    <h1>Set New<br>Password</h1>
                     <div class="brand-divider"></div>
-                    <p class="text-sm font-light leading-loose opacity-80 uppercase tracking-widest">Choose your recovery method</p>
+                    <p class="text-sm font-light leading-loose opacity-80 uppercase tracking-widest">Create a strong password</p>
                 </div>
                 <div class="brand-features">
                     <div class="feature-item">
@@ -249,15 +285,12 @@
                     </div>
                 </div>
             </div>
-            <div class="form-side">
-                <h2>Recovery Options</h2>
-                <p class="form-subtitle">Select how you want to reset your password</p>
 
-                @if(session('success'))
-                    <div class="alert-success">
-                        <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
-                    </div>
-                @endif
+            <!-- Right form side -->
+            <div class="form-side">
+                <h2>Reset Password</h2>
+                <p class="form-subtitle">Enter your new password below</p>
+
                 @if ($errors->any())
                     <div class="alert-error">
                         @foreach ($errors->all() as $error)
@@ -266,43 +299,28 @@
                     </div>
                 @endif
 
-                <!-- Option 1: Email Reset -->
-                <div>
-                    <h3 class="text-gold text-sm mb-2">📧 Option 1 – Send Reset Link via Email</h3>
-                    <form method="POST" action="/forgot-password">
-                        @csrf
-                        <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" name="email" class="form-input" required>
-                        </div>
-                        <button type="submit" class="btn-submit">Send Reset Link</button>
-                    </form>
-                </div>
-
-                <div class="option-divider">
-                    <span>or</span>
-                </div>
-
-                <!-- Option 2: Security Questions -->
-                <div>
-                    <h3 class="text-gold text-sm mb-2">🔐 Option 2 – Answer Security Questions</h3>
-                    <form method="POST" action="/forgot-password/security-verify-email">
-                        @csrf
-                        <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" name="email" class="form-input" required>
-                        </div>
-                        <button type="submit" class="btn-submit">Continue with Security Questions</button>
-                    </form>
-                </div>
+                <form method="POST" action="{{ route('password.security-update') }}">
+                    @csrf
+                    <div class="form-group">
+                        <label class="form-label">New Password</label>
+                        <input type="password" name="password" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" name="password_confirmation" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn-submit">Update Password</button>
+                </form>
 
                 <div class="login-link">
-                    Remember your password? <a href="/login">Back to Login</a>
+                    <a href="/login">Back to Login</a>
                 </div>
             </div>
         </div>
     </div>
+
     <script>
+        // tsParticles
         tsParticles.load("tsparticles", {
             fpsLimit: 60,
             particles: {
@@ -317,6 +335,8 @@
                 events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } }
             }
         });
+
+        // GSAP animations
         gsap.from(".form-card", { opacity: 0, y: 30, duration: 0.8, ease: "power2.out" });
         gsap.from(".brand-side", { opacity: 0, x: -20, duration: 0.6, delay: 0.2 });
         gsap.from(".form-side", { opacity: 0, x: 20, duration: 0.6, delay: 0.3 });
