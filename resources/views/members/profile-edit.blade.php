@@ -340,7 +340,7 @@
                             <input type="email" name="email" value="{{ old('email', $member->email) }}" class="form-input" required>
                         </div>
                         <div class="form-actions">
-                            <a href="/profile/info" class="btn-cancel">Cancel</a>
+                            <a href="/profile/info" class="btn-cancel">go back to profile</a>
                             <button type="submit" class="btn-submit">Save Changes</button>
                         </div>
                     </form>
@@ -364,7 +364,7 @@
                             <input type="password" name="password_confirmation" class="form-input" required>
                         </div>
                         <div class="form-actions">
-                            <a href="/profile/info" class="btn-cancel">Cancel</a>
+                            <a href="/profile/info" class="btn-cancel">go back to profile</a>
                             <button type="submit" class="btn-submit">Update Password</button>
                         </div>
                     </form>
