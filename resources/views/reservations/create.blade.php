@@ -460,7 +460,7 @@
                 transform: none;
             }
 
-            /* Space image with background image */
+            /* Space image for PNG transparency */
             .space-image {
                 height: 240px;
                 background-size: cover;
@@ -469,21 +469,14 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background-color: #2c1810;
+                background-color: transparent;  /* Change from #2c1810 to transparent */
                 border-radius: 28px 28px 0 0;
                 overflow: hidden;
             }
 
-            /* Dark overlay to make text readable on images */
+            /* Keep this overlay removed or very light */
             .space-image::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.3);
-                pointer-events: none;
+                display: none;
             }
 
             .space-image > * {
@@ -674,19 +667,19 @@
                 padding: 1.5rem;
             }
 
-            /* Modal image area - BIGGER */
+            /* Modal image area for PNG transparency */
             .modal-space-image {
                 width: 100%;
                 height: 300px;
-                background-size: cover;
+                background-size: contain;
+                background-repeat: no-repeat;
                 background-position: center;
                 border-radius: 20px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background-color: #2c1810;
+                background-color: transparent;
                 position: relative;
-                overflow: hidden;
                 margin-bottom: 1.5rem;
             }
 
@@ -698,7 +691,7 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: rgba(0, 0, 0, 0.2);
+                background: rgba(0, 0, 0, 0);
                 pointer-events: none;
             }
 
@@ -948,8 +941,7 @@
             </div>
                 <div class="modal-body">
                     <!-- MODAL IMAGE AREA -->
-                    <div id="modalSpaceImage" class="modal-space-image" style="height: 300px; background-size: cover; background-position: center; border-radius: 20px; margin-bottom: 1.5rem; background-color: #2c1810;">
-                        <!-- Fallback content will be inserted by JS -->
+<div id="modalSpaceImage" class="modal-space-image" style="height: 300px; background-size: contain; background-repeat: no-repeat; background-position: center; border-radius: 20px; margin-bottom: 1.5rem;">
                     </div>
                     <h2 id="modalSpaceName" class="modal-space-name"></h2>
                     <div class="modal-space-details">
@@ -1123,7 +1115,7 @@
                 <div class="spaces-grid">
                     @foreach($spaces as $space)
                         <div class="space-card disabled" style="cursor: not-allowed;">
-                            <div class="space-image" style="height: 240px; background-image: url('{{ $space->image ? asset($space->image) : '' }}'); background-size: cover; background-position: center; background-color: #2c1810;">
+                            <div class="space-image" style="height: 240px; background-image: url('{{ $space->image ? asset($space->image) : '' }}'); background-size: cover; background-position: center; background-color: transparent;">
                                 @if(!$space->image)
                                     <div class="space-type-icon">
                                         @if($space->type == 'private')
@@ -1138,6 +1130,7 @@
                                 <div class="gray-badge">
                                     <i class="fas fa-clock"></i> Select date & time first
                                 </div>
+                            </div>
                             </div>
                             
                             <!-- SIMPLIFIED CONTENT - NO DESCRIPTION -->
@@ -1184,36 +1177,36 @@
                             data-space-available="{{ $space->is_available ? 'true' : 'false' }}"
                             onclick="if({{ $space->is_available ? 'true' : 'false' }}) showModal(this)">
                             <!-- BIGGER IMAGE AREA -->
-                            <div class="space-image" style="height: 240px; background-image: url('{{ $space->image ? asset($space->image) : '' }}'); background-size: cover; background-position: center; background-color: #2c1810;">
-                                @if(!$space->image)
-                                    <div class="space-type-icon">
-                                        @if($space->type == 'private')
-                                            <i class="fas fa-door-closed"></i>
-                                        @elseif($space->type == 'premium')
-                                            <i class="fas fa-crown"></i>
-                                        @else
-                                            <i class="fas fa-couch"></i>
-                                        @endif
-                                    </div>
-                                @endif
-                                @if(!$space->is_available)
-                                    @if($space->disabled_type == 'private_only')
-                                        <div class="private-only-badge">
-                                            <i class="fas fa-ban"></i> Private Only
+                                <div class="space-image" style="height: 240px; background-image: url('{{ $space->image ? asset($space->image) : '' }}'); background-size: cover; background-position: center; background-color: transparent;">
+                                    @if(!$space->image)
+                                        <div class="space-type-icon">
+                                            @if($space->type == 'private')
+                                                <i class="fas fa-door-closed"></i>
+                                            @elseif($space->type == 'premium')
+                                                <i class="fas fa-crown"></i>
+                                            @else
+                                                <i class="fas fa-couch"></i>
+                                            @endif
                                         </div>
-                                    @elseif($space->disabled_type == 'booked')
-                                        <div class="booked-badge">
-                                            <i class="fas fa-clock"></i> Booked
-                                        </div>
-                                    @elseif($space->disabled_type == 'gray')
-                                        <div class="gray-badge">
-                                            <i class="fas fa-lock"></i> {{ $space->disabled_reason }}
-                                        </div>
-                                    @else
-                                        <div class="booked-badge">Booked</div>
                                     @endif
-                                @endif
-                            </div>
+                                    @if(!$space->is_available)
+                                        @if($space->disabled_type == 'private_only')
+                                            <div class="private-only-badge">
+                                                <i class="fas fa-ban"></i> Private Only
+                                            </div>
+                                        @elseif($space->disabled_type == 'booked')
+                                            <div class="booked-badge">
+                                                <i class="fas fa-clock"></i> Booked
+                                            </div>
+                                        @elseif($space->disabled_type == 'gray')
+                                            <div class="gray-badge">
+                                                <i class="fas fa-lock"></i> {{ $space->disabled_reason }}
+                                            </div>
+                                        @else
+                                            <div class="booked-badge">Booked</div>
+                                        @endif
+                                    @endif
+                                </div>
                             
                             <!-- SIMPLIFIED CONTENT - NO DESCRIPTION -->
                             <div class="space-content">
