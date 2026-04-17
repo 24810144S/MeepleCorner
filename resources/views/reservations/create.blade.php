@@ -1145,19 +1145,20 @@
                 <div class="spaces-grid">
                     @foreach($spaces as $space)
                         <div class="space-card disabled" style="cursor: not-allowed;">
-                            <!-- BIGGER IMAGE AREA -->
-                            <div class="space-image" style="height: 240px;">
+                            <div class="space-image" style="height: 240px; background-image: url('{{ $space->image ? asset($space->image) : '' }}'); background-size: cover; background-position: center; background-color: #2c1810;">
+                                @if(!$space->image)
+                                    <div class="space-type-icon">
+                                        @if($space->type == 'private')
+                                            <i class="fas fa-door-closed"></i>
+                                        @elseif($space->type == 'premium')
+                                            <i class="fas fa-crown"></i>
+                                        @else
+                                            <i class="fas fa-couch"></i>
+                                        @endif
+                                    </div>
+                                @endif
                                 <div class="gray-badge">
                                     <i class="fas fa-clock"></i> Select date & time first
-                                </div>
-                                <div class="space-type-icon">
-                                    @if($space->type == 'private')
-                                        <i class="fas fa-door-closed"></i>
-                                    @elseif($space->type == 'premium')
-                                        <i class="fas fa-crown"></i>
-                                    @else
-                                        <i class="fas fa-couch"></i>
-                                    @endif
                                 </div>
                             </div>
                             
@@ -1201,11 +1202,22 @@
                             data-space-capacity="{{ $space->capacity }}" 
                             data-space-type="{{ $space->type }}" 
                             data-space-description="{{ $space->description }}" 
+                            data-space-image="{{ $space->image_url }}"
                             data-space-available="{{ $space->is_available ? 'true' : 'false' }}"
                             onclick="if({{ $space->is_available ? 'true' : 'false' }}) showModal(this)">
-                            
                             <!-- BIGGER IMAGE AREA -->
-                            <div class="space-image" style="height: 240px;">
+                            <div class="space-image" style="height: 240px; background-image: url('{{ $space->image ? asset($space->image) : '' }}'); background-size: cover; background-position: center; background-color: #2c1810;">
+                                @if(!$space->image)
+                                    <div class="space-type-icon">
+                                        @if($space->type == 'private')
+                                            <i class="fas fa-door-closed"></i>
+                                        @elseif($space->type == 'premium')
+                                            <i class="fas fa-crown"></i>
+                                        @else
+                                            <i class="fas fa-couch"></i>
+                                        @endif
+                                    </div>
+                                @endif
                                 @if(!$space->is_available)
                                     @if($space->disabled_type == 'private_only')
                                         <div class="private-only-badge">
@@ -1223,15 +1235,6 @@
                                         <div class="booked-badge">Booked</div>
                                     @endif
                                 @endif
-                                <div class="space-type-icon">
-                                    @if($space->type == 'private')
-                                        <i class="fas fa-door-closed"></i>
-                                    @elseif($space->type == 'premium')
-                                        <i class="fas fa-crown"></i>
-                                    @else
-                                        <i class="fas fa-couch"></i>
-                                    @endif
-                                </div>
                             </div>
                             
                             <!-- SIMPLIFIED CONTENT - NO DESCRIPTION -->
@@ -1308,6 +1311,7 @@
             const capacity = parseInt(cardElement.getAttribute('data-space-capacity'));
             const type = cardElement.getAttribute('data-space-type');
             const description = cardElement.getAttribute('data-space-description');
+            const imageUrl = cardElement.getAttribute('data-space-image') || '';
             
             selectedSpaceForModal = id;
             
@@ -1317,7 +1321,26 @@
             document.getElementById('modalStatus').innerHTML = '<i class="fas fa-check-circle"></i> Available';
             document.getElementById('modalDescription').textContent = description || 'A perfect spot for your gaming session.';
             
-            // ADD THIS: Show private room indicator in modal if private booking is ON and table qualifies
+            // Set the modal image
+            const modalImage = document.getElementById('modalSpaceImage');
+            if (imageUrl) {
+                modalImage.style.backgroundImage = `url('${imageUrl}')`;
+                modalImage.innerHTML = '';
+            } else {
+                // Fallback icon
+                if (type === 'private') {
+                    modalImage.innerHTML = '<i class="fas fa-door-closed text-6xl text-gold"></i>';
+                    modalImage.style.backgroundImage = 'none';
+                } else if (type === 'premium') {
+                    modalImage.innerHTML = '<i class="fas fa-crown text-6xl text-gold"></i>';
+                    modalImage.style.backgroundImage = 'none';
+                } else {
+                    modalImage.innerHTML = '<i class="fas fa-couch text-6xl text-gold"></i>';
+                    modalImage.style.backgroundImage = 'none';
+                }
+            }
+            
+            // Show private room indicator in modal
             const isPrivateBooking = document.getElementById('is_private_booking')?.checked || false;
             const modalPrivateIndicator = document.getElementById('modalPrivateIndicator');
             if (modalPrivateIndicator) {
@@ -1328,7 +1351,7 @@
                 }
             }
             
-            // Get recommended games based on capacity
+            // Get recommended games...
             let capacityKey = capacity;
             if (capacity <= 2) capacityKey = 2;
             else if (capacity <= 3) capacityKey = 3;
@@ -1341,16 +1364,6 @@
             const games = recommendedGamesList[capacityKey] || recommendedGamesList[4];
             const gameTags = games.map(game => `<span class="game-tag"><i class="fas fa-dice-d6 mr-1 text-gold"></i> ${game}</span>`).join('');
             document.getElementById('recommendedGameList').innerHTML = gameTags;
-            
-            // Change icon based on type
-            const modalImage = document.getElementById('modalSpaceImage');
-            if (type === 'private') {
-                modalImage.innerHTML = '<i class="fas fa-door-closed text-6xl text-gold"></i>';
-            } else if (type === 'premium') {
-                modalImage.innerHTML = '<i class="fas fa-crown text-6xl text-gold"></i>';
-            } else {
-                modalImage.innerHTML = '<i class="fas fa-couch text-6xl text-gold"></i>';
-            }
             
             document.getElementById('spaceModal').classList.add('show');
             document.body.style.overflow = 'hidden';
