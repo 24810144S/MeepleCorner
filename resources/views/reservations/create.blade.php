@@ -1192,7 +1192,7 @@
                                     @if(!$space->is_available)
                                         @if($space->disabled_type == 'private_only')
                                             <div class="private-only-badge">
-                                                <i class="fas fa-ban"></i> Private Only
+                                                <i class="fas fa-ban"></i> Not Available
                                             </div>
                                         @elseif($space->disabled_type == 'booked')
                                             <div class="booked-badge">
