@@ -341,7 +341,7 @@
                 <form method="POST" action="/login">
                     @csrf
                     <!-- Capture redirect from query string or session -->
-                    <input type="hidden" name="redirect" value="{{ request()->query('redirect', session('url.intended', '/reservation')) }}">
+                    <input type="hidden" name="redirect" value="/reservation">
                     
                     <div class="input-group">
                         <label>Email Address</label>

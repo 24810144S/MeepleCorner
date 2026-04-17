@@ -11,25 +11,30 @@ class AuthController extends Controller
 {
     public function showLogin(Request $request)
     {
-        // If already logged in, go to reservation
         if (session()->has('member_id')) {
-            return redirect('/reservation');
-        }
+        return redirect('/reservation');
+    }
 
-        // Store the intended URL from query string
-        $redirect = $request->query('redirect');
-        if ($redirect) {
-            session(['url.intended' => $redirect]);
-            \Log::info('Stored redirect from query: ' . $redirect);
-        } else {
-            $previous = url()->previous();
-            if (!str_contains($previous, '/login') && $previous !== url('/')) {
-                session(['url.intended' => $previous]);
-                \Log::info('Stored redirect from previous: ' . $previous);
-            }
-        }
+    $redirect = $request->query('redirect');
 
-        return view('auth.login');
+    if ($redirect) {
+        session(['url.intended' => $redirect]);
+        \Log::info('Stored redirect from query: ' . $redirect);
+    } else {
+        $previous = url()->previous();
+
+        if (
+            !str_contains($previous, '/login') &&
+            !str_contains($previous, '/reset-password') &&
+            !str_contains($previous, '/forgot-password') &&
+            $previous !== url('/')
+        ) {
+            session(['url.intended' => $previous]);
+            \Log::info('Stored redirect from previous: ' . $previous);
+        }
+    }
+
+    return view('auth.login');
     }
 
     public function login(Request $request)

@@ -99,5 +99,6 @@ class PasswordResetController extends Controller
         DB::table('member_password_resets')->where('email', $request->email)->delete();
 
         return redirect('/login')->with('success', 'Your password has been reset successfully.');
+        
     }
 }
