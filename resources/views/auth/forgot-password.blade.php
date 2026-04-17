@@ -266,33 +266,28 @@
                     </div>
                 @endif
 
-                <!-- Option 1: Email Reset -->
-                <div>
-                    <h3 class="text-gold text-sm mb-2">📧 Option 1 – Send Reset Link via Email</h3>
-                    <form method="POST" action="/forgot-password">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="resetEmail" class="form-input" placeholder="your@email.com" value="{{ $email ?? '' }}" required>
+                </div>
+
+                <div class="action-buttons">
+                    <!-- Option 1: Send Reset Link via email -->
+                    <form method="POST" action="/forgot-password" id="emailResetForm">
                         @csrf
-                        <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" name="email" class="form-input" required>
-                        </div>
-                        <button type="submit" class="btn-submit">Send Reset Link</button>
+                        <input type="hidden" name="email" id="emailInput1">
+                        <button type="submit" class="btn-submit">
+                            📧 Send Reset Link
+                        </button>
                     </form>
-                </div>
 
-                <div class="option-divider">
-                    <span>or</span>
-                </div>
-
-                <!-- Option 2: Security Questions -->
-                <div>
-                    <h3 class="text-gold text-sm mb-2">🔐 Option 2 – Answer Security Questions</h3>
-                    <form method="POST" action="/forgot-password/security-verify-email">
+                    <!-- Option 2: Security Questions -->
+                    <form method="POST" action="/forgot-password/security-verify-email" id="securityForm">
                         @csrf
-                        <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" name="email" class="form-input" required>
-                        </div>
-                        <button type="submit" class="btn-submit">Continue with Security Questions</button>
+                        <input type="hidden" name="email" id="emailInput2">
+                        <button type="submit" class="btn-submit">
+                            🔐 Answer Security Questions
+                        </button>
                     </form>
                 </div>
 
@@ -316,6 +311,35 @@
             interactivity: {
                 events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } }
             }
+        });
+        const resetEmail = document.getElementById('resetEmail');
+        const emailInput1 = document.getElementById('emailInput1');
+        const emailInput2 = document.getElementById('emailInput2');
+        const emailForm = document.getElementById('emailResetForm');
+        const securityForm = document.getElementById('securityForm');
+
+        function syncEmailToHidden(hiddenInput) {
+            if (resetEmail && hiddenInput) {
+                hiddenInput.value = resetEmail.value.trim();
+            }
+        }
+
+        emailForm.addEventListener('submit', function(e) {
+            if (!resetEmail.value.trim()) {
+                e.preventDefault();
+                alert('請輸入您的電子郵件地址。');
+                return;
+            }
+            syncEmailToHidden(emailInput1);
+        });
+
+        securityForm.addEventListener('submit', function(e) {
+            if (!resetEmail.value.trim()) {
+                e.preventDefault();
+                alert('請輸入您的電子郵件地址。');
+                return;
+            }
+            syncEmailToHidden(emailInput2);
         });
         gsap.from(".form-card", { opacity: 0, y: 30, duration: 0.8, ease: "power2.out" });
         gsap.from(".brand-side", { opacity: 0, x: -20, duration: 0.6, delay: 0.2 });
