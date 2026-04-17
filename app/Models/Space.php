@@ -43,20 +43,26 @@ class Space extends Model
         return $this->type !== 'private';
     }
     
-    // Helper to get image URL
+    // Helper to get image URL - FIXED VERSION
     public function getImageUrlAttribute()
     {
-        if ($this->image && file_exists(public_path('storage/' . $this->image))) {
-            return asset('storage/' . $this->image);
+        // Check if image exists in database
+        if ($this->image) {
+            // Check if file exists in public folder
+            $fullPath = public_path($this->image);
+            if (file_exists($fullPath)) {
+                return asset($this->image);
+            }
         }
         
-        // Return default image based on table type
+        // Return default image based on table type (optional)
         if ($this->type === 'private') {
             return asset('img/default-private.jpg');
         } elseif ($this->type === 'premium') {
             return asset('img/default-premium.jpg');
-        } else {
-            return asset('img/default-table.jpg');
         }
+        
+        // Return null if no image (will show icon fallback)
+        return null;
     }
 }
