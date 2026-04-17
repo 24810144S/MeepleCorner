@@ -1,64 +1,41 @@
 <!-- resources/views/layouts/navbar.blade.php -->
 <nav class="navbar">
     <div class="navbar-container">
-        <!-- Logo - far left -->
         <a href="/" class="logo">Meeple Corner Café</a>
-
-        <!-- Mobile hamburger button (hidden on desktop) -->
         <button class="mobile-menu-btn" id="mobileMenuBtn">
             <i class="fas fa-bars"></i>
         </button>
-
-        <!-- Navigation links - centered -->
         <div class="nav-links" id="navLinks">
             <a href="/" class="nav-link {{ Request::is('/') ? 'active' : '' }}">Home</a>
             <a href="{{ route('board-games.index') }}" class="nav-link {{ Request::is('board-games*') ? 'active' : '' }}">Board Games</a>
-            
             <a href="/reservation" class="nav-link {{ Request::is('reservation*') ? 'active' : '' }}">Reservations</a>
             <a href="{{ route('menu') }}" class="nav-link {{ Request::is('menu*') ? 'active' : '' }}">Menu</a>
         </div>
-
-        <!-- User dropdown - far right -->
         <div class="relative" id="userMenu">
             <button id="userMenuBtn" class="user-menu-button">
                 @if(session()->has('member_id'))
                     <span class="user-greeting">Welcome, {{ session('member_nickname', 'Member') }}</span>
-                    <div class="user-avatar">
-                        {{ strtoupper(substr(session('member_nickname', 'G'), 0, 1)) }}
-                    </div>
+                    <div class="user-avatar">{{ strtoupper(substr(session('member_nickname', 'G'), 0, 1)) }}</div>
                 @else
                     <span class="user-greeting">Welcome, Guest</span>
-                    <div class="user-avatar">
-                        <i class="fas fa-user text-sm"></i>
-                    </div>
+                    <div class="user-avatar"><i class="fas fa-user text-sm"></i></div>
                 @endif
                 <i class="fas fa-chevron-down dropdown-arrow"></i>
             </button>
-
             <div id="userDropdown" class="user-dropdown">
                 @if(session()->has('member_id'))
-                    <!-- Logged-in user menu -->
-                    <a href="/profile/info" class="dropdown-item">
-                        <i class="fas fa-id-card"></i> My Info
-                    </a>
-                    <a href="/profile/edit" class="dropdown-item">
-                        <i class="fas fa-edit"></i> Edit Profile
-                    </a>
-                    <a href="/profile/history" class="dropdown-item">
-                        <i class="fas fa-history"></i> Reservation History
-                    </a>
+                    <a href="/profile/info" class="dropdown-item"><i class="fas fa-id-card"></i> My Info</a>
+                    <a href="/profile/edit" class="dropdown-item"><i class="fas fa-edit"></i> Edit Profile</a>
+                    <a href="/profile/history" class="dropdown-item"><i class="fas fa-history"></i> Reservation History</a>
                     <hr class="dropdown-divider">
                     <form method="POST" action="{{ route('logout') }}" class="dropdown-logout">
                         @csrf
-                        <button type="submit" class="dropdown-item text-red-400 hover:bg-red-500/10">
+                        <button type="submit" class="dropdown-item signout-btn">
                             <i class="fas fa-sign-out-alt"></i> Sign Out
                         </button>
                     </form>
                 @else
-                    <!-- Guest menu -->
-                    <a href="{{ route('login') }}" class="dropdown-item">
-                        <i class="fas fa-sign-in-alt"></i> Sign In
-                    </a>
+                    <a href="{{ route('login') }}" class="dropdown-item"><i class="fas fa-sign-in-alt"></i> Sign In</a>
                 @endif
             </div>
         </div>
@@ -217,9 +194,24 @@
         margin: 0.5rem 0;
         border-color: rgba(212, 165, 116, 0.2);
     }
-    .dropdown-logout {
-        margin: 0;
+    /* Sign Out button - not white by default */
+    /* Sign Out button - no white background */
+    .dropdown-logout .signout-btn {
+        color: #f87171;
+        background: transparent !important;
+        transition: all 0.2s ease;
     }
+    .dropdown-logout .signout-btn i {
+        color: #f87171;
+    }
+    .dropdown-logout .signout-btn:hover {
+        background: rgba(220, 38, 38, 0.2) !important;
+        color: #ff6b6b !important;
+    }
+    .dropdown-logout .signout-btn:hover i {
+        color: #ff6b6b !important;
+    }
+    
     @keyframes dropdownFade {
         from {
             opacity: 0;
@@ -272,7 +264,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Mobile menu toggle
         const mobileBtn = document.getElementById('mobileMenuBtn');
         const navLinks = document.getElementById('navLinks');
         if (mobileBtn && navLinks) {
@@ -281,7 +272,6 @@
             });
         }
 
-        // User dropdown toggle
         const userBtn = document.getElementById('userMenuBtn');
         const userDropdown = document.getElementById('userDropdown');
         const arrow = document.querySelector('.dropdown-arrow');
@@ -302,7 +292,6 @@
             userBtn.addEventListener('click', toggleDropdown);
         }
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
             if (userBtn && !userBtn.contains(e.target) && userDropdown) {
                 userDropdown.classList.remove('show');
