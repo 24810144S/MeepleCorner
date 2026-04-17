@@ -27,47 +27,34 @@
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
-    <div class="max-w-md w-full bg-white border border-gray-100 shadow-sm p-8 relative">
-        <div class="absolute top-0 left-0 w-1 h-full accent-gold"></div>
+   <h1>Reset Password</h1>
 
-        <div class="text-center mb-8">
-            <div class="serif text-3xl font-bold text-gray-800">M<span class="text-gold">.</span>C</div>
-            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-400 mt-2">Create new password</p>
-        </div>
+@if ($errors->any())
+    <ul style="color:red;">
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+@endif
 
-        <form method="POST" action="{{ route('password.update') }}">
-            @csrf
-            <input type="hidden" name="token" value="{{ $token }}">
+<form method="POST" action="/reset-password">
+    @csrf
 
-            <div class="mb-4">
-                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
-                <input type="email" name="email" value="{{ old('email', $email ?? '') }}" required
-                       class="w-full h-12 px-4 text-sm @error('email') border-red-500 @enderror">
-                @error('email')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+    <input type="hidden" name="token" value="{{ $token }}">
 
-            <div class="mb-4">
-                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">New Password</label>
-                <input type="password" name="password" required autocomplete="new-password"
-                       class="w-full h-12 px-4 text-sm @error('password') border-red-500 @enderror">
-                @error('password')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+    <label>Email:</label>
+    <input type="email" name="email" value="{{ $email }}" readonly>
+    <br><br>
 
-            <div class="mb-6">
-                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Confirm Password</label>
-                <input type="password" name="password_confirmation" required autocomplete="new-password"
-                       class="w-full h-12 px-4 text-sm">
-            </div>
+    <label>New Password:</label>
+    <input type="password" name="password">
+    <br><br>
 
-            <button type="submit"
-                    class="w-full accent-gold text-white text-[11px] font-bold uppercase tracking-[0.3em] py-4 hover:bg-black transition-all duration-500">
-                Reset Password
-            </button>
-        </form>
-    </div>
+    <label>Confirm Password:</label>
+    <input type="password" name="password_confirmation">
+    <br><br>
+
+    <button type="submit">Reset Password</button>
+</form>
 </body>
 </html>

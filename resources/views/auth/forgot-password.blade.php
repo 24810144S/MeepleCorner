@@ -27,69 +27,33 @@
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
-    <div class="max-w-md w-full bg-white border border-gray-100 shadow-sm p-8 relative">
-        <div class="absolute top-0 left-0 w-1 h-full accent-gold"></div>
+    <h1>Forgot Password</h1>
 
-        <div class="text-center mb-8">
-            <div class="serif text-3xl font-bold text-gray-800">M<span class="text-gold">.</span>C</div>
-            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-400 mt-2">Reset your password</p>
-        </div>
+<p>Enter your registered email address and we will send you a password reset link.</p>
 
-        @if (session('status'))
-            <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 text-sm">
-                {{ session('status') }}
-            </div>
-        @endif
+@if(session('success'))
+    <p style="color: green;">{{ session('success') }}</p>
+@endif
 
-        <form method="POST" action="/forgot-password">
-            @csrf
+@if ($errors->any())
+    <ul style="color:red;">
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+@endif
 
-            <div class="mb-6">
-                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
-                <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                       class="w-full h-12 px-4 text-sm @error('email') border-red-500 @enderror">
-                @error('email')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+<form method="POST" action="/forgot-password">
+    @csrf
 
-            <button type="submit"
-                    class="w-full accent-gold text-white text-[11px] font-bold uppercase tracking-[0.3em] py-4 hover:bg-black transition-all duration-500">
-                Send Reset Link
-            </button>
-        </form>
-         <form method="POST" action="/forgot-password">
-            @csrf
-            <div class="mb-4">
-                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
-                <input type="email" name="email" value="{{ old('email') }}" required class="w-full h-12 px-4 text-sm">
-            </div>
+    <label>Email:</label>
+    <input type="email" name="email" value="{{ old('email') }}">
+    <br><br>
 
-            <div class="mb-6">
-                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Security Question</label>
-                <select name="security_question" required class="w-full h-12 px-4 text-sm">
-                    <option value="">Select your question</option>
-                    <option>What is your mother's maiden name?</option>
-                    <option>What was your first pet's name?</option>
-                    <option>What city were you born in?</option>
-                </select>
-            </div>
+    <button type="submit">Send Reset Link</button>
+</form>
 
-            <div class="mb-6">
-                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-2">Answer</label>
-                <input type="text" name="answer" required class="w-full h-12 px-4 text-sm">
-            </div>
-
-            <button type="submit" class="w-full accent-gold text-white text-[11px] font-bold uppercase tracking-[0.3em] py-4 hover:bg-black transition">
-                Verify & Reset Password
-            </button>
-        </form>
-
-        <div class="mt-6 text-center">
-            <a href="{{ route('login') }}" class="text-[10px] uppercase tracking-widest text-gold hover:underline">
-                ← Back to Login
-            </a>
-        </div>
-    </div>
+<br>
+<a href="/login">Back to Login</a>
 </body>
 </html>
