@@ -14,8 +14,6 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ... (all your CSS remains exactly the same, no changes needed) ... */
-        /* Copy all the CSS from your original file here */
         /* ===== RESET & GLOBAL ===== */
         * {
             margin: 0;
@@ -73,6 +71,7 @@
             letter-spacing: -0.02em;
         }
 
+        /* ===== HEADER (30/70 split) ===== */
         .header {
             min-height: 100vh;
             display: flex;
@@ -80,7 +79,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .header::before {
             content: "";
             position: absolute;
@@ -91,9 +89,8 @@
             background: radial-gradient(circle at 30% 40%, rgba(212,165,116,0.12) 0%, transparent 70%);
             pointer-events: none;
         }
-
         .header_content {
-            flex: 1;
+            flex: 3;
             padding: var(--spacing-lg) var(--spacing-xl);
             display: flex;
             flex-direction: column;
@@ -102,16 +99,14 @@
             z-index: 2;
             backdrop-filter: blur(2px);
         }
-
         .header_image {
-            flex: 1;
-            background-image: url("{{ asset('img/coffee.png') }}");
+            flex: 7;
+            background-image: url("{{ asset('img/home.jpeg') }}");
             background-size: cover;
             background-position: center 30%;
             position: relative;
             z-index: 1;
         }
-
         .header_image::after {
             content: "";
             position: absolute;
@@ -122,7 +117,6 @@
             background: linear-gradient(100deg, var(--color-primary) 0%, transparent 80%);
             opacity: 0.55;
         }
-
         .logo {
             font-size: 1.8rem;
             font-weight: 600;
@@ -130,9 +124,7 @@
             text-decoration: none;
             transition: var(--transition);
         }
-
         .logo:hover { color: var(--color-accent-light); letter-spacing: 1px; }
-
         .hashtag {
             color: var(--color-accent-light);
             font-size: 0.8rem;
@@ -140,26 +132,22 @@
             text-transform: uppercase;
             opacity: 0.8;
         }
-
         .header_title {
             font-size: var(--text-xl);
             color: var(--color-white);
             line-height: 1.1;
             max-width: 85%;
         }
-
         .header_title span {
             color: var(--color-accent);
             display: block;
             margin-top: 0.5rem;
         }
-
         .header_subtitle {
             font-size: var(--text-sm);
             max-width: 80%;
             color: var(--color-text);
         }
-
         .cta-button {
             display: inline-block;
             padding: 1rem 2.2rem;
@@ -175,109 +163,28 @@
             width: fit-content;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
-
         .cta-button:hover {
             background: var(--color-accent-light);
             transform: translateY(-4px);
             box-shadow: 0 15px 25px -8px rgba(0,0,0,0.3);
         }
 
-        .game-picker {
-            padding: 4rem 2rem;
-            background: linear-gradient(135deg, rgba(44,24,16,0.8) 0%, rgba(26,15,7,0.9) 100%);
-            text-align: center;
-            border-bottom: 1px solid rgba(212,165,116,0.2);
-        }
-
-        .game-picker_inner {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .game-picker_title {
-            font-family: var(--font-heading);
-            font-size: 2rem;
-            color: var(--color-white);
-            margin-bottom: 1rem;
-        }
-
-        .game-picker_title span {
-            color: var(--color-accent);
-        }
-
-        .dice-button {
-            background: rgba(212,165,116,0.15);
-            border: 2px solid var(--color-accent);
-            color: var(--color-accent);
-            font-size: 2rem;
-            padding: 1rem 2rem;
-            border-radius: 80px;
-            cursor: pointer;
-            transition: var(--transition);
-            margin: 1.5rem 0;
-            display: inline-flex;
-            align-items: center;
-            gap: 1rem;
-            font-weight: 600;
-        }
-
-        .dice-button:hover {
-            background: var(--color-accent);
-            color: var(--color-primary);
-            transform: scale(1.05);
-        }
-
-        .rolling {
-            animation: rollDice 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
-        }
-
-        @keyframes rollDice {
-            0% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.2); }
-            100% { transform: rotate(360deg) scale(1); }
-        }
-
-        .suggest-card {
-            background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(12px);
-            border-radius: 32px;
-            padding: 2rem;
-            margin-top: 2rem;
-            border-left: 6px solid var(--color-accent);
-            animation: slideFade 0.5s ease-out;
-        }
-
-        @keyframes slideFade {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .suggest-card h4 {
-            font-size: 1.8rem;
-            font-family: var(--font-heading);
-            color: var(--color-accent);
-        }
-
+        /* ===== ABOUT ===== */
         .about {
             padding: var(--spacing-xl) var(--spacing-lg);
             background-color: var(--color-secondary);
-            position: relative;
         }
-
         .about_inner {
             max-width: 1300px;
             margin: 0 auto;
             text-align: center;
         }
-
         .about_title {
             font-size: var(--text-lg);
             color: var(--color-white);
             margin-bottom: var(--spacing-md);
         }
-
         .about_title span { color: var(--color-accent); }
-
         .about_description {
             font-size: var(--text-md);
             max-width: 800px;
@@ -285,14 +192,12 @@
             line-height: 1.8;
             color: var(--color-text-muted);
         }
-
         .stats_container {
             display: flex;
             justify-content: center;
             gap: var(--spacing-lg);
             flex-wrap: wrap;
         }
-
         .stat {
             background: rgba(255,255,255,0.04);
             backdrop-filter: blur(8px);
@@ -302,20 +207,17 @@
             border: 1px solid rgba(212,165,116,0.2);
             transition: var(--transition);
         }
-
         .stat:hover {
             transform: translateY(-8px);
             border-color: var(--color-accent);
             background: rgba(212,165,116,0.08);
         }
-
         .stat_number {
             font-size: var(--text-stats);
             color: var(--color-accent);
             font-weight: 600;
             line-height: 1;
         }
-
         .stat_label {
             font-size: var(--text-xs);
             text-transform: uppercase;
@@ -323,147 +225,177 @@
             color: var(--color-text-muted);
         }
 
+        /* ===== GAME CATEGORY CAROUSEL (Full width, shorter) ===== */
         .collections {
-            padding: var(--spacing-xl) var(--spacing-lg);
+            padding: var(--spacing-xl) 0;
             background-color: var(--color-primary);
+            overflow-x: hidden;
         }
-
         .collections_inner {
             max-width: 1300px;
             margin: 0 auto;
+            padding: 0 2rem;
         }
-
         .collections_header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: var(--spacing-md);
+            text-align: center;
             margin-bottom: var(--spacing-xl);
         }
-
         .collections_title {
             font-size: var(--text-lg);
             color: var(--color-white);
         }
-
-        .collections_title span { color: var(--color-accent); }
-
-        .collection_filters {
-            display: flex;
-            gap: var(--spacing-sm);
-            flex-wrap: wrap;
+        .collections_title span {
+            color: var(--color-accent);
         }
 
-        .collection_filter {
-            color: var(--color-text-muted);
-            text-decoration: none;
+        .game-carousel {
+            position: relative;
+            margin-top: 2rem;
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+        }
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.5);
+        }
+        .carousel-slides {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .carousel-slide {
+            flex: 0 0 100%;
+            position: relative;
+            height: 700px; /* shorter height */
+        }
+        .slide-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.3s ease;
+        }
+        .carousel-slide:hover .slide-bg {
+            transform: scale(1.02);
+        }
+        .slide-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(26,15,7,0.85) 0%, rgba(26,15,7,0.6) 50%, transparent 100%);
+            display: flex;
+            align-items: center;
+            padding: 2rem;
+        }
+        .slide-content {
+            max-width: 50%;
+            color: var(--color-white);
+        }
+        .slide-title {
+            font-family: var(--font-heading);
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .slide-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            color: var(--color-accent-light);
+        }
+        .category-badge {
+            background: rgba(212,165,116,0.2);
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+        }
+        .slide-description {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+            color: var(--color-text);
+        }
+        .slide-link {
+            display: inline-block;
+            background: var(--color-accent);
+            color: var(--color-primary);
             padding: 0.5rem 1.2rem;
             border-radius: 40px;
-            font-weight: 500;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-decoration: none;
             transition: var(--transition);
-            background: rgba(255,255,255,0.03);
+        }
+        .slide-link:hover {
+            background: var(--color-accent-light);
+            transform: translateY(-2px);
         }
 
-        .collection_filter:hover, .collection_filter.active {
+        .carousel-prev, .carousel-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .carousel-prev { left: 20px; }
+        .carousel-next { right: 20px; }
+        .carousel-prev:hover, .carousel-next:hover {
             background: var(--color-accent);
             color: var(--color-primary);
         }
 
-        .product_grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: var(--spacing-lg);
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1rem;
         }
-
-        .product_card {
-            background: rgba(255,255,255,0.03);
-            backdrop-filter: blur(4px);
-            border-radius: 28px;
-            overflow: hidden;
-            transition: var(--transition);
-            border: 1px solid rgba(212,165,116,0.1);
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
             cursor: pointer;
-        }
-
-        .product_card:hover {
-            transform: translateY(-12px);
-            border-color: var(--color-accent);
-            box-shadow: 0 25px 40px -15px rgba(0,0,0,0.5);
-        }
-
-        .product_image {
-            height: 260px;
-            background-size: cover;
-            background-position: center;
-            transition: transform 0.6s ease;
-        }
-
-        .product_card:hover .product_image {
-            transform: scale(1.05);
-        }
-
-        .product_content {
-            padding: var(--spacing-md);
-        }
-
-        .product_title {
-            font-size: 1.6rem;
-            margin-bottom: 0.5rem;
-            color: var(--color-white);
-        }
-
-        .product_players {
-            display: inline-block;
-            font-size: 0.7rem;
-            background: rgba(212,165,116,0.2);
-            padding: 0.2rem 0.8rem;
-            border-radius: 30px;
-            color: var(--color-accent);
-            margin-bottom: 1rem;
-        }
-
-        .product_description {
-            font-size: 0.9rem;
-            color: var(--color-text-muted);
-            margin-bottom: 1rem;
-        }
-
-        .product_time {
-            font-size: 0.8rem;
-            color: var(--color-accent-light);
-            margin-bottom: 1.2rem;
-            font-weight: 500;
-        }
-
-        .product_link {
-            color: var(--color-accent);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
             transition: var(--transition);
         }
+        .dot.active {
+            background: var(--color-accent);
+            width: 24px;
+            border-radius: 10px;
+        }
 
-        .product_link:hover { letter-spacing: 2px; }
-
+        /* ===== STORIES ===== */
         .stories {
             padding: var(--spacing-xl) var(--spacing-lg);
             background: linear-gradient(135deg, var(--color-secondary) 0%, var(--color-primary) 100%);
-            position: relative;
         }
-
-        .stories_container {
-            max-width: 1300px;
-            margin: 0 auto;
-        }
-
+        .stories_container { max-width: 1300px; margin: 0 auto; }
         .stories_header {
             text-align: center;
             margin-bottom: var(--spacing-xl);
         }
-
         .stories_label {
             font-size: 0.8rem;
             letter-spacing: 6px;
@@ -472,27 +404,22 @@
             margin-bottom: var(--spacing-sm);
             display: inline-block;
         }
-
         .stories_title {
             font-size: var(--text-lg);
             color: var(--color-white);
         }
-
         .stories_title span { color: var(--color-accent); }
-
         .stories_subtitle {
             font-size: var(--text-md);
             color: var(--color-text-muted);
             max-width: 600px;
             margin: 1rem auto 0;
         }
-
         .stories_grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: var(--spacing-lg);
         }
-
         .story_card {
             background: rgba(0,0,0,0.3);
             backdrop-filter: blur(12px);
@@ -501,30 +428,25 @@
             border: 1px solid rgba(212,165,116,0.2);
             transition: var(--transition);
         }
-
         .story_card:hover {
             transform: translateY(-8px);
             border-color: var(--color-accent);
             background: rgba(212,165,116,0.05);
         }
-
         .story_icon {
             font-size: 3rem;
             margin-bottom: var(--spacing-md);
         }
-
         .story_title {
             font-size: 1.8rem;
             color: var(--color-white);
             margin-bottom: var(--spacing-sm);
         }
-
         .story_description {
             color: var(--color-text-muted);
             margin-bottom: var(--spacing-md);
             line-height: 1.7;
         }
-
         .story_link {
             color: var(--color-accent);
             text-decoration: none;
@@ -534,15 +456,14 @@
             gap: 0.5rem;
             transition: var(--transition);
         }
-
         .story_link:hover { gap: 1rem; color: var(--color-accent-light); }
 
+        /* ===== FOOTER ===== */
         .footer {
             background-color: #0c0704;
             padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-md);
             border-top: 1px solid rgba(212,165,116,0.2);
         }
-
         .footer_inner {
             max-width: 1300px;
             margin: 0 auto;
@@ -551,11 +472,7 @@
             justify-content: space-between;
             gap: var(--spacing-lg);
         }
-
-        .footer_brand {
-            flex: 1.5;
-        }
-
+        .footer_brand { flex: 1.5; }
         .footer_logo {
             font-family: var(--font-heading);
             font-size: 1.8rem;
@@ -564,12 +481,10 @@
             display: inline-block;
             margin-bottom: var(--spacing-sm);
         }
-
         .footer_tagline {
             color: var(--color-text-muted);
             max-width: 280px;
         }
-
         .footer_links {
             flex: 1;
             display: flex;
@@ -577,13 +492,11 @@
             justify-content: flex-end;
             flex-wrap: wrap;
         }
-
         .footer_column h4 {
             color: var(--color-white);
             margin-bottom: var(--spacing-sm);
             font-size: 1rem;
         }
-
         .footer_column a {
             color: var(--color-text-muted);
             text-decoration: none;
@@ -591,9 +504,7 @@
             margin-bottom: 0.6rem;
             transition: var(--transition);
         }
-
         .footer_column a:hover { color: var(--color-accent); transform: translateX(4px); }
-
         .newsletter input {
             background: rgba(255,255,255,0.08);
             border: 1px solid rgba(212,165,116,0.3);
@@ -602,7 +513,6 @@
             color: white;
             width: 220px;
         }
-
         .newsletter button {
             background: var(--color-accent);
             border: none;
@@ -612,9 +522,7 @@
             cursor: pointer;
             transition: var(--transition);
         }
-
-        .newsletter button:hover { background: var(--color-accent-light); transform: scale(0.98);}
-
+        .newsletter button:hover { background: var(--color-accent-light); transform: scale(0.98); }
         .copyright {
             text-align: center;
             padding-top: var(--spacing-lg);
@@ -645,11 +553,26 @@
             .footer_links {
                 justify-content: flex-start;
             }
+            .carousel-slide {
+                height: 300px;
+            }
+            .slide-content {
+                max-width: 80%;
+            }
+            .slide-title {
+                font-size: 1.8rem;
+            }
+            .carousel-prev, .carousel-next {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
 @include('layouts.navbar')
+
 <!-- HEADER -->
 <header class="header">
     <div class="header_content">
@@ -663,26 +586,10 @@
         <p class="header_subtitle">
             A boutique board game café where every visit is a new adventure. Sip, strategize, and socialize.
         </p>
-       <a href="/reservation"><button class="cta-button">Explore Our Games</button></a>
+        <a href="/reservation" class="cta-button">Explore Our Games</a>
     </div>
     <div class="header_image"></div>
 </header>
-
-<!-- RANDOM GAME PICKER -->
-<section class="game-picker">
-    <div class="game-picker_inner">
-        <h2 class="game-picker_title">🎲 <span>Roll the Dice</span> 🎲</h2>
-        <p class="header_subtitle" style="margin:0 auto 1rem;">Can't decide what to play? Let fate choose for you!</p>
-        <button id="randomGameBtn" class="dice-button">
-            <span class="dice-icon">🎲</span> Pick a Game for Me
-        </button>
-        <div id="gameSuggestion" class="suggest-card" style="display: none;">
-            <p style="font-size:0.8rem; letter-spacing:2px; color:var(--color-accent);">TODAY'S ADVENTURE</p>
-            <h4 id="suggestedGameName"></h4>
-            <p id="suggestedGameDesc" style="margin-top:0.5rem;"></p>
-        </div>
-    </div>
-</section>
 
 <!-- ABOUT -->
 <section class="about">
@@ -701,61 +608,89 @@
     </div>
 </section>
 
-<!-- GAME COLLECTIONS - DYNAMIC FROM DATABASE -->
+<!-- FEATURED GAME CATEGORIES CAROUSEL -->
 <section class="collections">
     <div class="collections_inner">
         <div class="collections_header">
-            <h2 class="collections_title">Featured <span>Board Games</span></h2>
-            <div class="collection_filters">
-                <a href="#" class="collection_filter active" data-category="all">All Games</a>
-                <a href="#" class="collection_filter" data-category="strategy">Strategy</a>
-                <a href="#" class="collection_filter" data-category="party">Party</a>
-                <a href="#" class="collection_filter" data-category="cooperative">Cooperative</a>
-            </div>
+            <h2 class="collections_title">Game <span>Categories</span></h2>
         </div>
-        <div class="product_grid">
-            @forelse($boardGames as $game)
-                <div class="product_card" data-game-id="{{ $game->id }}" data-category="{{ $game->category }}">
-                    <div class="product_image" style="background-image: url('{{ $game->image ? asset('storage/' . $game->image) : 'https://images.unsplash.com/photo-1611996575749-79a3a239f9f5?auto=format&fit=crop&w=600' }}');"></div>
-                    <div class="product_content">
-                        <h3 class="product_title">{{ $game->name }}</h3>
-                        <span class="product_players">{{ $game->min_players }}-{{ $game->max_players }} players</span>
-                        <p class="product_description">{{ Str::limit($game->description, 80) }}</p>
-                        <p class="product_time">⏱️ {{ $game->play_time_minutes }} min</p>
-                        <a href="{{ route('board-games.show', $game) }}" class="product_link">Learn More →</a>
-                    </div>
+
+        <div class="game-carousel">
+            <div class="carousel-container">
+                <div class="carousel-slides" id="carouselSlides">
+                    @php
+                        // Extract unique categories from the collection
+                        $categories = $boardGames->pluck('category')->unique()->values();
+
+                        // Custom images per category (replace these URLs with your own images)
+                        $categoryImages = [
+                            'Strategy' => asset('img/game/strategic-planning.webp'),
+                            'Card Game' => asset('img/game/cardgames.webp'),
+                            'Abstract' => asset('img/game/Abstract.jpg'),
+                            'Family' => asset('img/game/family.jpeg'),
+                            'Party' => asset('img/game/party.jpg'),
+                            'Social Deduction' => asset('img/game/social_deduction.webp'),
+                            'RPG' => asset('img/game/rpg.jpg'),
+                            ];
+
+                        // Fallback helper (if category not in array, use first game's image)
+                        $getImage = function($cat) use ($boardGames, $categoryImages) {
+                            return $categoryImages[$cat] ?? (
+                                $boardGames->firstWhere('category', $cat)?->image 
+                                    ? asset($boardGames->firstWhere('category', $cat)->image) 
+                                    : 'https://images.unsplash.com/photo-1611996575749-79a3a239f9f5?auto=format&fit=crop&w=1200'
+                            );
+                        };
+
+                        // Category descriptions (customize as needed)
+                        $categoryDescriptions = [
+                            'Strategy' => 'Test your tactical thinking with deep, rewarding strategy games.',
+                            'Card Game' => 'Fast-paced card games for all ages.',
+                            'Abstract' => 'Elegant, minimalist games of pure skill.',
+                            'Family' => 'Perfect for family game nights.',
+                            'Party' => 'Gather your friends for hilarious and fast‑paced party games.',
+                            'Social Deduction' => 'Uncover secrets, bluff, and deduce the truth.',
+                            'RPG' => 'Immersive role‑playing adventures for large groups.',
+                        ];
+                    @endphp
+                    @forelse($categories as $category)
+                        @php
+                            $image = $getImage($category);
+                            $desc = $categoryDescriptions[$category] ?? 'Explore our collection of ' . $category . ' games.';
+                        @endphp
+                        <div class="carousel-slide" data-category="{{ $category }}">
+                            <div class="slide-bg" style="background-image: url('{{ $image }}');"></div>
+                            <div class="slide-overlay">
+                                <div class="slide-content">
+                                    <h3 class="slide-title">{{ $category }}</h3>
+                                    <div class="slide-meta">
+                                        <span class="category-badge">{{ $category }}</span>
+                                    </div>
+                                    <p class="slide-description">{{ $desc }}</p>
+                                    <a href="{{ route('board-games.index', ['category' => $category]) }}" class="slide-link">Explore {{ $category }} →</a>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="carousel-slide">
+                            <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1611996575749-79a3a239f9f5?auto=format&fit=crop&w=1200');"></div>
+                            <div class="slide-overlay">
+                                <div class="slide-content">
+                                    <h3 class="slide-title">Coming Soon</h3>
+                                    <p class="slide-description">New categories are on their way. Check back later!</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endforelse
                 </div>
-            @empty
-                <p class="col-span-full text-center text-gray-400">No board games available yet. Check back soon!</p>
-            @endforelse
+            </div>
+            <button class="carousel-prev" id="carouselPrev"><i class="fas fa-chevron-left"></i></button>
+            <button class="carousel-next" id="carouselNext"><i class="fas fa-chevron-right"></i></button>
+            <div class="carousel-dots" id="carouselDots"></div>
         </div>
     </div>
 </section>
 
-<!-- EVENTS / WORKSHOPS -->
-<section class="stories">
-    <div class="stories_container">
-        <div class="stories_header">
-            <div class="stories_label">UPCOMING EVENTS</div>
-            <h2 class="stories_title">Join the <span>Fun</span></h2>
-            <p class="stories_subtitle">Weekly tournaments, learn-to-play sessions, and themed nights</p>
-        </div>
-        <div class="stories_grid">
-            <div class="story_card">
-                <div class="story_icon">🏆</div>
-                <h3 class="story_title">Catan Championship</h3>
-                <p class="story_description">Every Saturday at 7PM. Compete for glory and store credit. Beginners welcome!</p>
-                <a href="#" class="story_link">Register →</a>
-            </div>
-            <div class="story_card">
-                <div class="story_icon">🎲</div>
-                <h3 class="story_title">Learn to Play: D&D</h3>
-                <p class="story_description">Introductory sessions every Wednesday. Create your character and start your adventure.</p>
-                <a href="#" class="story_link">Join the Party →</a>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- FOOTER -->
 <footer class="footer">
@@ -777,11 +712,6 @@
                 <a href="#">Reservations</a>
                 <a href="#">Gift Cards</a>
             </div>
-            <div class="footer_column newsletter">
-                <h4>Stay updated</h4>
-                <input type="email" placeholder="Your email" id="newsletterEmail">
-                <button id="newsletterBtn">→</button>
-            </div>
         </div>
     </div>
     <div class="copyright">
@@ -800,17 +730,13 @@
             .from(".header_content", { y: 30, opacity: 0, duration: 0.8, stagger: 0.2 })
             .from(".header_image", { scale: 1.1, opacity: 0, duration: 1.2 }, "-=1");
 
-        gsap.from(".game-picker", {
-            scrollTrigger: { trigger: ".game-picker", start: "top 85%" },
-            y: 40, opacity: 0, duration: 0.8
-        });
         gsap.from(".about_title, .about_description", {
             scrollTrigger: { trigger: ".about", start: "top 85%" },
             y: 40, opacity: 0, duration: 0.8, stagger: 0.15
         });
-        gsap.from(".collections_title, .collection_filters", {
+        gsap.from(".collections_header", {
             scrollTrigger: { trigger: ".collections", start: "top 85%" },
-            y: 30, opacity: 0, duration: 0.6, stagger: 0.2
+            y: 30, opacity: 0, duration: 0.6
         });
         gsap.from(".stories_label, .stories_title, .stories_subtitle", {
             scrollTrigger: { trigger: ".stories", start: "top 85%" },
@@ -822,64 +748,62 @@
         });
     });
 
-    // ==================== BOARD GAMES DATA FROM LARAVEL ====================
-    // Pass the games collection as JSON to JavaScript
-    const allBoardGames = @json($boardGames);
+    // ==================== CAROUSEL FUNCTIONALITY ====================
+    const slides = document.querySelectorAll('.carousel-slide');
+    const prevBtn = document.getElementById('carouselPrev');
+    const nextBtn = document.getElementById('carouselNext');
+    const dotsContainer = document.getElementById('carouselDots');
+    let currentIndex = 0;
+    const totalSlides = slides.length;
 
-    // Helper function to render filtered games (for filters)
-    function renderFilteredGames(category) {
-        const cards = document.querySelectorAll('.product_card');
-        cards.forEach(card => {
-            if (category === 'all' || card.getAttribute('data-category') === category) {
-                card.style.display = '';
-            } else {
-                card.style.display = 'none';
+    if (totalSlides > 0) {
+        function createDots() {
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                if (i === currentIndex) dot.classList.add('active');
+                dot.addEventListener('click', () => goToSlide(i));
+                dotsContainer.appendChild(dot);
             }
-        });
-    }
-
-    // Filter functionality
-    const filters = document.querySelectorAll('.collection_filter');
-    filters.forEach(filter => {
-        filter.addEventListener('click', (e) => {
-            e.preventDefault();
-            filters.forEach(f => f.classList.remove('active'));
-            filter.classList.add('active');
-            const category = filter.getAttribute('data-category');
-            renderFilteredGames(category);
-        });
-    });
-
-    // ==================== RANDOM GAME PICKER ====================
-    const randomBtn = document.getElementById('randomGameBtn');
-    const suggestDiv = document.getElementById('gameSuggestion');
-    const gameNameSpan = document.getElementById('suggestedGameName');
-    const gameDescSpan = document.getElementById('suggestedGameDesc');
-
-    function rollDiceAndSuggest() {
-        const diceIcon = randomBtn.querySelector('.dice-icon');
-        diceIcon.classList.add('rolling');
-        setTimeout(() => diceIcon.classList.remove('rolling'), 500);
-
-        if (!allBoardGames || allBoardGames.length === 0) {
-            gameNameSpan.textContent = "No games yet!";
-            gameDescSpan.textContent = "Check back soon for our collection.";
-            suggestDiv.style.display = 'block';
-            return;
         }
 
-        const randomIndex = Math.floor(Math.random() * allBoardGames.length);
-        const game = allBoardGames[randomIndex];
-        gameNameSpan.textContent = game.name;
-        gameDescSpan.textContent = game.description || "A fantastic game awaits you at the café!";
-        suggestDiv.style.display = 'block';
+        function updateDots() {
+            document.querySelectorAll('.dot').forEach((dot, idx) => {
+                if (idx === currentIndex) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
+        }
 
-        canvasConfetti({ particleCount: 100, spread: 80, origin: { y: 0.6 }, colors: ['#d4a574', '#e8c9a9', '#ffffff'] });
+        function goToSlide(index) {
+            if (index < 0) index = totalSlides - 1;
+            if (index >= totalSlides) index = 0;
+            currentIndex = index;
+            const offset = -currentIndex * 100;
+            document.querySelector('.carousel-slides').style.transform = `translateX(${offset}%)`;
+            updateDots();
+        }
+
+        function nextSlide() { goToSlide(currentIndex + 1); }
+        function prevSlide() { goToSlide(currentIndex - 1); }
+
+        prevBtn.addEventListener('click', prevSlide);
+        nextBtn.addEventListener('click', nextSlide);
+
+        let autoplayInterval;
+        function startAutoplay() { autoplayInterval = setInterval(nextSlide, 5000); }
+        function stopAutoplay() { clearInterval(autoplayInterval); }
+        startAutoplay();
+
+        const carouselContainer = document.querySelector('.carousel-container');
+        carouselContainer.addEventListener('mouseenter', stopAutoplay);
+        carouselContainer.addEventListener('mouseleave', startAutoplay);
+
+        createDots();
+        goToSlide(0);
     }
 
-    randomBtn.addEventListener('click', rollDiceAndSuggest);
-
-    // Newsletter confetti
+    // ==================== NEWSLETTER CONFETTI ====================
     const newsletterBtn = document.getElementById('newsletterBtn');
     if (newsletterBtn) {
         newsletterBtn.addEventListener('click', () => {
@@ -894,25 +818,13 @@
         });
     }
 
-    // CTA button confetti
-    const exploreBtn = document.getElementById('exploreBtn');
-        if (exploreBtn) {
-            exploreBtn.addEventListener('click', function(e) {
-                // Fire confetti, but DO NOT prevent default
-                canvasConfetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
-                // Allow the browser to navigate naturally
-                // (no e.preventDefault(), no setTimeout redirect)
-            });
-        }
-
-    // Add confetti to each game card click
-    document.querySelectorAll('.product_card').forEach(card => {
-        card.addEventListener('click', (e) => {
-            if (!e.target.closest('.product_link')) {
-                canvasConfetti({ particleCount: 40, spread: 60, origin: { y: 0.7 } });
-            }
+    // ==================== CTA BUTTON CONFETTI ====================
+    const ctaButton = document.querySelector('.cta-button');
+    if (ctaButton) {
+        ctaButton.addEventListener('click', function(e) {
+            canvasConfetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
         });
-    });
+    }
 </script>
 </body>
 </html>
