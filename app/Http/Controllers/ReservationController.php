@@ -57,11 +57,41 @@ class ReservationController extends Controller
         }
 
         // Mark spaces as available or not
-        $allSpaces->getCollection()->transform(function ($space) use ($bookedSpaceIds, $isPrivateBooking) {
-            $space->is_available = !in_array($space->id, $bookedSpaceIds);
-            // Only medium (4-6) and large (7+) tables can be private rooms
-            $space->show_private_badge = $isPrivateBooking && $space->capacity >= 4;
-            $space->can_be_private = $space->capacity >= 4;
+        $allSpaces->getCollection()->transform(function ($space) use ($bookedSpaceIds, $isPrivateBooking, $selectedDate, $startTime, $endTime) {
+            // Check if space is actually booked (from database)
+            $isBooked = in_array($space->id, $bookedSpaceIds);
+            
+            // Default values
+            $space->is_available = false;
+            $space->disabled_reason = null;
+            $space->disabled_type = null;
+            $space->show_private_badge = false;
+            
+            // Only if date and time are selected, we evaluate availability
+            if ($selectedDate && $startTime && $endTime) {
+                // PRIORITY 1: Private room restriction for small tables (capacity <= 3)
+                if ($isPrivateBooking && $space->capacity <= 3) {
+                    $space->is_available = false;
+                    $space->disabled_reason = 'Not available for private room';
+                    $space->disabled_type = 'private_only';  // This should be 'private_only'
+                } 
+                // PRIORITY 2: Check if table is actually booked
+                elseif ($isBooked) {
+                    $space->is_available = false;
+                    $space->disabled_reason = 'Booked';
+                    $space->disabled_type = 'booked';
+                } 
+                // PRIORITY 3: Available table
+                else {
+                    $space->is_available = true;
+                    $space->show_private_badge = $isPrivateBooking && $space->capacity >= 4;
+                }
+            } else {
+                // No date/time selected - all tables grayed out
+                $space->disabled_reason = 'Select date & time first';
+                $space->disabled_type = 'gray';
+            }
+            
             return $space;
         });
 
@@ -80,9 +110,9 @@ class ReservationController extends Controller
         // Filter options
         $tableSizeOptions = [
             'all' => 'All Sizes',
-            'small' => 'Small (2-3 players)',
+            'small' => 'Small (1-3 players)',
             'medium' => 'Medium (4-6 players)',
-            'large' => 'Large (7-8 players)',
+            'large' => 'Large (7+ players)',
         ];
 
         // Time options (08:00 to 22:00, with 00 and 30 minutes)
