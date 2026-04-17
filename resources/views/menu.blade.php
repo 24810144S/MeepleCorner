@@ -16,7 +16,7 @@
     <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ===== RESET & GLOBAL ===== */
+        /* ===== DARK THEME STYLES ===== */
         * {
             margin: 0;
             padding: 0;
@@ -46,7 +46,6 @@
             overflow-x: hidden;
         }
 
-        /* noise texture */
         body::before {
             content: "";
             position: fixed;
@@ -59,7 +58,6 @@
             z-index: 1000;
         }
 
-        /* particles background */
         #tsparticles {
             position: fixed;
             top: 0;
@@ -70,7 +68,6 @@
             pointer-events: none;
         }
 
-        /* floating emoji */
         .floating-bg {
             position: fixed;
             bottom: 20px;
@@ -87,10 +84,9 @@
             100% { transform: translateY(0px) rotate(0deg); opacity: 0.05; }
         }
 
-        /* main container */
         .main-container {
             flex: 1;
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 2rem;
             width: 100%;
@@ -98,7 +94,6 @@
             z-index: 2;
         }
 
-        /* header */
         .menu-header {
             text-align: center;
             margin-bottom: 3rem;
@@ -115,20 +110,19 @@
             letter-spacing: 0.2em;
         }
 
-        /* category section */
-        .menu-category {
-            margin-bottom: 3rem;
-        }
+        /* Category title */
         .category-title {
             font-family: var(--font-heading);
             font-size: 1.8rem;
             color: var(--color-accent);
             border-bottom: 2px solid rgba(212,165,116,0.3);
             display: inline-block;
-            margin-bottom: 1.5rem;
+            margin: 1.5rem 0 1rem;
             padding-bottom: 0.3rem;
         }
-        .menu-items {
+
+        /* Menu items as vertical list */
+        .menu-list {
             display: flex;
             flex-direction: column;
             gap: 1rem;
@@ -137,24 +131,17 @@
             background: rgba(255,255,255,0.03);
             backdrop-filter: blur(4px);
             border-radius: 20px;
-            padding: 1rem;
             transition: var(--transition);
             border: 1px solid rgba(212,165,116,0.1);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 0.8rem 1.2rem;
         }
         .menu-item:hover {
             background: rgba(212,165,116,0.08);
             border-color: var(--color-accent);
             transform: translateX(8px);
-        }
-        .item-info {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex: 2;
         }
         .item-image {
             width: 60px;
@@ -162,47 +149,35 @@
             border-radius: 12px;
             object-fit: cover;
             background: rgba(0,0,0,0.3);
+            flex-shrink: 0;
         }
-        .item-details {
+        .no-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-text-muted);
+            font-size: 1.5rem;
+        }
+        .item-info {
             flex: 1;
         }
         .item-name {
             font-size: 1.1rem;
             font-weight: 600;
             color: var(--color-white);
-            margin-bottom: 0.25rem;
-        }
-        .item-description {
-            font-size: 0.75rem;
-            color: var(--color-text-muted);
+            margin-bottom: 0.2rem;
         }
         .item-price {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: bold;
             color: var(--color-accent);
-            margin-left: 1rem;
-            min-width: 80px;
-            text-align: right;
-        }
-        .order-btn {
-            background: transparent;
-            border: 1px solid var(--color-accent);
-            color: var(--color-accent);
-            padding: 0.4rem 1rem;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: var(--transition);
-            margin-left: 1rem;
-        }
-        .order-btn:hover {
-            background: var(--color-accent);
-            color: var(--color-primary);
-            transform: scale(1.05);
+            white-space: nowrap;
         }
 
-        /* footer */
         .footer {
             background-color: #0c0704;
             padding: 2rem;
@@ -219,21 +194,11 @@
                 padding: 1rem;
             }
             .menu-item {
-                flex-direction: column;
-                align-items: flex-start;
+                flex-wrap: wrap;
                 gap: 0.8rem;
             }
             .item-price {
-                text-align: left;
-                margin-left: 0;
-            }
-            .order-btn {
-                margin-left: 0;
-                width: 100%;
-                text-align: center;
-            }
-            .item-info {
-                width: 100%;
+                margin-left: auto;
             }
         }
     </style>
@@ -242,8 +207,6 @@
 
     @include('layouts.navbar')
 
-
-    
     <div id="tsparticles"></div>
     <div class="floating-bg">☕ 🍰 🥪 🎲</div>
 
@@ -256,26 +219,24 @@
         @forelse($groupedMenu as $category => $items)
             <div class="menu-category">
                 <h2 class="category-title">{{ ucfirst($category) }}</h2>
-                <div class="menu-items">
-                    
-    <h2>{{ $category }}</h2>
-
-@foreach($groupedMenu as $category => $items)
-    <h2>{{ $category }}</h2>
-
-    @foreach($items as $menuItem)
-        <div style="margin-bottom:20px;">
-            <p>{{ $menuItem->name }}</p>
-            <p>{{ $menuItem->image }}</p>
-            <p>{{ asset($menuItem->image) }}</p>
-
-            <img src="{{ asset($menuItem->image) }}"
-                 alt="{{ $menuItem->name }}"
-                 width="150"
-                 style="border:1px solid #ccc;">
-        </div>
-    @endforeach
-@endforeach
+                <div class="menu-list">
+                    @foreach($items as $menuItem)
+                        <div class="menu-item">
+                            <div class="item-image">
+                                @if($menuItem->image)
+                                    <img src="{{ asset($menuItem->image) }}" class="item-image" alt="{{ $menuItem->name }}">
+                                @else
+                                    <div class="no-image">
+                                        <i class="fas fa-utensils"></i>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="item-info">
+                                <div class="item-name">{{ $menuItem->name }}</div>
+                            </div>
+                            <div class="item-price">${{ number_format($menuItem->price, 2) }}</div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         @empty
@@ -307,21 +268,6 @@
                 events: { onHover: { enable: true, mode: "repulse" }, onClick: { enable: true, mode: "push" } }
             }
         });
-
-        // Order button confetti
-        function celebrate() {
-            canvasConfetti({ particleCount: 80, spread: 70, origin: { y: 0.6 }, colors: ['#d4a574', '#e8c9a9', '#ffffff'] });
-        }
-
-        document.querySelectorAll('.order-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const itemName = btn.getAttribute('data-item-name') || 'this item';
-                celebrate();
-                alert(`🎉 You added "${itemName}" to your order! Please visit the counter to complete your purchase.`);
-            });
-        });
-
     </script>
 </body>
 </html>
