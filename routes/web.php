@@ -9,6 +9,10 @@ use App\Http\Controllers\MenuController;
 use App\Http\Controllers\BoardGameController;
 use App\Http\Controllers\PasswordResetController;
 
+
+
+error_log('web.php 被載入');
+Route::post('/check-email-exists', [App\Http\Controllers\AuthController::class, 'checkEmailExists']);
 Route::get('/', [HomeController::class, 'index']);
 
 Route::get('/register', [MemberController::class, 'create']);
@@ -27,7 +31,7 @@ Route::get('/thank-you/{reservation}', [ReservationController::class, 'thankYou'
 */
 
 //260407_forgetpassword function @Sha
-Route::get('/forgot-password', [PasswordResetController::class, 'showRequestForm']);
+Route::get('/forgot-password', [PasswordResetController::class, 'showRequestForm'])->name('password.request');
 Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink']);
 
 //260407_forgetpassword function @Sha
@@ -86,3 +90,6 @@ Route::get('/forgot-password/security-questions', [PasswordResetController::clas
 Route::post('/forgot-password/security-verify-answers', [PasswordResetController::class, 'verifyAnswers'])->name('password.security-verify-answers');
 Route::get('/reset-password', [PasswordResetController::class, 'showSecurityResetForm'])->name('password.security-reset');
 Route::post('/reset-password/security', [PasswordResetController::class, 'resetPasswordWithSecurity'])->name('password.security-update');
+Route::post('/check-email', [App\Http\Controllers\AuthController::class, 'checkEmail'])->name('check.email');
+Route::get('/forgot-password', [PasswordResetController::class, 'showRequestForm'])->name('password.request');
+Route::get('/thank-you/{reservation}', [ReservationController::class, 'thankYou'])->name('thank-you');
