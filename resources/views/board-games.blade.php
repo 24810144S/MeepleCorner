@@ -316,7 +316,7 @@
             <p>Borrow & play at your table — roll the dice!</p>
             <div class="flex justify-center mt-4">
                 <button id="randomGameBtn" class="random-btn">
-                    <i class="fas fa-dice-d6"></i> 骰出驚喜
+                    <i class="fas fa-dice-d6"></i> Dice reveal surprise
                 </button>
             </div>
         </div>
