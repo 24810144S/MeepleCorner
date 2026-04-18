@@ -373,6 +373,7 @@ class ReservationController extends Controller
     }
 
     // Process final confirmation and redirect to history
+    // Process final confirmation and redirect to thank you page
     public function processConfirm()
     {
         if (!session()->has('member_id')) {
@@ -396,7 +397,7 @@ class ReservationController extends Controller
             ->where('reservation_date', $reservationData['reservation_date'])
             ->where(function($q) use ($reservationData) {
                 $q->where('start_time', '<', $reservationData['end_time'])
-                  ->where('end_time', '>', $reservationData['start_time']);
+                ->where('end_time', '>', $reservationData['start_time']);
             })
             ->exists();
 
@@ -419,11 +420,8 @@ class ReservationController extends Controller
         // Clear session data
         session()->forget(['temp_reservation_data', 'reservation_data', 'url.intended']);
         
-        // Store the new reservation ID in session for highlighting
-        session()->flash('new_reservation_id', $reservation->id);
-        session()->flash('booking_success', '🎉 Your booking has been confirmed successfully!');
-
-        return redirect('/profile/history');
+        // Redirect to thank you page (instead of history)
+        return redirect()->route('thank-you', $reservation);
     }
 
     public function cancel(Reservation $reservation)
@@ -498,4 +496,15 @@ class ReservationController extends Controller
         
         return response()->json($availableSpaces);
     }
+    public function thankYou(Reservation $reservation)
+    {
+        // Ensure the user owns this reservation
+        if (!session()->has('member_id') || $reservation->member_id != session('member_id')) {
+            return redirect('/reservation')->with('error', 'Unauthorized access.');
+        }
+
+        $space = $reservation->space;
+        return view('thank-you', compact('reservation', 'space'));
+    }
+
 }
