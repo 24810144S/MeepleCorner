@@ -397,7 +397,7 @@
         e.preventDefault();
         const email = document.querySelector('input[name="email"]').value;
         if (!email) {
-            alert('請先輸入您的電子郵件地址。');
+            alert('Please enter your email address first.');
             return;
         }
         // 直接跳轉，並將 email 作為 URL 參數
